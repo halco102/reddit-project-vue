@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # reddit-vue-app
 
 ## Project setup
@@ -22,3 +23,6 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+=======
+# reddit-project-vue
+>>>>>>> 3a368997493d2df185f9d1662ed4d3ca7139e03f
