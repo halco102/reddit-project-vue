@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { defineStore } from "pinia";
 import { UserPosts } from './PostStore'
 
@@ -33,7 +33,8 @@ export interface User{
 export interface UserProfile{
     id: number,
     username: string,
-    imageUrl: string
+    imageUrl: string,
+    posts: UserPosts[]
 }
 
 export interface UserState{
@@ -55,21 +56,22 @@ export const useUserStore = defineStore('userStore',{
             userProfile: {
                 id: 0,
                 username: '',
-                imageUrl: ''
+                imageUrl: '',
+                posts: []
             }
         }
     },
     getters:{
-        getFullUserInfo() : User{
-            return this.user;
+        getFullUserInfo(state) : User{
+            return state.user;
         },
-        getUserProfile() : UserProfile{
-            return this.userProfile;
+        getUserProfile(state) : UserProfile{
+            return state.userProfile;
         }
     },
     actions:{
 
-        async signupUser(signupRequest: signupRequest){
+         signupUser : async function(signupRequest: signupRequest){
             const json = JSON.stringify(signupRequest);
             console.log("Start signupRequest", json);
             const signupResponse = await axios.post(BASE_URL, json, {
@@ -78,7 +80,11 @@ export const useUserStore = defineStore('userStore',{
                 }
             })
             console.log("Signup user", signupResponse.data)
-            this.user = signupResponse.data;
+            if (signupResponse.status === 200) {
+                alert("User succesfully created a account");
+            }else{
+                throw Error("Signup error");
+            }
         },
 
          loginUser: async function(signInRequest : signInRequest) {
@@ -92,7 +98,35 @@ export const useUserStore = defineStore('userStore',{
             });
 
             console.log("Sign in response", signInResponse.data);
-            this.user = signInResponse.data;
+            if(signInResponse.status === 200) {
+                alert("Logged in");
+                this.user = signInResponse.data;
+            }else{
+                alert("ERROR")
+            }
+        },
+
+        getUserByIdOrUsername: async function(id: number | null, username: string | null) {
+    
+            if (id !== null ) {
+                // fetch by id
+                const fetchById = await axios.get(BASE_URL + '/', {params:{id: id}});
+                console.log("Fetch user profile by id", fetchById);
+                if (fetchById.status === 200) {
+                    this.userProfile = fetchById.data;
+                }else{
+                    alert("Error on fetch by id");
+                }
+            }else{
+                //fetch by username
+                const fetchByUsername = await axios.get(BASE_URL + '/', {params:{username:username}});
+                console.log("Fetch by username");
+                if(fetchByUsername.status === 200) {
+                    this.userProfile = fetchByUsername.data;
+                }else{
+                    alert("Error on fetch by username");
+                }
+            }
         }
 
     }

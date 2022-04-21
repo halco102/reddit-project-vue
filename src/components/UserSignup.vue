@@ -99,7 +99,7 @@ export default defineComponent({
     ): void {
       console.log(password);
       if (password === repeatPassword && email === repeatEmail) {
-        const temp = this.signupUser({
+        this.signupUser({
           username: this.username,
           email: email,
           password: password,

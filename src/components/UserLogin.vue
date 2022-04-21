@@ -2,7 +2,7 @@
   <div class="main-user-div">
     <form>
       <div class="mb-3">
-        <label for="exampleInputEmail1" class="form-label"  >Email address</label>
+        <label for="exampleInputEmail1" class="form-label">Email address</label>
         <input
           type="email"
           class="form-control"
@@ -15,7 +15,7 @@
         </div>
       </div>
       <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label" >Password</label>
+        <label for="exampleInputPassword1" class="form-label">Password</label>
         <input
           type="password"
           class="form-control"
@@ -23,10 +23,18 @@
           v-model="password1"
         />
       </div>
-      <button type="submit" class="btn btn-primary" @click.prevent="loginUser({
-        email: this.email1,
-        password: this.password1
-      })">Submit</button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        @click.prevent="
+          loginUserMethod({
+            email: email1,
+            password: password1
+          })
+        "
+      >
+        Submit
+      </button>
     </form>
   </div>
 </template>
@@ -34,26 +42,31 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useUserStore } from "../store/UserStore";
+import { useUserStore, signInRequest } from "../store/UserStore";
 import { mapActions, mapState } from "pinia";
 
 export default defineComponent({
-  name: 'UserLoginForm',
+  name: "UserLoginForm",
   components: {},
   methods: {
     ...mapActions(useUserStore, ['loginUser']),
-    testMethod: function (exampleCheck1: string) {
-      console.log(exampleCheck1);
-    },
+    loginUserMethod: function(siginRequest : signInRequest){
+      console.log("Login user to app", siginRequest);
+
+      this.loginUser(siginRequest);
+    } 
   },
   computed: {
     ...mapState(useUserStore, ['user']),
   },
-  data(){
-    return{
+  data() {
+    return {
       email1: '',
       password1: '',
-    }
+    };
   },
 });
 </script>
+
+<style scoped>
+</style>

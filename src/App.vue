@@ -20,12 +20,14 @@ export default defineComponent({
 </script>
 
 <style>
-#app {
+#app html, body{
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   margin-top: 0px;
+  background-color: rgba(28, 28, 28, 0.9) !important;
+  width:100%;
 }
 
 .main{

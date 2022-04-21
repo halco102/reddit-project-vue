@@ -30,13 +30,22 @@ export interface FrontPagePost{
    commentsDto: Comments[]
 }
 
-export interface FrontPageListPosts{
+export interface PostRequest{
+   title: string,
+   text: string,
+   imageUrl: string,
+   userId: number,
+   allowComments: boolean
+}
+
+export interface PostInterface{
    posts : FrontPagePost[],
-   post: FrontPagePost | null
+   post: FrontPagePost | null,
+   request: PostRequest
 }
 
 export const usePostStore = defineStore('postStore', {
-   state: () : FrontPageListPosts => {
+   state: () : PostInterface => {
       return {
          posts: [],
          post: {
@@ -62,6 +71,13 @@ export const usePostStore = defineStore('postStore', {
                   parentId: 0
                }
             ]
+         },
+         request: {
+            title: '',
+            text: '',
+            imageUrl: '',
+            userId: 0,
+            allowComments: true
          }
       } 
    },
@@ -72,6 +88,9 @@ export const usePostStore = defineStore('postStore', {
       getPostById(state) : FrontPagePost | null {
          return state.post;
       },
+      getPostRequest(state) : PostRequest {
+         return state.request;
+      }
    },
    actions: {
      async fetchAllPostToShow(){
@@ -84,6 +103,17 @@ export const usePostStore = defineStore('postStore', {
          const fetchDataById = await axios.get(BASE_URL + '/' + id)
          console.log("Single data fetch " , fetchDataById)
          this.post = fetchDataById.data;
+      },
+      async savePost(request : PostRequest) {
+         const json = JSON.stringify(request);
+         console.log("Start save post ", json);
+         const savePostRequest = await axios.post(BASE_URL + '/', json, {
+            headers: {
+               'Content-Type': 'application/json' 
+            }
+         });
+         console.log("Save post", savePostRequest.data);
+         this.request = savePostRequest.data;
       }
    }
 })

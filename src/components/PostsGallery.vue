@@ -1,8 +1,7 @@
 <template>
   <div class="main-div">
-    <NavigationBar />
     <div class="wrapper-post">
-      <div class="signup">
+      <div class="signup" v-if="!isClose">
         <h3>New to App ?</h3>
         <h4>Signup below</h4>
         <!-- Button trigger modal -->
@@ -57,6 +56,7 @@
             tabindex="-1"
             aria-labelledby="loginModal"
             aria-hidden="true"
+            @click="isClosed()"
           >
             <div class="modal-dialog">
               <div class="modal-content">
@@ -77,7 +77,9 @@
           </div>
         </div>
       </div>
-
+      
+      <p v-if="posts === []">Nothing to show</p>
+      
       <router-link
         :to="{ name: 'SinglePage', params: { id: post.id } }"
         v-for="post in posts"
@@ -90,18 +92,19 @@
             <p class="card-text">{{ post.text }}</p>
             <div class="buttons">
               <div class="user-avatar">
+                <router-link :to="{name: 'UserProfileById', params:{userId: testTag(post.postedBy).id, id: testTag(post.postedBy).id}}">
                 <a
-                  href="#user"
                   class="btn btn-primary"
                   style="margin: 0px 10px 0 10px"
                 >
                   <img
-                    v-bind:src="post.postedBy.imageUrl"
+                    v-bind:src="testTag(post.postedBy).imageUrl"
                     alt=""
                     style="withd: 25px; height: 25px"
                   />
-                  Posted by: {{ post.postedBy.username }}
+                  Posted by: {{ testTag(post.postedBy).username }}
                 </a>
+                </router-link>
               </div>
               <div class="like-dislike">
                 <a
@@ -123,22 +126,21 @@
         </div>
       </router-link>
     </div>
-    <p>{{this.user}} User</p>
+    
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { usePostStore } from "../store/PostStore";
-import { mapActions, mapState } from "pinia";
+import { defineComponent, PropType } from "vue";
+import { FrontPagePost } from "../store/PostStore";
+import { mapState } from "pinia";
 import {
   BIconHandThumbsUpFill,
   BIconHandThumbsDownFill,
   BIconChatFill,
 } from "bootstrap-icons-vue";
 import UserSignup from "./UserSignup.vue";
-import NavigationBar from "./NavigationBar.vue";
-import { useUserStore } from "../store/UserStore";
+import { useUserStore, PostedBy } from "../store/UserStore";
 import UserLogin from "./UserLogin.vue";
 
 export default defineComponent({
@@ -148,19 +150,41 @@ export default defineComponent({
     BIconHandThumbsDownFill,
     BIconChatFill,
     UserSignup,
-    NavigationBar,
     UserLogin,
   },
   methods: {
-    ...mapActions(usePostStore, ["fetchAllPostToShow"]),
+    isClosed: function () {
+      console.log("Wait");
+      if (this.user.id !== 0) {
+        console.log("Now close");
+        this.isClose = true;
+      }
+    },
+    getPostId: function(id: number) {
+      return id;
+    },
+    testTag: function(postsPostedBy: PostedBy | null) : PostedBy{
+      if(postsPostedBy != null) {
+        return postsPostedBy;
+      }
+      return this.postedBy as PostedBy;
+    }
   },
   computed: {
-    ...mapState(usePostStore, ["posts"]),
     ...mapState(useUserStore, ["user"]),
   },
-  created() {
-    this.fetchAllPostToShow();
-  }
+  props: {
+    posts: Object as PropType<FrontPagePost[]>,
+    postedBy: {
+      postedBy: Object as PropType<PostedBy>,
+      required: false
+    }
+  },
+  data() {
+    return {
+      isClose: false,
+    };
+  },
 });
 </script>
 
@@ -175,11 +199,12 @@ export default defineComponent({
 }
 
 .wrapper-post {
-  background-color: rgba(28, 28, 28, 0.9);
+  
   display: grid;
   justify-content: center;
   padding: 25px 0px;
   margin: 2% 16%;
+  
 }
 .signup {
   position: absolute;

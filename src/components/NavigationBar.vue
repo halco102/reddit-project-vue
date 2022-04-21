@@ -1,17 +1,51 @@
 <template>
-  <div class="nav-bar">
-    <nav class="nav nav-pills flex-column flex-sm-row">
-
-      <router-link to="/" name="Home" class="flex-sm-fill text-sm-center nav-link">Home</router-link>
-    
-      <a
-        v-show="user.id != 0"
-        class="flex-sm-fill text-sm-center nav-link"
-        href="#"
-        >Logout</a
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <router-link class="navbar-brand" :to="{ name: 'Home' }"
+        >Logo</router-link
       >
-    </nav>
-  </div>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <router-link class="nav-link" :to="{ name: 'Home' }"
+              >Home</router-link
+            >
+          </li>
+          <li class="nav-item">
+            <router-link class="nav-link" :to="{ name: 'PostRequestPage' }"
+              >Post</router-link
+            >
+          </li>
+        </ul>
+        <div class="username-img" v-show="user.id !== 0">
+          <router-link :to="{name: 'UserProfileById', params:{userId: user.id, id: user.id}}">
+        <img :src="user.imageUrl" width="50" height="40">
+        <span class="navbar-text" style="margin-right:5px;">{{user.username}}</span>
+          </router-link>
+        </div>
+        <form class="d-flex">
+          <input
+            class="form-control me-2"
+            type="search"
+            placeholder="Search"
+            aria-label="Search"
+          />
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </nav>
 </template>
 
 <script lang="ts">
@@ -22,12 +56,23 @@ import { mapState } from "pinia";
 export default defineComponent({
   name: "NavigationBar",
   components: {},
-  methods: {},
+  methods: {
+    refreshPage: function (): void {
+      console.log("Refresh page");
+      this.$router.go(0);
+    },
+  },
   computed: {
     ...mapState(useUserStore, ["user"]),
   },
 });
 </script>
 
-<style>
+<style scope>
+.move-right{
+  float:right;
+}
+.username-img{
+  display:flex;
+}
 </style>
