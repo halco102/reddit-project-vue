@@ -226,39 +226,4 @@ img {
 .post-div {
   margin: 20px 0 40px 0;
 }
-
-.number-of-comments {
-  margin-bottom: 25px;
-  display: flex;
-}
-
-.comments {
-  display: flex;
-  flex-direction: column;
-  margin: 0px 31.1%;
-}
-
-.commented-by {
-  display: flex;
-  flex-direction: column;
-  float: left;
-  padding: 10px;
-}
-#user-button {
-  width: 150px;
-}
-
-.reply-comment {
-  padding-left: 50px;
-  border-style: block;
-}
-
-.user-div {
-  display: flex;
-}
-
-.actions-for-comments a {
-  float: left;
-  margin: 0px 5px 0px 5px;
-}
 </style>
