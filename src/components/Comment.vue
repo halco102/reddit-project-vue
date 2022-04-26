@@ -2,7 +2,9 @@
   <div class="main-comment-div">
     <div class="comments" v-if="post.allowComments === true">
       <div class="number-of-comments">
-        <p style="color:white;">Number of comments : {{ getNumberOfComments(post.commentsDto) }}</p>
+        <p style="color: white">
+          Number of comments : {{ getNumberOfComments(post.commentsDto) }}
+        </p>
       </div>
 
       <form
@@ -12,7 +14,10 @@
         class="form-style"
       >
         <div class="mb-3">
-          <label style="color:white;" for="exampleFormControlTextarea1" class="form-label"
+          <label
+            style="color: white"
+            for="exampleFormControlTextarea1"
+            class="form-label"
             >Comment</label
           >
           <textarea
@@ -22,11 +27,18 @@
             rows="3"
           ></textarea>
         </div>
-        <button type="submit" class="btn btn-primary btn-primary-comment-form">Post comment</button>
+        <button type="submit" class="btn btn-primary btn-primary-comment-form">
+          Post comment
+        </button>
       </form>
 
       <!-- Comments !-->
-      <div class="card border-0 card-comment-div" v-for="com in sortCommentsByParentId(post)" :key="com.id">
+      <div
+        class="card border-0 card-comment-div"
+        v-for="com in addComments(post)"
+        :key="com.id"
+      >
+        <p>{{com}}</p>
         <div class="commented-by" v-if="com.parentId === null">
           <div class="user-div">
             <img
@@ -36,12 +48,32 @@
             <p>{{ com.userInfo.username }} : {{ com.text }}</p>
           </div>
           <div class="actions-for-comments">
-            <a href="#like" class="btn btn-primary"
-              ><BIconHandThumbsUpFill
-            /></a>
-            <a href="#dislike" class="btn btn-primary"
-              ><BIconHandThumbsDownFill
-            /></a>
+            <button
+              type="submit"
+              class="btn btn-primary bicon-reply-button"
+              @click="
+                postLikeOrDislike({
+                  userId: user.id,
+                  commentId: com.id,
+                  likeOrDislike: true,
+                })
+              "
+            >
+              <BIconHandThumbsUpFill />
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary bicon-reply-button"
+              @click="
+                postLikeOrDislike({
+                  userId: user.id,
+                  commentId: com.id,
+                  likeOrDislike: false,
+                })
+              "
+            >
+              <BIconHandThumbsDownFill />
+            </button>
             <button
               class="btn btn-primary bicon-reply-button"
               style="float: left"
@@ -62,7 +94,10 @@
               "
             >
               <div class="mb-3">
-                <label style="color:white;" for="exampleFormControlTextarea1" class="form-label"
+                <label
+                  style="color: white"
+                  for="exampleFormControlTextarea1"
+                  class="form-label"
                   >Comment</label
                 >
                 <textarea
@@ -72,7 +107,10 @@
                   rows="3"
                 ></textarea>
               </div>
-              <button type="submit" class="btn btn-primary allign-submit-button">
+              <button
+                type="submit"
+                class="btn btn-primary allign-submit-button"
+              >
                 Post comment
               </button>
             </form>
@@ -89,13 +127,36 @@
               <p>{{ com.userInfo.username }} : {{ com.text }}</p>
             </div>
             <div class="actions-for-comments">
-              <a href="#like" class="btn btn-primary"
-                ><BIconHandThumbsUpFill
-              /></a>
-              <a href="#dislike" class="btn btn-primary"
-                ><BIconHandThumbsDownFill
-              /></a>
-              <button class="btn btn-primary bicon-reply-button" style="float: left">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                @click="
+                  postLikeOrDislike({
+                    userId: user.id,
+                    commentId: com.id,
+                    likeOrDislike: true,
+                  })
+                "
+              >
+                <BIconHandThumbsUpFill />
+              </button>
+              <button
+                type="submit"
+                class="btn btn-success bicon-reply-button "
+                @click="
+                  postLikeOrDislike({
+                    userId: user.id,
+                    commentId: com.id,
+                    likeOrDislike: true,
+                  })
+                "
+              >
+                <BIconHandThumbsDownFill />
+              </button>
+              <button
+                class="btn btn-primary bicon-reply-button"
+                style="float: left"
+              >
                 <BIconReply />
               </button>
             </div>
@@ -103,10 +164,10 @@
         </div>
       </div>
     </div>
-
     <div class="comments" v-else>
       <p>Comments are disabled</p>
     </div>
+    <p @click="sortCommentsByParentId(post)">{{getAllCommentsFromPost}}</p>
   </div>
 </template>
 
@@ -117,10 +178,11 @@ import {
   BIconHandThumbsDownFill,
   BIconReply,
 } from "bootstrap-icons-vue";
-import { FrontPagePost, Comments } from "../store/PostStore";
-import { useCommentStore, Comment } from "../store/CommentStore";
+import { FrontPagePost } from "../store/PostStore";
+import { useCommentStore, CommentResponse, CommentDto } from "../store/CommentStore";
 import { mapActions, mapState } from "pinia";
 import { useUserStore } from "../store/UserStore";
+
 
 export default defineComponent({
   name: "CommentSection",
@@ -133,13 +195,13 @@ export default defineComponent({
     post: Object as PropType<FrontPagePost>,
   },
   computed: {
-    ...mapState(useUserStore, ["user"]),
-    ...mapState(useCommentStore, ["postComment"]),
+    ...mapState(useUserStore, ["user", 'userProfile']),
+    ...mapState(useCommentStore, ["postComment",'commentResponse','getAllCommentsFromPost']),
   },
-
   methods: {
-    ...mapActions(useCommentStore, ["postCommentAction"]),
-    getNumberOfComments: function (comments: Comments[]): number {
+    ...mapActions(useCommentStore, ["postCommentAction", "postLikeOrDislike", 'getAllCommentsFromPostById', 'resetState', 'updateState']),
+    ...mapActions(useUserStore, ['getUserByIdOrUsername']),
+    getNumberOfComments: function (comments: CommentResponse[]): number {
       return comments.length;
     },
     getUserInfo() {
@@ -151,8 +213,9 @@ export default defineComponent({
       idOfUser: number,
       parentId: null | number
     ) {
+
       if (!this.checkIfUserIsLogged()) {
-        console.log("USer not logged in abort");
+        console.log("User not logged in abort");
         alert("You have to login before you can comment on a post");
         return;
       }
@@ -163,10 +226,23 @@ export default defineComponent({
         userId: idOfUser,
         parentId: parentId,
       });
-    },
+      //fetch again comments
+      this.getAllCommentsFromPostById(idOfPost);
+      this.writingComment = '';
 
+    },
+    addComments: function(post : FrontPagePost) : CommentResponse[]{
+      console.log("Post", post);
+        var counter = 0 ;
+        console.log("Post", this.commentResponse);
+        if (counter === 0) {
+          this.updateState(post);
+          counter++;
+        }
+              
+        return this.commentResponse;
+    },
     toggle: function (item: number) {
-      console.log("Temp");
       this.selectedItem = item;
     },
     checkIfUserIsLogged: function (): boolean {
@@ -178,28 +254,36 @@ export default defineComponent({
       return false;
     },
     isReply: function (comment: FrontPagePost): boolean {
-      if (comment.commentsDto.filter((x) => x.parentId !== null)) {
+
+      if (comment.commentsDto.filter((x) => x.commentsDto.parentId !== null)) {
         console.log("ParentId not null ");
         this.isReplyComment = true;
         return true;
       }
+
       this.isReplyComment = false;
       return false;
     },
-    sortCommentsByParentId: function (post: FrontPagePost): Comments[] {
-      const filteredArray: Comments[] = [];
+    sortCommentsByParentId: function (commentArray : FrontPagePost): CommentResponse[] {
+      var filteredArray: CommentResponse[] = [];
 
-      post.commentsDto.forEach((el) => {
+      console.log("Sort", commentArray)
+      console.log(commentArray)
+
+      commentArray.commentsDto.filter((el) => console.log("ele",el))
+/*
+      commentArray.commentsDto.filter((el : CommentResponse) => {
         if (el.parentId === null) {
           filteredArray.push(el);
         }
-        post.commentsDto
-          .filter((x) => x.parentId === el.id)
-          .map((k) => filteredArray.push(k));
-      });
-
+        commentArray.filter((x) => x.parentId === el.id).map((k) => filteredArray.push(k))
+      })*/
       return filteredArray;
     },
+    updateValue(value: string){
+      console.log("Update")
+      this.writingComment = value;
+    }
   },
   data() {
     return {
@@ -212,7 +296,8 @@ export default defineComponent({
       currentCommentId: 0,
       isReplyComment: false,
     };
-  },
+  }
+
 });
 </script>
 
@@ -235,7 +320,7 @@ export default defineComponent({
   padding: 2vh;
 }
 
-.card-comment-div{
+.card-comment-div {
   margin: 10px 0;
 }
 
@@ -244,7 +329,7 @@ export default defineComponent({
 }
 
 .reply-comment {
-  padding-left: 50px; 
+  padding-left: 50px;
 }
 
 .user-div {
@@ -252,21 +337,21 @@ export default defineComponent({
 }
 
 .actions-for-comments a {
-  margin:10px;
+  margin: 10px;
 }
-.actions-for-comments{
-  display:flex;
+.actions-for-comments {
+  display: flex;
 }
-.form-style{
+.form-style {
   margin: 10px 0 10px 0;
   display: grid;
 }
 
-.btn-primary-comment-form{
-  margin:15px auto 5rem;
+.btn-primary-comment-form {
+  margin: 15px auto 5rem;
 }
 
-.bicon-reply-button{
-  margin: 10px;
+.bicon-reply-button {
+  margin: 10px 4px 10px 4px;
 }
 </style>

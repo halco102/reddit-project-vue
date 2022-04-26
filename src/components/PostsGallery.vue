@@ -120,7 +120,7 @@
                   ><BIconHandThumbsDownFill
                 /></a>
               </div>
-              <a href="#chat" class="btn btn-primary"><BIconChatFill /></a>
+              <a href="#chat" class="btn btn-primary"><BIconChatFill /> {{post.commentsDto.length}}</a>
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { defineStore } from "pinia";
+import { PostLikeOrDislikeResponse } from "./CommentStore";
 import { UserPosts } from './PostStore'
 
 const BASE_URL = 'http://localhost:8080/api/v1/user'
@@ -27,7 +28,8 @@ export interface User{
     imageUrl: string,
     email: string,
     createdAt: Date,
-    posts: UserPosts[]
+    posts: UserPosts[],
+    likedOrDislikedComments: PostLikeOrDislikeResponse[]
 }
 
 export interface UserProfile{
@@ -42,6 +44,7 @@ export interface UserState{
     userProfile: UserProfile
 }
 
+
 export const useUserStore = defineStore('userStore',{
     state: () : UserState => {
         return{
@@ -51,7 +54,8 @@ export const useUserStore = defineStore('userStore',{
                 imageUrl: '',
                 email: '',
                 createdAt: new Date(),
-                posts: []
+                posts: [],
+                likedOrDislikedComments: []
             },
             userProfile: {
                 id: 0,
