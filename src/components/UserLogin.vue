@@ -41,23 +41,22 @@
 
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { useUserStore, signInRequest } from "../store/UserStore";
-import { mapActions, mapState } from "pinia";
+import { defineComponent } from 'vue';
+import { useUserStore, signInRequest } from '../store/UserStore';
+import { mapActions } from 'pinia';
 
 export default defineComponent({
-  name: "UserLoginForm",
+  name: 'UserLoginForm',
   components: {},
   methods: {
     ...mapActions(useUserStore, ['loginUser']),
     loginUserMethod: function(siginRequest : signInRequest){
-      console.log("Login user to app", siginRequest);
+      console.log('Login user to app', siginRequest);
 
       this.loginUser(siginRequest);
     } 
   },
   computed: {
-    ...mapState(useUserStore, ['user']),
   },
   data() {
     return {

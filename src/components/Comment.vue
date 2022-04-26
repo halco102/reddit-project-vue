@@ -1,15 +1,20 @@
 <template>
-  <div class="main-comment-div">
+  <div class="main-comment-div" v-if="dataComments.length !== 0">
     <div class="comments" v-if="post.allowComments === true">
       <div class="number-of-comments">
         <p style="color: white">
-          Number of comments : {{ getNumberOfComments(post.commentsDto) }}
+          Number of comments : {{ getNumberOfComments(dataComments) }}
         </p>
       </div>
 
       <form
         v-on:submit.prevent="
-          postCommentThenReturnData(writingComment, post.id, user.id, null)
+          postCommentThenReturnData(
+            writingComment,
+            post.id,
+            getUserLogin.userProfileDto.id,
+            null
+          )
         "
         class="form-style"
       >
@@ -34,11 +39,13 @@
 
       <!-- Comments !-->
       <div
-        class="card border-0 card-comment-div"
-        v-for="com in addComments(post)"
+        v-for="com in sortCommentsByParentId(dataComments)"
         :key="com.id"
+        class="card border-0"
+        :class="
+          com.parentId === null ? 'card-comment-div' : 'reply-comment-card'
+        "
       >
-        <p>{{com}}</p>
         <div class="commented-by" v-if="com.parentId === null">
           <div class="user-div">
             <img
@@ -53,7 +60,7 @@
               class="btn btn-primary bicon-reply-button"
               @click="
                 postLikeOrDislike({
-                  userId: user.id,
+                  userId: getUserLogin.userProfileDto.id,
                   commentId: com.id,
                   likeOrDislike: true,
                 })
@@ -66,7 +73,7 @@
               class="btn btn-primary bicon-reply-button"
               @click="
                 postLikeOrDislike({
-                  userId: user.id,
+                  userId: getUserLogin.userProfileDto.id,
                   commentId: com.id,
                   likeOrDislike: false,
                 })
@@ -88,7 +95,7 @@
                 postCommentThenReturnData(
                   writingReplyComment,
                   post.id,
-                  user.id,
+                  getUserLogin.userProfileDto.id,
                   com.id
                 )
               "
@@ -129,10 +136,10 @@
             <div class="actions-for-comments">
               <button
                 type="submit"
-                class="btn btn-primary"
+                class="btn btn-primary bicon-reply-button"
                 @click="
                   postLikeOrDislike({
-                    userId: user.id,
+                    userId: getUserLogin.userProfileDto.id,
                     commentId: com.id,
                     likeOrDislike: true,
                   })
@@ -142,10 +149,10 @@
               </button>
               <button
                 type="submit"
-                class="btn btn-success bicon-reply-button "
+                class="btn btn-primary bicon-reply-button"
                 @click="
                   postLikeOrDislike({
-                    userId: user.id,
+                    userId: getUserLogin.userProfileDto.id,
                     commentId: com.id,
                     likeOrDislike: true,
                   })
@@ -156,10 +163,44 @@
               <button
                 class="btn btn-primary bicon-reply-button"
                 style="float: left"
+                @click="toggle(com.id)"
               >
                 <BIconReply />
               </button>
             </div>
+                      <div class="reply-form" v-if="com.id === selectedItem">
+            <form
+              v-on:submit.prevent="
+                postCommentThenReturnData(
+                  writingReplyComment,
+                  post.id,
+                  getUserLogin.userProfileDto.id,
+                  com.id
+                )
+              "
+            >
+              <div class="mb-3">
+                <label
+                  style="color: white"
+                  for="exampleFormControlTextarea1"
+                  class="form-label"
+                  >Comment</label
+                >
+                <textarea
+                  v-model="writingReplyComment"
+                  class="form-control"
+                  id="exampleFormControlTextarea1"
+                  rows="3"
+                ></textarea>
+              </div>
+              <button
+                type="submit"
+                class="btn btn-primary allign-submit-button"
+              >
+                Post comment
+              </button>
+            </form>
+          </div>
           </div>
         </div>
       </div>
@@ -167,7 +208,6 @@
     <div class="comments" v-else>
       <p>Comments are disabled</p>
     </div>
-    <p @click="sortCommentsByParentId(post)">{{getAllCommentsFromPost}}</p>
   </div>
 </template>
 
@@ -179,10 +219,9 @@ import {
   BIconReply,
 } from "bootstrap-icons-vue";
 import { FrontPagePost } from "../store/PostStore";
-import { useCommentStore, CommentResponse, CommentDto } from "../store/CommentStore";
+import { useCommentStore, CommentDto } from "../store/CommentStore";
 import { mapActions, mapState } from "pinia";
 import { useUserStore } from "../store/UserStore";
-
 
 export default defineComponent({
   name: "CommentSection",
@@ -195,13 +234,18 @@ export default defineComponent({
     post: Object as PropType<FrontPagePost>,
   },
   computed: {
-    ...mapState(useUserStore, ["user", 'userProfile']),
-    ...mapState(useCommentStore, ["postComment",'commentResponse','getAllCommentsFromPost']),
+    ...mapState(useUserStore, ["getUserLogin", "userProfile"]),
+    ...mapState(useCommentStore, ["postComment", "getAllCommentsByPostId"]),
   },
   methods: {
-    ...mapActions(useCommentStore, ["postCommentAction", "postLikeOrDislike", 'getAllCommentsFromPostById', 'resetState', 'updateState']),
-    ...mapActions(useUserStore, ['getUserByIdOrUsername']),
-    getNumberOfComments: function (comments: CommentResponse[]): number {
+    ...mapActions(useCommentStore, [
+      "postCommentAction",
+      "postLikeOrDislike",
+      "fetchAllCommentsFromPostById",
+      "resetState",
+    ]),
+    ...mapActions(useUserStore, ["getUserByIdOrUsername"]),
+    getNumberOfComments: function (comments: CommentDto[]): number {
       return comments.length;
     },
     getUserInfo() {
@@ -213,10 +257,8 @@ export default defineComponent({
       idOfUser: number,
       parentId: null | number
     ) {
-
       if (!this.checkIfUserIsLogged()) {
-        console.log("User not logged in abort");
-        alert("You have to login before you can comment on a post");
+        alert("You have to log in to comment!");
         return;
       }
 
@@ -226,27 +268,14 @@ export default defineComponent({
         userId: idOfUser,
         parentId: parentId,
       });
-      //fetch again comments
-      this.getAllCommentsFromPostById(idOfPost);
-      this.writingComment = '';
 
-    },
-    addComments: function(post : FrontPagePost) : CommentResponse[]{
-      console.log("Post", post);
-        var counter = 0 ;
-        console.log("Post", this.commentResponse);
-        if (counter === 0) {
-          this.updateState(post);
-          counter++;
-        }
-              
-        return this.commentResponse;
+      this.writingComment = "";
     },
     toggle: function (item: number) {
       this.selectedItem = item;
     },
     checkIfUserIsLogged: function (): boolean {
-      if (this.user.id != 0) {
+      if (this.getUserLogin.userProfileDto.id != 0) {
         console.log("Logged user");
         return true;
       }
@@ -254,8 +283,7 @@ export default defineComponent({
       return false;
     },
     isReply: function (comment: FrontPagePost): boolean {
-
-      if (comment.commentsDto.filter((x) => x.commentsDto.parentId !== null)) {
+      if (comment.commentsDto.filter((x) => x.parentId !== null)) {
         console.log("ParentId not null ");
         this.isReplyComment = true;
         return true;
@@ -264,40 +292,51 @@ export default defineComponent({
       this.isReplyComment = false;
       return false;
     },
-    sortCommentsByParentId: function (commentArray : FrontPagePost): CommentResponse[] {
-      var filteredArray: CommentResponse[] = [];
+    sortCommentsByParentId: function (
+      commentArray: CommentDto[]
+    ): CommentDto[] {
+      var filteredArray: CommentDto[] = [];
 
-      console.log("Sort", commentArray)
-      console.log(commentArray)
-
-      commentArray.commentsDto.filter((el) => console.log("ele",el))
-/*
-      commentArray.commentsDto.filter((el : CommentResponse) => {
-        if (el.parentId === null) {
-          filteredArray.push(el);
+      commentArray.forEach((e) => {
+        if (e.parentId === null) {
+          filteredArray.push(e);
         }
-        commentArray.filter((x) => x.parentId === el.id).map((k) => filteredArray.push(k))
-      })*/
+        commentArray
+          .filter((x) => x.parentId === e.id)
+          .map((k) => filteredArray.push(k));
+      });
+
       return filteredArray;
     },
-    updateValue(value: string){
-      console.log("Update")
+    updateValue(value: string) {
+      console.log("Update");
       this.writingComment = value;
-    }
+    },
   },
   data() {
     return {
-      writingComment: "",
-      writingReplyComment: "",
-      open: false,
-      isHidden: true,
-      isActive: false,
-      selectedItem: 0,
-      currentCommentId: 0,
-      isReplyComment: false,
+      writingComment: "" as string,
+      writingReplyComment: "" as string,
+      open: false as boolean,
+      isHidden: true as boolean,
+      isActive: false as boolean,
+      selectedItem: 0 as number,
+      currentCommentId: 0 as number,
+      isReplyComment: false as boolean,
+      dataComments: [] as CommentDto[],
     };
-  }
+  },
+  watch: {
+    post: function (newVal: FrontPagePost) {
+      console.log("Prop change");
+      this.dataComments = newVal.commentsDto;
+    },
+    getAllCommentsByPostId: function () {
+      this.dataComments = this.getAllCommentsByPostId;
 
+      console.log("State change", this.dataComments);
+    },
+  },
 });
 </script>
 
@@ -328,8 +367,9 @@ export default defineComponent({
   width: 150px;
 }
 
-.reply-comment {
-  padding-left: 50px;
+.reply-comment-card {
+  margin-left: 50px;
+  margin-bottom: 15px;
 }
 
 .user-div {

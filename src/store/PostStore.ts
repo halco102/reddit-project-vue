@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 import { PostedBy } from "./UserStore";
-import { CommentResponse } from './CommentStore'
+import { CommentDto } from './CommentStore'
 
 const BASE_URL = 'http://localhost:8080/api/v1/post'
 //axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
@@ -20,7 +20,7 @@ export interface FrontPagePost{
    imageUrl: string;
    postedBy: PostedBy;
    allowComments: boolean
-   commentsDto: CommentResponse[]
+   commentsDto: CommentDto[]
 }
 
 export interface PostRequest{

@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 import { PostedBy } from "./UserStore";
-import { FrontPagePost } from "./PostStore";
 
 
 const BASE_URL = 'http://localhost:8080/api/v1/comment'
@@ -10,12 +9,9 @@ export interface CommentDto{
     id: number;
     text: string;
     parentId: number;
+    userInfo: PostedBy
 }
 
-export interface CommentResponse{
-    commentsDto: CommentDto;
-    userInfo: PostedBy;
-}
 
 export interface PostComment{
     text: string,
@@ -27,7 +23,7 @@ export interface PostComment{
 export interface Comment{
     postComment: PostComment,
     postLikeOrDislike: PostLikeOrDislikeResponse,
-    commentResponse: CommentResponse[]
+    commentsDto: CommentDto[]
 }
 
 export interface PostLikeOrDislikeRequest{
@@ -38,7 +34,7 @@ export interface PostLikeOrDislikeRequest{
 
 export interface PostLikeOrDislikeResponse{
     commentDto: CommentDto,
-    likeOrDislike: boolean | null
+    likeOrDislike: boolean | null,
 }
 
 export const useCommentStore = defineStore('comments',{
@@ -54,24 +50,16 @@ export const useCommentStore = defineStore('comments',{
                 commentDto:{
                     id: 0,
                     text: '',
-                    parentId: 0
+                    parentId: 0,
+                    userInfo: {
+                        id: 0,
+                        username: '',
+                        imageUrl: ''
+                    }
                 },
                 likeOrDislike: null
             },
-            commentResponse: [
-                    {
-                        commentsDto:{
-                            id: 0,
-                            text:'',
-                            parentId:0
-                        },
-                        userInfo:{
-                            id: 0,
-                            username: '',
-                            imageUrl: ''
-                        }
-                    }
-            ]
+            commentsDto: []
         }
     },
     getters: {
@@ -81,8 +69,9 @@ export const useCommentStore = defineStore('comments',{
         getPostLikeOrDislike(state) : PostLikeOrDislikeResponse{
             return state.postLikeOrDislike;
         },
-        getAllCommentsFromPost(state) : CommentResponse[] {
-            return state.commentResponse;
+        getAllCommentsByPostId(state) : CommentDto[] {
+            console.log("get state");
+            return state.commentsDto;
         }
     },
     actions: {
@@ -99,9 +88,12 @@ export const useCommentStore = defineStore('comments',{
                 }
             });
             
-            console.log(postData)
-            this.$state.postComment = postData.data;
-            this.$state.commentResponse.push(postData.data);
+            
+            console.log("Post comment", this.commentsDto);
+            
+            if(postData.status === 200) {
+                this.fetchAllCommentsFromPostById(postAComment.postId);
+            }
             
         },
         postLikeOrDislike: async function(request: PostLikeOrDislikeRequest) {
@@ -122,20 +114,18 @@ export const useCommentStore = defineStore('comments',{
             }
         },
 
-        getAllCommentsFromPostById: async function(id: number){
+        fetchAllCommentsFromPostById: async function(id: number){
             const commenst = await axios.get(BASE_URL + '/post/' + id);
             if (commenst.status === 200) {
                 console.log("All comments from post", commenst.data)
-                this.commentResponse = commenst.data;
+                this.commentsDto = commenst.data;
             }
         },
+        
 
         resetState: function() {
            this.$reset();
         },
-        updateState: function(post: FrontPagePost){
-            this.$state.commentResponse = post.commentsDto;
-        }
 
     }
 })
