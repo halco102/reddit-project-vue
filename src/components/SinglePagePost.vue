@@ -50,10 +50,11 @@ img {
   height: 677px;
 }
 
-.post-div {
+
+.single-post-div {
   margin: 20px 0 40px 0;
-  display:grid;
-  justify-content:center;
+  /*display:grid;
+  justify-content:center;*/
   text-align:center;
 }
 

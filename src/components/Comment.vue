@@ -1,8 +1,8 @@
 <template>
-  <div class="main-comment-div" v-if="dataComments.length !== 0">
+  <div class="main-comment-div">
     <div class="comments" v-if="post.allowComments === true">
       <div class="number-of-comments">
-        <p style="color: white">
+        <p style="color: white; margin-top: 1rem">
           Number of comments : {{ getNumberOfComments(dataComments) }}
         </p>
       </div>
@@ -168,39 +168,39 @@
                 <BIconReply />
               </button>
             </div>
-                      <div class="reply-form" v-if="com.id === selectedItem">
-            <form
-              v-on:submit.prevent="
-                postCommentThenReturnData(
-                  writingReplyComment,
-                  post.id,
-                  getUserLogin.userProfileDto.id,
-                  com.id
-                )
-              "
-            >
-              <div class="mb-3">
-                <label
-                  style="color: white"
-                  for="exampleFormControlTextarea1"
-                  class="form-label"
-                  >Comment</label
-                >
-                <textarea
-                  v-model="writingReplyComment"
-                  class="form-control"
-                  id="exampleFormControlTextarea1"
-                  rows="3"
-                ></textarea>
-              </div>
-              <button
-                type="submit"
-                class="btn btn-primary allign-submit-button"
+            <div class="reply-form" v-if="com.id === selectedItem">
+              <form
+                v-on:submit.prevent="
+                  postCommentThenReturnData(
+                    writingReplyComment,
+                    post.id,
+                    getUserLogin.userProfileDto.id,
+                    com.id
+                  )
+                "
               >
-                Post comment
-              </button>
-            </form>
-          </div>
+                <div class="mb-3">
+                  <label
+                    style="color: white"
+                    for="exampleFormControlTextarea1"
+                    class="form-label"
+                    >Comment</label
+                  >
+                  <textarea
+                    v-model="writingReplyComment"
+                    class="form-control"
+                    id="exampleFormControlTextarea1"
+                    rows="3"
+                  ></textarea>
+                </div>
+                <button
+                  type="submit"
+                  class="btn btn-primary allign-submit-button"
+                >
+                  Post comment
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
@@ -222,6 +222,7 @@ import { FrontPagePost } from "../store/PostStore";
 import { useCommentStore, CommentDto } from "../store/CommentStore";
 import { mapActions, mapState } from "pinia";
 import { useUserStore } from "../store/UserStore";
+import { useToast } from 'vue-toastification';
 
 export default defineComponent({
   name: "CommentSection",
@@ -236,6 +237,10 @@ export default defineComponent({
   computed: {
     ...mapState(useUserStore, ["getUserLogin", "userProfile"]),
     ...mapState(useCommentStore, ["postComment", "getAllCommentsByPostId"]),
+  },
+  setup() {
+    const toast = useToast();
+    return { toast }
   },
   methods: {
     ...mapActions(useCommentStore, [
@@ -258,7 +263,7 @@ export default defineComponent({
       parentId: null | number
     ) {
       if (!this.checkIfUserIsLogged()) {
-        alert("You have to log in to comment!");
+        this.toast.warning("You have to log in to comment!");
         return;
       }
 

@@ -1,9 +1,11 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 import { PostedBy } from "./UserStore";
+import {useToast} from 'vue-toastification';
 
 
 const BASE_URL = 'http://localhost:8080/api/v1/comment'
+const toast = useToast();
 
 export interface CommentDto{
     id: number;
@@ -93,6 +95,9 @@ export const useCommentStore = defineStore('comments',{
             
             if(postData.status === 200) {
                 this.fetchAllCommentsFromPostById(postAComment.postId);
+                toast.success("Comment posted");
+            }else{
+                toast.error("Something went wrong");
             }
             
         },
@@ -119,6 +124,7 @@ export const useCommentStore = defineStore('comments',{
             if (commenst.status === 200) {
                 console.log("All comments from post", commenst.data)
                 this.commentsDto = commenst.data;
+                
             }
         },
         

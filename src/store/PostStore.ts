@@ -1,10 +1,13 @@
 import { defineStore } from "pinia";
 import axios from "axios";
-import { PostedBy } from "./UserStore";
+import { PostedBy, useUserStore as user } from "./UserStore";
 import { CommentDto } from './CommentStore'
+import { useToast } from 'vue-toastification';
+
 
 const BASE_URL = 'http://localhost:8080/api/v1/post'
 //axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+const toast = useToast();
 
 export interface UserPosts{
    id: number,
@@ -27,7 +30,6 @@ export interface PostRequest{
    title: string,
    text: string,
    imageUrl: string,
-   userId: number,
    allowComments: boolean
 }
 
@@ -58,7 +60,6 @@ export const usePostStore = defineStore('postStore', {
             title: '',
             text: '',
             imageUrl: '',
-            userId: 0,
             allowComments: true
          }
       } 
@@ -75,6 +76,11 @@ export const usePostStore = defineStore('postStore', {
       }
    },
    actions: {
+
+      getJwtFromUser() : string{
+         return user().$state.userLoginResponse.jwt;
+      },
+      
      async fetchAllPostToShow(){
          const fetchDataFromApi = await axios.get(BASE_URL);
          console.log("Fetch data", fetchDataFromApi)
@@ -91,11 +97,19 @@ export const usePostStore = defineStore('postStore', {
          console.log("Start save post ", json);
          const savePostRequest = await axios.post(BASE_URL + '/', json, {
             headers: {
+               'Authorization' : 'Bearer ' + this.getJwtFromUser(),
                'Content-Type': 'application/json' 
             }
          });
          console.log("Save post", savePostRequest.data);
-         this.request = savePostRequest.data;
+
+         if (savePostRequest.status === 200) {
+            this.request = savePostRequest.data;
+            toast.success("Successfully posted");
+         }else{
+            toast.error("Something went wrong while saving post");
+         }
+
       }
    }
 })

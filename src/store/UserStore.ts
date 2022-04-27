@@ -2,8 +2,10 @@ import axios from "axios";
 import { defineStore } from "pinia";
 import { PostLikeOrDislikeResponse } from "./CommentStore";
 import { UserPosts } from './PostStore'
+import { useToast } from "vue-toastification";
 
 const BASE_URL = 'http://localhost:8080/api/v1/user'
+const toast = useToast();
 
 export interface signupRequest {
     username: string,
@@ -108,9 +110,9 @@ export const useUserStore = defineStore('userStore', {
             })
             console.log("Signup user", signupResponse.data)
             if (signupResponse.status === 200) {
-                alert("User succesfully created a account");
+                toast.success("User signed up");
             } else {
-                throw Error("Signup error");
+                toast.error("Error on signup");
             }
         },
 
@@ -126,10 +128,10 @@ export const useUserStore = defineStore('userStore', {
 
             console.log("Sign in response", signInResponse.data);
             if (signInResponse.status === 200) {
-                alert("Logged in");
                 this.userLoginResponse = signInResponse.data;
+                toast.success("Logged in");
             } else {
-                alert("ERROR")
+                toast.error("Error on loggin");
             }
         },
 

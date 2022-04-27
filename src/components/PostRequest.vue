@@ -12,7 +12,6 @@
                 text: textData,
                 imageUrl: imageUrlData,
                 allowComments: allowCommentsData,
-                userId: user.id,
               })
             "
           >
@@ -31,8 +30,9 @@
               <input type="text" class="form-control" v-model="imageUrlData" placeholder="255 characters"/>
             </div>
 
-            <div class="mb-3">
-              <div class="form-check">
+            <div class="comment-checkbox-button">
+                          <div class="mb-3">
+              <div class="form-check allign">
                 <input
                   class="form-check-input"
                   type="checkbox"
@@ -46,6 +46,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Post</button>
+            </div>
           </form>
         </div>
       </div>
@@ -84,12 +85,6 @@ export default defineComponent({
 
 <style scoped>
 
-.main {
-  padding-top:20px;
-  background-color: rgba(28, 28, 28, 0.9);
-  min-height:100%;
-  position:absolute;
-}
 
 .main h3{
   color:wheat;
@@ -105,9 +100,14 @@ export default defineComponent({
 }
 
 .form-check{
+  padding:0px;
+}
+
+.allign{
   display:flex;
   justify-content:center;
 }
+
 .form-check-input{
   padding:10px;
   margin-bottom:4px;
@@ -116,6 +116,12 @@ export default defineComponent({
 ::placeholder {
   font-size: 1rem;
   text-align: right;
+}
+
+.comment-checkbox-button{
+  display:grid;
+  justify-content: center;
+
 }
 
 </style>
