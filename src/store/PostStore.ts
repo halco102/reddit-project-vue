@@ -9,14 +9,14 @@ const BASE_URL = 'http://localhost:8080/api/v1/post'
 //axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 const toast = useToast();
 
-export interface UserPosts{
+export interface UserPosts {
    id: number,
    title: string,
    text: string,
    imageUrl: string
 }
 
-export interface FrontPagePost{
+export interface FrontPagePost {
    id: number;
    title: string;
    text: string,
@@ -26,21 +26,21 @@ export interface FrontPagePost{
    commentsDto: CommentDto[]
 }
 
-export interface PostRequest{
+export interface PostRequest {
    title: string,
    text: string,
    imageUrl: string,
    allowComments: boolean
 }
 
-export interface PostInterface{
-   posts : FrontPagePost[],
+export interface PostInterface {
+   posts: FrontPagePost[],
    post: FrontPagePost | null,
    request: PostRequest
 }
 
 export const usePostStore = defineStore('postStore', {
-   state: () : PostInterface => {
+   state: (): PostInterface => {
       return {
          posts: [],
          post: {
@@ -62,54 +62,70 @@ export const usePostStore = defineStore('postStore', {
             imageUrl: '',
             allowComments: true
          }
-      } 
+      }
    },
    getters: {
-      getAllPosts(state){
+      getAllPosts(state) {
          return state.posts
       },
-      getPostById(state) : FrontPagePost | null {
+      getPostById(state): FrontPagePost | null {
          return state.post;
       },
-      getPostRequest(state) : PostRequest {
+      getPostRequest(state): PostRequest {
          return state.request;
       }
    },
    actions: {
 
-      getJwtFromUser() : string{
+      getJwtFromUser(): string {
          return user().$state.userLoginResponse.jwt;
       },
-      
-     async fetchAllPostToShow(){
-         const fetchDataFromApi = await axios.get(BASE_URL);
-         console.log("Fetch data", fetchDataFromApi)
-         this.posts = fetchDataFromApi.data;
-      
+
+      async fetchAllPostToShow() {
+         await axios.get(BASE_URL).then(response => {
+            console.log("Fetch data", response.data)
+            this.posts = response.data;
+         }).catch(function (ex) {
+            if (ex.response.status === 500) {
+               toast.warning("Something went wrong");
+            }
+         })
       },
-      async fetchPostById(id : number) {
-         const fetchDataById = await axios.get(BASE_URL + '/' + id)
-         console.log("Single data fetch " , fetchDataById)
-         this.post = fetchDataById.data;
+
+      async fetchPostById(id: number) {
+         await axios.get(BASE_URL + '/' + id).then(response => {
+            console.log("Single data fetch ", response.data)
+            this.post = response.data;
+         }).catch(function (ex){
+            if(ex.response.state === 500) {
+               toast.error("Something went wrong");
+            }
+         })
+
       },
-      async savePost(request : PostRequest) {
+
+      async savePost(request: PostRequest) {
          const json = JSON.stringify(request);
          console.log("Start save post ", json);
-         const savePostRequest = await axios.post(BASE_URL + '/', json, {
+
+         await axios.post(BASE_URL + '/', json, {
             headers: {
-               'Authorization' : 'Bearer ' + this.getJwtFromUser(),
-               'Content-Type': 'application/json' 
+               'Authorization': 'Bearer ' + this.getJwtFromUser(),
+               'Content-Type': 'application/json'
             }
-         });
-         console.log("Save post", savePostRequest.data);
-
-         if (savePostRequest.status === 200) {
-            this.request = savePostRequest.data;
-            toast.success("Successfully posted");
-         }else{
-            toast.error("Something went wrong while saving post");
-         }
-
-      }
+         }).then(response => {
+            this.request = response.data;
+         }).catch(function (ex){
+            console.log("ex", ex.response);
+            if (ex.response.status === 400) {
+               toast.error("Bad request");
+            } else if (ex.response.status === 401) {
+               toast.error("Unathorized to post");
+            } else {
+               toast.error("Something went wrong while saving post");
+            }
+         })
+      },
+      
    }
 })

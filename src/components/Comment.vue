@@ -60,7 +60,6 @@
               class="btn btn-primary bicon-reply-button"
               @click="
                 postLikeOrDislike({
-                  userId: getUserLogin.userProfileDto.id,
                   commentId: com.id,
                   likeOrDislike: true,
                 })
@@ -68,12 +67,12 @@
             >
               <BIconHandThumbsUpFill />
             </button>
+            <span class="center-span">{{getNumberOfLikes(com)}}</span>
             <button
               type="submit"
               class="btn btn-primary bicon-reply-button"
               @click="
                 postLikeOrDislike({
-                  userId: getUserLogin.userProfileDto.id,
                   commentId: com.id,
                   likeOrDislike: false,
                 })
@@ -81,6 +80,7 @@
             >
               <BIconHandThumbsDownFill />
             </button>
+            <span class="center-span">{{getNumberOfDislikes(com)}}</span>
             <button
               class="btn btn-primary bicon-reply-button"
               style="float: left"
@@ -139,7 +139,6 @@
                 class="btn btn-primary bicon-reply-button"
                 @click="
                   postLikeOrDislike({
-                    userId: getUserLogin.userProfileDto.id,
                     commentId: com.id,
                     likeOrDislike: true,
                   })
@@ -152,7 +151,6 @@
                 class="btn btn-primary bicon-reply-button"
                 @click="
                   postLikeOrDislike({
-                    userId: getUserLogin.userProfileDto.id,
                     commentId: com.id,
                     likeOrDislike: true,
                   })
@@ -236,7 +234,7 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useUserStore, ["getUserLogin", "userProfile"]),
-    ...mapState(useCommentStore, ["postComment", "getAllCommentsByPostId"]),
+    ...mapState(useCommentStore, ["getAllCommentsByPostId"]),
   },
   setup() {
     const toast = useToast();
@@ -248,6 +246,9 @@ export default defineComponent({
       "postLikeOrDislike",
       "fetchAllCommentsFromPostById",
       "resetState",
+      'patchComments',
+      'getNumberOfLikes',
+      'getNumberOfDislikes'
     ]),
     ...mapActions(useUserStore, ["getUserByIdOrUsername"]),
     getNumberOfComments: function (comments: CommentDto[]): number {
@@ -333,15 +334,15 @@ export default defineComponent({
   },
   watch: {
     post: function (newVal: FrontPagePost) {
-      console.log("Prop change");
-      this.dataComments = newVal.commentsDto;
+      this.resetState();
+      this.fetchAllCommentsFromPostById(newVal.id);
     },
-    getAllCommentsByPostId: function () {
+    getAllCommentsByPostId: function(){
+      console.log("FETCH DATA WATCH")
       this.dataComments = this.getAllCommentsByPostId;
-
-      console.log("State change", this.dataComments);
-    },
-  },
+    }
+    
+  }
 });
 </script>
 
@@ -390,6 +391,12 @@ export default defineComponent({
 .form-style {
   margin: 10px 0 10px 0;
   display: grid;
+}
+
+.center-span{
+  margin-top:auto;
+  margin-bottom:auto;
+  margin-right: 1em;
 }
 
 .btn-primary-comment-form {
