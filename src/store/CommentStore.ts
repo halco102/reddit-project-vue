@@ -1,13 +1,13 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 import { PostedBy } from "./UserStore";
-import {useToast} from 'vue-toastification';
+import { useToast } from 'vue-toastification';
 
 
 const BASE_URL = 'http://localhost:8080/api/v1/comment'
 const toast = useToast();
 
-export interface CommentDto{
+export interface CommentDto {
     id: number;
     text: string;
     parentId: number;
@@ -15,41 +15,41 @@ export interface CommentDto{
 }
 
 
-export interface PostComment{
+export interface PostComment {
     text: string,
     postId: number,
     userId: number
     parentId: number | null
 }
 
-export interface Comment{
+export interface Comment {
     postComment: PostComment,
     postLikeOrDislike: PostLikeOrDislikeResponse,
     commentsDto: CommentDto[]
 }
 
-export interface PostLikeOrDislikeRequest{
+export interface PostLikeOrDislikeRequest {
     userId: number,
     commentId: number,
     likeOrDislike: boolean | null
 }
 
-export interface PostLikeOrDislikeResponse{
+export interface PostLikeOrDislikeResponse {
     commentDto: CommentDto,
     likeOrDislike: boolean | null,
 }
 
-export const useCommentStore = defineStore('comments',{
-    state: () : Comment => {
-        return{
+export const useCommentStore = defineStore('comments', {
+    state: (): Comment => {
+        return {
             postComment: {
                 text: '',
                 postId: 0,
                 userId: 0,
                 parentId: null as number | null
-            } ,
+            },
             postLikeOrDislike: {
-                commentDto:{
+                commentDto: {
                     id: 0,
                     text: '',
                     parentId: 0,
@@ -65,20 +65,20 @@ export const useCommentStore = defineStore('comments',{
         }
     },
     getters: {
-        getPostedComment(state) : PostComment{
+        getPostedComment(state): PostComment {
             return state.postComment;
         },
-        getPostLikeOrDislike(state) : PostLikeOrDislikeResponse{
+        getPostLikeOrDislike(state): PostLikeOrDislikeResponse {
             return state.postLikeOrDislike;
         },
-        getAllCommentsByPostId(state) : CommentDto[] {
+        getAllCommentsByPostId(state): CommentDto[] {
             console.log("get state");
             return state.commentsDto;
         }
     },
     actions: {
-        
-        async postCommentAction(postAComment : PostComment) {
+
+        async postCommentAction(postAComment: PostComment) {
             const json = JSON.stringify(postAComment);
 
             console.log("Start comment action")
@@ -86,22 +86,27 @@ export const useCommentStore = defineStore('comments',{
 
             const postData = await axios.post(BASE_URL, json, {
                 headers: {
-                    'Content-Type': 'application/json' 
+                    'Content-Type': 'application/json'
                 }
-            });
-            
-            
-            console.log("Post comment", this.commentsDto);
-            
-            if(postData.status === 200) {
+            }).then(response => {
+
+                console.log("Post comment", this.commentsDto);
                 this.fetchAllCommentsFromPostById(postAComment.postId);
                 toast.success("Comment posted");
-            }else{
-                toast.error("Something went wrong");
-            }
-            
+            }).catch(function (ex) {
+                if(ex.response.status === 401) {
+                    toast.warning("Unaothorized")
+                }else if (ex.response.status === 400) {
+                    toast.warning("Bad request");
+                }else{
+                    toast.warning("Something went wrong");
+                }
+            })
+
+
+
         },
-        postLikeOrDislike: async function(request: PostLikeOrDislikeRequest) {
+        postLikeOrDislike: async function (request: PostLikeOrDislikeRequest) {
             const json = JSON.stringify(request);
             console.log("Post like or dislike", json);
 
@@ -111,26 +116,26 @@ export const useCommentStore = defineStore('comments',{
                 }
             })
 
-            if(postLikeOrDislikeRequest.status === 200) {
+            if (postLikeOrDislikeRequest.status === 200) {
                 console.log("Successful post for like and dislike")
                 this.$state.postLikeOrDislike = postLikeOrDislikeRequest.data;
-            }else{
+            } else {
                 alert("Something went wrong with post like or dislike")
             }
         },
 
-        fetchAllCommentsFromPostById: async function(id: number){
-            const commenst = await axios.get(BASE_URL + '/post/' + id);
-            if (commenst.status === 200) {
-                console.log("All comments from post", commenst.data)
-                this.commentsDto = commenst.data;
-                
-            }
+        fetchAllCommentsFromPostById: async function (id: number) {
+            await axios.get(BASE_URL + '/post/' + id).then(response => {
+                console.log("All comments from post", response.data)
+                this.commentsDto = response.data;
+            }).catch(function (){
+                toast.warning("Something went wrong");
+            })
         },
-        
 
-        resetState: function() {
-           this.$reset();
+
+        resetState: function () {
+            this.$reset();
         },
 
     }
