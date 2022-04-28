@@ -12,7 +12,7 @@ const routes = [
         component: MainApp
     },
     {
-        path: '/:id',
+        path: '/post/:id',
         name: 'SinglePage',
         component: SinglePagePost,
         props: true
@@ -23,10 +23,10 @@ const routes = [
         component: PostRequest
     },
     {
-        path: '/user/:id',
+        path: '/user/:userId',
         name: "UserProfileById",
         component: UserProfile,
-        props: true
+        
     }
 ]
 

@@ -16,6 +16,15 @@ export interface UserPosts {
    imageUrl: string
 }
 
+export interface postLikeOrDislikeRequest {
+   postId: number,
+   likeOrDislike: boolean
+}
+
+export interface PostLikeOrDislike {
+   likeOrDislike: boolean;
+}
+
 export interface FrontPagePost {
    id: number;
    title: string;
@@ -24,6 +33,7 @@ export interface FrontPagePost {
    postedBy: PostedBy;
    allowComments: boolean
    commentsDto: CommentDto[]
+   postLikeOrDislikeDtos: PostLikeOrDislike[]
 }
 
 export interface PostRequest {
@@ -35,7 +45,7 @@ export interface PostRequest {
 
 export interface PostInterface {
    posts: FrontPagePost[],
-   post: FrontPagePost | null,
+   post: FrontPagePost,
    request: PostRequest
 }
 
@@ -54,7 +64,8 @@ export const usePostStore = defineStore('postStore', {
                imageUrl: ''
             },
             allowComments: true,
-            commentsDto: []
+            commentsDto: [],
+            postLikeOrDislikeDtos: []
          },
          request: {
             title: '',
@@ -96,8 +107,8 @@ export const usePostStore = defineStore('postStore', {
          await axios.get(BASE_URL + '/' + id).then(response => {
             console.log("Single data fetch ", response.data)
             this.post = response.data;
-         }).catch(function (ex){
-            if(ex.response.state === 500) {
+         }).catch(function (ex) {
+            if (ex.response.state === 500) {
                toast.error("Something went wrong");
             }
          })
@@ -115,7 +126,7 @@ export const usePostStore = defineStore('postStore', {
             }
          }).then(response => {
             this.request = response.data;
-         }).catch(function (ex){
+         }).catch(function (ex) {
             console.log("ex", ex.response);
             if (ex.response.status === 400) {
                toast.error("Bad request");
@@ -126,6 +137,49 @@ export const usePostStore = defineStore('postStore', {
             }
          })
       },
-      
+
+      async postLikeOrDislikeForPost(request: postLikeOrDislikeRequest) {
+         const json = JSON.stringify(request);
+
+         console.log("LIkepost", json)
+
+         await axios.post(BASE_URL + '/like-dislike', json, {
+            headers: {
+               'Authorization': 'Bearer ' + this.getJwtFromUser(),
+               'Content-Type': 'application/json'
+            }
+         }).then(response => {
+            this.post = response.data;
+            const temp = this.$state.posts.map((i) => i.id).indexOf(this.post.id);
+            this.$state.posts[temp] = this.post;
+
+
+         }).catch(function (ex) {
+            if (ex.response.status === 400) {
+               toast.error("Bad request");
+            } else if (ex.response.status === 401) {
+               toast.error("Unathorized");
+            } else {
+               toast.error("Something went wrong while saving post");
+            }
+         })
+      },
+
+      getNumberOfLikes: function (post: FrontPagePost): number {
+         let likes = 0;
+         if (post.postLikeOrDislikeDtos.length !== 0) {
+            post.postLikeOrDislikeDtos.filter((x) => x.likeOrDislike === true).map(() => likes++);
+         }
+         return likes;
+      },
+
+      getNumberOfDislikes: function (post: FrontPagePost): number {
+         let dislikes = 0;
+         if (post.postLikeOrDislikeDtos.length !== 0) {
+            post.postLikeOrDislikeDtos.filter((x) => x.likeOrDislike === false).map(() => dislikes++);
+         }
+         return dislikes;
+      }
+
    }
 })

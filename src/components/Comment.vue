@@ -146,18 +146,20 @@
               >
                 <BIconHandThumbsUpFill />
               </button>
+              <span class="center-span">{{getNumberOfLikes(com)}}</span>
               <button
                 type="submit"
                 class="btn btn-primary bicon-reply-button"
                 @click="
                   postLikeOrDislike({
                     commentId: com.id,
-                    likeOrDislike: true,
+                    likeOrDislike: false,
                   })
                 "
               >
                 <BIconHandThumbsDownFill />
               </button>
+              <span class="center-span">{{getNumberOfDislikes(com)}}</span>
               <button
                 class="btn btn-primary bicon-reply-button"
                 style="float: left"

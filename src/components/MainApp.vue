@@ -1,9 +1,7 @@
 <template>
   <div class="main">
-    <router-view>
       <NavigationBar />
       <PostsGallery :posts = 'posts'/>
-    </router-view>
   </div>
 </template>
 

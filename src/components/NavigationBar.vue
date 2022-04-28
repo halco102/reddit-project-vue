@@ -28,12 +28,22 @@
             >
           </li>
         </ul>
-        <div class="username-img" v-show="user.id !== 0">
-          <router-link :to="{name: 'UserProfileById', params:{userId: user.id, id: user.id}}">
-        <img :src="user.imageUrl" width="50" height="40">
-        <span class="navbar-text" style="margin-right:5px;">{{user.username}}</span>
-          </router-link>
-        </div>
+
+        <router-link :to="{ path: '/user/' + getUserLogin.userProfileDto.id }">
+          <div
+            class="username-img"
+            v-show="getUserLogin.userProfileDto.id !== 0"
+          >
+            <img
+              :src="getUserLogin.userProfileDto.imageUrl"
+              width="50"
+              height="40"
+            />
+            <span class="navbar-text" style="margin-right: 5px">{{
+              getUserLogin.userProfileDto.username
+            }}</span>
+          </div>
+        </router-link>
         <form class="d-flex">
           <input
             class="form-control me-2"
@@ -63,16 +73,16 @@ export default defineComponent({
     },
   },
   computed: {
-    ...mapState(useUserStore, ["user"]),
+    ...mapState(useUserStore, ["getUserLogin"]),
   },
 });
 </script>
 
 <style scope>
-.move-right{
-  float:right;
+.move-right {
+  float: right;
 }
-.username-img{
-  display:flex;
+.username-img {
+  display: flex;
 }
 </style>

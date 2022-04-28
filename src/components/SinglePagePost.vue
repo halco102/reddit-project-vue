@@ -1,12 +1,14 @@
 <template>
-  <div class="single-post-div">
+  <div class="main">
     <NavigationBar />
-    <div class="post-div">
-      <h1>{{ post.title }}</h1>
-      <p>{{ post.text }}</p>
-      <img :src="post.imageUrl" />
+    <div class="single-post-div">
+      <div class="post-div">
+        <h1>{{ post.title }}</h1>
+        <p>{{ post.text }}</p>
+        <img :src="post.imageUrl" />
+      </div>
+      <CommentSection :post="post" />
     </div>
-    <CommentSection :post="post" />
   </div>
 </template>
 
@@ -27,7 +29,7 @@ export default defineComponent({
   },
   created() {
     let toNumber: number = parseInt(this.id!);
-    console.log("toNumber ", toNumber)
+    console.log("toNumber ", toNumber);
     const getById = this.fetchPostById(toNumber);
   },
   props: {
@@ -44,21 +46,20 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
 img {
   width: 638px;
   height: 677px;
 }
 
-
 .single-post-div {
   margin: 20px 0 40px 0;
   /*display:grid;
   justify-content:center;*/
-  text-align:center;
+  text-align: center;
 }
 
-.single-post-div p, h1{
+.single-post-div p,
+h1 {
   color: white;
 }
 </style>

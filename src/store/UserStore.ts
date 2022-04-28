@@ -43,6 +43,8 @@ export interface UserProfile {
     id: number,
     username: string,
     imageUrl: string,
+    emai?: string,
+    createdAt: Date,
     posts: UserPosts[],
 }
 
@@ -71,6 +73,8 @@ export const useUserStore = defineStore('userStore', {
                 id: 0,
                 username: '',
                 imageUrl: '',
+                emai: '',
+                createdAt: new Date(),
                 posts: []
             },
             userLoginResponse: {

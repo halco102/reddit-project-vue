@@ -34,7 +34,7 @@
                 ></button>
               </div>
               <div class="modal-body">
-                <UserSignup/>
+                <UserSignup />
               </div>
             </div>
           </div>
@@ -77,9 +77,9 @@
           </div>
         </div>
       </div>
-      
-      <p v-if="posts === []">Nothing to show</p>
-      
+
+      <p v-if="posts.length === 0">Nothing to show</p>
+
       <router-link
         :to="{ name: 'SinglePage', params: { id: post.id } }"
         v-for="post in posts"
@@ -92,48 +92,60 @@
             <p class="card-text">{{ post.text }}</p>
             <div class="buttons">
               <div class="user-avatar">
-                <router-link :to="{name: 'UserProfileById', params:{userId: testTag(post.postedBy).id, id: testTag(post.postedBy).id}}">
-                <a
-                  class="btn btn-primary"
-                  style="margin: 0px 10px 0 10px"
-                >
-                  <img
-                    v-bind:src="testTag(post.postedBy).imageUrl"
-                    alt=""
-                    style="withd: 25px; height: 25px"
-                  />
-                  Posted by: {{ testTag(post.postedBy).username }}
-                </a>
+                <router-link :to="{ path: '/user/' + post.postedBy.id }">
+                  <a class="btn btn-primary" style="margin: 0px 10px 0 10px">
+                    <img
+                      :src="post.postedBy.imageUrl"
+                      alt=""
+                      style="withd: 25px; height: 25px"
+                    />
+                    Posted by: {{ post.postedBy.username }}
+                  </a>
                 </router-link>
               </div>
               <div class="like-dislike">
-                <a
-                  href="#like"
-                  class="btn btn-primary"
+                <button
+                  @click.prevent="
+                    postLikeOrDislikeForPost({
+                      postId: post.id,
+                      likeOrDislike: true,
+                    })
+                  "
+                  class="btn btn-primary bicon-reply-button"
                   style="margin: 0px 10px 0 10px"
-                  ><BIconHandThumbsUpFill
-                /></a>
-                <a
-                  href="#dislike"
-                  class="btn btn-primary"
+                >
+                  <BIconHandThumbsUpFill />
+                </button>
+                <span>{{getNumberOfLikes(post)}}</span>
+                <button
+                  @click.prevent="
+                    postLikeOrDislikeForPost({
+                      postId: post.id,
+                      likeOrDislike: false,
+                    })
+                  "
+                  class="btn btn-primary bicon-reply-button"
                   style="margin: 0px 10px 0 10px"
-                  ><BIconHandThumbsDownFill
-                /></a>
+                >
+                  <BIconHandThumbsDownFill />
+                </button>
+                <span>{{getNumberOfDislikes(post)}}</span>
               </div>
-              <a href="#chat" class="btn btn-primary"><BIconChatFill /> {{post.commentsDto.length}}</a>
+              <a href="#chat" class="btn btn-primary"
+                ><BIconChatFill /> {{ post.commentsDto.length }}</a
+              >
             </div>
           </div>
         </div>
       </router-link>
     </div>
-    
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { FrontPagePost } from "../store/PostStore";
-import { mapState } from "pinia";
+import { FrontPagePost, usePostStore } from "../store/PostStore";
+import { mapState, mapActions } from "pinia";
 import {
   BIconHandThumbsUpFill,
   BIconHandThumbsDownFill,
@@ -153,6 +165,7 @@ export default defineComponent({
     UserLogin,
   },
   methods: {
+    ...mapActions(usePostStore, ["postLikeOrDislikeForPost",'getNumberOfLikes', 'getNumberOfDislikes']),
     isClosed: function () {
       console.log("Wait");
       if (this.user.id !== 0) {
@@ -160,15 +173,9 @@ export default defineComponent({
         this.isClose = true;
       }
     },
-    getPostId: function(id: number) {
+    getPostId: function (id: number) {
       return id;
     },
-    testTag: function(postsPostedBy: PostedBy | null) : PostedBy{
-      if(postsPostedBy != null) {
-        return postsPostedBy;
-      }
-      return this.postedBy as PostedBy;
-    }
   },
   computed: {
     ...mapState(useUserStore, ["user"]),
@@ -177,8 +184,8 @@ export default defineComponent({
     posts: Object as PropType<FrontPagePost[]>,
     postedBy: {
       postedBy: Object as PropType<PostedBy>,
-      required: false
-    }
+      required: false,
+    },
   },
   data() {
     return {
@@ -199,12 +206,10 @@ export default defineComponent({
 }
 
 .wrapper-post {
-  
   display: grid;
   justify-content: center;
   padding: 25px 0px;
   margin: 2% 16%;
-  
 }
 .signup {
   position: absolute;
@@ -227,5 +232,9 @@ h4 {
 
 .link-to-login {
   margin-top: 10px;
+}
+
+.bicon-reply-button {
+  margin: 10px 4px 10px 4px;
 }
 </style>
