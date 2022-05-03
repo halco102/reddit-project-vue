@@ -1,53 +1,92 @@
 <template>
-  <div class="main">
-    <NavigationBar/>
+  <div class="main" ref="request">
+    <NavigationBar />
     <div class="post-card">
       <h3>Upload a post</h3>
       <div class="card" style="width: 35rem">
         <div class="card-body">
           <form
             v-on:submit.prevent="
-              savePost({
-                title: titleData,
-                text: textData,
-                imageUrl: imageUrlData,
-                allowComments: allowCommentsData,
-              })
+              savePost(
+                {
+                  title: titleData,
+                  text: textData,
+                  imageUrl: imageUrlData,
+                  allowComments: allowCommentsData,
+                },
+                locationOfFile
+              )
             "
           >
             <div class="mb-3">
               <label for="insertTitle" class="form-label">Title</label>
-              <input type="text" class="form-control" v-model="titleData" placeholder="255 characters"/>
+              <input
+                type="text"
+                class="form-control"
+                v-model="titleData"
+                placeholder="255 characters"
+              />
             </div>
 
             <div class="mb-3">
               <label for="insertText" class="form-label">Text</label>
-              <input type="text" class="form-control" v-model="textData" placeholder="255 characters"/>
+              <input
+                type="text"
+                class="form-control"
+                v-model="textData"
+                placeholder="255 characters"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="formFile" class="form-label"
+                >Default file input example</label
+              >
+              <input
+                class="form-control"
+                type="file"
+                id="formFile"
+                ref="fileUpload"
+                @change="onChangeInput"
+              />
             </div>
 
             <div class="mb-3">
               <label for="insertImage" class="form-label">Image url</label>
-              <input type="text" class="form-control" v-model="imageUrlData" placeholder="255 characters"/>
+              <input
+                type="text"
+                class="form-control"
+                v-model="imageUrlData"
+                placeholder="255 characters"
+              />
             </div>
 
             <div class="comment-checkbox-button">
-                          <div class="mb-3">
-              <div class="form-check allign">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="allowCommentsCheck"
-                  v-model="allowCommentsData"
-                />
-              </div>
-                              <label class="form-check-label" for="allowCommentsCheck">
+              <div class="mb-3">
+                <div class="form-check allign">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="allowCommentsCheck"
+                    v-model="allowCommentsData"
+                  />
+                </div>
+                <label class="form-check-label" for="allowCommentsCheck">
                   Allow comments
                 </label>
-            </div>
+              </div>
 
-            <button type="submit" class="btn btn-primary">Post</button>
+              <button type="submit" class="btn btn-primary">Post</button>
             </div>
           </form>
+
+<div class="clearfix" v-show="isLoading">
+  <div class="spinner-border float-end text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+
         </div>
       </div>
     </div>
@@ -55,22 +94,29 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
+import { defineComponent } from "vue";
 import { useUserStore } from "../store/UserStore";
 import { usePostStore } from "../store/PostStore";
 import { mapState, mapActions } from "pinia";
-import NavigationBar from './NavigationBar.vue'
+import NavigationBar from "./NavigationBar.vue";
 
 export default defineComponent({
   name: "PostRequest",
   components: {
-    NavigationBar
+    NavigationBar,
   },
   computed: {
     ...mapState(useUserStore, ["user"]),
+    ...mapState(usePostStore, ["isLoading"]),
   },
   methods: {
-    ...mapActions(usePostStore, ["savePost"]),
+    ...mapActions(usePostStore, ["savePost", "testUploadImage"]),
+    onChangeInput: function (event: any): void {
+      console.log("On change");
+      this.locationOfFile = event.target.files[0];
+
+      console.log(event.target.files[0], "this", this.locationOfFile);
+    },
   },
   data() {
     return {
@@ -78,39 +124,38 @@ export default defineComponent({
       textData: "",
       imageUrlData: "",
       allowCommentsData: true,
+      locationOfFile: null,
     };
   },
 });
 </script>
 
 <style scoped>
-
-
-.main h3{
-  color:wheat;
+.main h3 {
+  color: wheat;
 }
-.post-card{
-  display:grid;
-  justify-content:center;
-  margin:2% 16%;
-  padding:100px;
+.post-card {
+  display: grid;
+  justify-content: center;
+  margin: 2% 16%;
+  padding: 100px;
 }
-.post-card button{
+.post-card button {
   width: 100px;
 }
 
-.form-check{
-  padding:0px;
+.form-check {
+  padding: 0px;
 }
 
-.allign{
-  display:flex;
-  justify-content:center;
+.allign {
+  display: flex;
+  justify-content: center;
 }
 
-.form-check-input{
-  padding:10px;
-  margin-bottom:4px;
+.form-check-input {
+  padding: 10px;
+  margin-bottom: 4px;
 }
 
 ::placeholder {
@@ -118,10 +163,8 @@ export default defineComponent({
   text-align: right;
 }
 
-.comment-checkbox-button{
-  display:grid;
+.comment-checkbox-button {
+  display: grid;
   justify-content: center;
-
 }
-
 </style>

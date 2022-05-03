@@ -26,7 +26,6 @@ const routes = [
         path: '/user/:userId',
         name: "UserProfileById",
         component: UserProfile,
-        
     }
 ]
 

@@ -12,7 +12,9 @@ import Toast, { PluginOptions, POSITION } from 'vue-toastification'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'
 
+
 import "vue-toastification/dist/index.css";
+
 
 
 const pinia = createPinia();

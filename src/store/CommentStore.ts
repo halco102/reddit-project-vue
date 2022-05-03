@@ -6,7 +6,7 @@ import { useRoute } from "vue-router";
 import { useUserStore as user } from "./UserStore";
 
 
-const BASE_URL = 'http://localhost:8080/api/v1/comment'
+const BASE_URL = 'http://localhost:8082/api/v1/comment'
 const toast = useToast();
 
 export interface LikesDislikesComment{
@@ -92,11 +92,7 @@ export const useCommentStore = defineStore('comments', {
             }).then(response => {
 
                 console.log("Post comment", this.commentsDto, 'Current comment posted', response.data);
-                //this.postComment = response.data;
                 this.commentsDto.push(response.data);
-
-                //this.commentsDto.push(response.data);
-                //this.fetchAllCommentsFromPostById(postAComment.postId);
                 toast.success("Comment posted");
             }).catch(function (ex) {
                 if(ex.response.status === 401) {
@@ -122,7 +118,7 @@ export const useCommentStore = defineStore('comments', {
                     'Content-Type': 'application/json'
                 }
             }).then(response => {
-                console.log("Before patch", this.$state.commentsDto)
+
                 //this.$patch((state) => {
                     this.commentDto = response.data;
                     const temp = this.$state.commentsDto.map(i => i.id).indexOf(this.commentDto.id);

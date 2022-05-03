@@ -5,7 +5,9 @@ import { CommentDto } from './CommentStore'
 import { useToast } from 'vue-toastification';
 
 
-const BASE_URL = 'http://localhost:8080/api/v1/post'
+
+
+const BASE_URL = 'http://localhost:8082/api/v1/post'
 //axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 const toast = useToast();
 
@@ -40,13 +42,14 @@ export interface PostRequest {
    title: string,
    text: string,
    imageUrl: string,
-   allowComments: boolean
+   allowComments: boolean,
 }
 
 export interface PostInterface {
    posts: FrontPagePost[],
    post: FrontPagePost,
-   request: PostRequest
+   request: PostRequest,
+   isLoading: boolean
 }
 
 export const usePostStore = defineStore('postStore', {
@@ -71,8 +74,9 @@ export const usePostStore = defineStore('postStore', {
             title: '',
             text: '',
             imageUrl: '',
-            allowComments: true
-         }
+            allowComments: true,
+         },
+         isLoading: false
       }
    },
    getters: {
@@ -84,6 +88,9 @@ export const usePostStore = defineStore('postStore', {
       },
       getPostRequest(state): PostRequest {
          return state.request;
+      },
+      getIsLoading(state) : boolean {
+         return state.isLoading;
       }
    },
    actions: {
@@ -115,17 +122,23 @@ export const usePostStore = defineStore('postStore', {
 
       },
 
-      async savePost(request: PostRequest) {
+      async savePost(request: PostRequest, location: string) {
+         
          const json = JSON.stringify(request);
-         console.log("Start save post ", json);
+         const temp = new FormData();
+         temp.append('file', location);
+         temp.append('requestDto', json);
 
-         await axios.post(BASE_URL + '/', json, {
+         await axios.post(BASE_URL + '/', temp, {
             headers: {
                'Authorization': 'Bearer ' + this.getJwtFromUser(),
-               'Content-Type': 'application/json'
-            }
+               'Content-Type': 'multipart/form-data',
+
+            },
+            onUploadProgress: (() => {this.isLoading = true})
          }).then(response => {
             this.request = response.data;
+            
          }).catch(function (ex) {
             console.log("ex", ex.response);
             if (ex.response.status === 400) {
@@ -135,6 +148,9 @@ export const usePostStore = defineStore('postStore', {
             } else {
                toast.error("Something went wrong while saving post");
             }
+         }).finally(() => {
+            toast.success("Successfuly posted");
+            this.isLoading = false;
          })
       },
 
@@ -149,10 +165,22 @@ export const usePostStore = defineStore('postStore', {
                'Content-Type': 'application/json'
             }
          }).then(response => {
+
+            /*
             this.post = response.data;
             const temp = this.$state.posts.map((i) => i.id).indexOf(this.post.id);
-            this.$state.posts[temp] = this.post;
+            this.$state.posts[temp] = this.post;*/
 
+            this.$patch((state) => {
+               this.post = response.data;
+               const temp = state.posts.map((i) => i.id).indexOf(this.post.id);
+               state.posts[temp] = this.post;
+               console.log(state);
+            })
+
+            this.$subscribe((mut, state) => {
+               console.log("mut", mut);
+            })
 
          }).catch(function (ex) {
             if (ex.response.status === 400) {
@@ -179,6 +207,17 @@ export const usePostStore = defineStore('postStore', {
             post.postLikeOrDislikeDtos.filter((x) => x.likeOrDislike === false).map(() => dislikes++);
          }
          return dislikes;
+      },
+
+      testUploadImage: async function (image: FormData) {
+
+
+         await axios.post('http://localhost:8082/api/v1/cloudinary/', image, {
+            headers: {
+               'Content-Type': 'multipart/form-data'
+            }
+         })
+
       }
 
    }
