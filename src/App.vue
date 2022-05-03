@@ -1,9 +1,7 @@
 <template>
   <div class="main">
-    <router-link to="/"></router-link>
     <router-view/>
   </div>
-  
 </template>
 
 <script lang="ts">

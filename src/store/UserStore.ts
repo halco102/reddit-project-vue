@@ -4,7 +4,7 @@ import { PostLikeOrDislikeResponse } from "./CommentStore";
 import { UserPosts } from './PostStore'
 import { useToast } from "vue-toastification";
 
-const BASE_URL = 'http://localhost:8080/api/v1/user'
+const BASE_URL = 'http://localhost:8082/api/v1/user'
 const toast = useToast();
 
 export interface signupRequest {
@@ -43,6 +43,8 @@ export interface UserProfile {
     id: number,
     username: string,
     imageUrl: string,
+    emai?: string,
+    createdAt: Date,
     posts: UserPosts[],
 }
 
@@ -71,6 +73,8 @@ export const useUserStore = defineStore('userStore', {
                 id: 0,
                 username: '',
                 imageUrl: '',
+                emai: '',
+                createdAt: new Date(),
                 posts: []
             },
             userLoginResponse: {
