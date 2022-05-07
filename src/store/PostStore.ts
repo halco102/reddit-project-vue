@@ -8,7 +8,10 @@ import { useToast } from 'vue-toastification';
 
 
 const BASE_URL = 'http://localhost:8082/api/v1/post'
-//axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+
+//const ngrok = ' https://d2c0-2a02-810d-4b3f-cfe8-8fab-81-8bad-594e.ngrok.io';
+//const BASE_URL = ngrok + '/api/v1/post'
+
 const toast = useToast();
 
 export interface UserPosts {
@@ -49,7 +52,8 @@ export interface PostInterface {
    posts: FrontPagePost[],
    post: FrontPagePost,
    request: PostRequest,
-   isLoading: boolean
+   isLoading: boolean,
+   isDeleted: boolean
 }
 
 export const usePostStore = defineStore('postStore', {
@@ -76,7 +80,8 @@ export const usePostStore = defineStore('postStore', {
             imageUrl: '',
             allowComments: true,
          },
-         isLoading: false
+         isLoading: false,
+         isDeleted: false
       }
    },
    getters: {
@@ -91,6 +96,9 @@ export const usePostStore = defineStore('postStore', {
       },
       getIsLoading(state) : boolean {
          return state.isLoading;
+      },
+      getIsDeleted(state) : boolean {
+         return state.isDeleted;
       }
    },
    actions: {
@@ -138,7 +146,7 @@ export const usePostStore = defineStore('postStore', {
             onUploadProgress: (() => {this.isLoading = true})
          }).then(response => {
             this.request = response.data;
-            
+            toast.success("Successfuly posted");
          }).catch(function (ex) {
             console.log("ex", ex.response);
             if (ex.response.status === 400) {
@@ -149,7 +157,6 @@ export const usePostStore = defineStore('postStore', {
                toast.error("Something went wrong while saving post");
             }
          }).finally(() => {
-            toast.success("Successfuly posted");
             this.isLoading = false;
          })
       },
@@ -209,15 +216,28 @@ export const usePostStore = defineStore('postStore', {
          return dislikes;
       },
 
-      testUploadImage: async function (image: FormData) {
+      deletePostById: async function(id : number) {
+         console.log("Delete action", id)
 
-
-         await axios.post('http://localhost:8082/api/v1/cloudinary/', image, {
-            headers: {
-               'Content-Type': 'multipart/form-data'
+         await axios.delete(BASE_URL + '/' + id, {headers: {
+            'Authorization': 'Bearer ' + this.getJwtFromUser(),
+         }}).then(() => {
+            const index = this.posts.findIndex(object => {
+               return object.id === id;
+            })
+            this.posts.splice(index);
+            console.log("After delte", this.posts)
+            toast.success("Post deleted");
+            this.isDeleted = true;
+         }).catch(function (ex) {
+            if (ex.response.status === 404) {
+               toast.error(ex.response.statusText);
+            } else if (ex.response.status === 401) {
+               toast.error("Unathorized");
+            } else {
+               toast.error("Something went wrong while saving post");
             }
          })
-
       }
 
    }

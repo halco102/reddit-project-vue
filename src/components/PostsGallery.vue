@@ -21,6 +21,7 @@
           tabindex="-1"
           aria-labelledby="exampleModalLabel"
           aria-hidden="true"
+          ref="signupModal"
         >
           <div class="modal-dialog">
             <div class="modal-content">
@@ -56,7 +57,8 @@
             tabindex="-1"
             aria-labelledby="loginModal"
             aria-hidden="true"
-            @click="isClosed()"
+            ref="loginModal"
+            @click="exitedModal"
           >
             <div class="modal-dialog">
               <div class="modal-content">
@@ -78,7 +80,14 @@
         </div>
       </div>
 
-      <p v-if="posts.length === 0">Nothing to show</p>
+      <!--
+      <img v-if="posts.length === 0" src="https://camden.rutgers.edu/new/wp-content/plugins/elementor/assets/images/no-search-results.svg" >
+      -->
+      <img
+        style="display: grid"
+        v-if="posts.length === 0"
+        src="https://res.cloudinary.com/dzatojfyn/image/upload/v1651749462/output-onlinepngtools_pi0ngz.png"
+      />
 
       <router-link
         :to="{ name: 'SinglePage', params: { id: post.id } }"
@@ -116,7 +125,7 @@
                 >
                   <BIconHandThumbsUpFill />
                 </button>
-                <span>{{getNumberOfLikes(post)}}</span>
+                <span>{{ getNumberOfLikes(post) }}</span>
                 <button
                   @click.prevent="
                     postLikeOrDislikeForPost({
@@ -129,7 +138,7 @@
                 >
                   <BIconHandThumbsDownFill />
                 </button>
-                <span>{{getNumberOfDislikes(post)}}</span>
+                <span>{{ getNumberOfDislikes(post) }}</span>
               </div>
               <a href="#chat" class="btn btn-primary"
                 ><BIconChatFill /> {{ post.commentsDto.length }}</a
@@ -139,6 +148,26 @@
         </div>
       </router-link>
     </div>
+    <button
+      @click="
+        sendPostToWs({
+          id: 1000,
+          title: 'String',
+          text: 'STring',
+          imageUrl: 'String',
+          postedBy: {
+            id: 1,
+            username: 'a',
+            imageUrl: 'a',
+          },
+          allowComments: true,
+          commentsDto: [],
+          postLikeOrDislikeDtos: [],
+        })
+      "
+    >
+      DUGME
+    </button>
   </div>
 </template>
 
@@ -154,6 +183,11 @@ import {
 import UserSignup from "./UserSignup.vue";
 import { useUserStore, PostedBy } from "../store/UserStore";
 import UserLogin from "./UserLogin.vue";
+import SockJS from "sockjs-client";
+import * as Stomp from 'webstomp-client';
+
+
+var stompClient = {} as Stomp.Client;
 
 export default defineComponent({
   name: "PostsGallery",
@@ -165,20 +199,57 @@ export default defineComponent({
     UserLogin,
   },
   methods: {
-    ...mapActions(usePostStore, ["postLikeOrDislikeForPost",'getNumberOfLikes', 'getNumberOfDislikes']),
-    isClosed: function () {
-      console.log("Wait");
-      if (this.user.id !== 0) {
-        console.log("Now close");
-        this.isClose = true;
-      }
-    },
+    ...mapActions(usePostStore, [
+      "postLikeOrDislikeForPost",
+      "getNumberOfLikes",
+      "getNumberOfDislikes",
+    ]),
     getPostId: function (id: number) {
       return id;
     },
+    exitedModal: function () {
+      if (this.userLoginResponse.userProfileDto.id != 0) {
+        console.log("Hide modal");
+        this.isClose = true;
+      }
+    },
+
+    sendPostToWs: function (post: FrontPagePost): void {
+      const dummyData = {
+        id: 1000,
+        title: "String",
+        text: "STring",
+        imageUrl: "String",
+        postedBy: {
+          id: 1,
+          username: "a",
+          imageUrl: "a",
+        },
+        allowComments: true,
+        commentsDto: [],
+        postLikeOrDislikeDtos: [],
+      };
+
+      stompClient.send('/app/post', JSON.stringify(dummyData), {});
+      
+      //stompClient.send('/topic/post', JSON.stringify(dummyData), {});
+      
+    },
+
+    connectWs : function() : void{
+      var websocket = new WebSocket('ws://localhost:8082/temp');
+      console.log(websocket)
+      stompClient = Stomp.over(websocket);
+      stompClient.connect({}, function (frame){
+        console.log('frame', frame);
+        stompClient.subscribe('/topic/post', tick => {
+          console.log(tick);
+        })
+      })
+    }
   },
   computed: {
-    ...mapState(useUserStore, ["user"]),
+    ...mapState(useUserStore, ["userLoginResponse"]),
   },
   props: {
     posts: Object as PropType<FrontPagePost[]>,
@@ -192,6 +263,14 @@ export default defineComponent({
       isClose: false,
     };
   },
+  mounted() {
+    if (this.userLoginResponse.userProfileDto.id != 0) {
+      this.isClose = true;
+    }
+  },
+  created() {
+    this.connectWs()
+  }
 });
 </script>
 
