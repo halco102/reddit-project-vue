@@ -2,10 +2,11 @@ import { defineStore } from "pinia";
 import axios from "axios";
 import { PostedBy } from "./UserStore";
 import { useToast } from 'vue-toastification';
-import { useRoute } from "vue-router";
 import { useUserStore as user } from "./UserStore";
 
 
+
+let ws = {} as WebSocket;
 const BASE_URL = 'http://localhost:8082/api/v1/comment'
 
 //const ngrok = ' https://d2c0-2a02-810d-4b3f-cfe8-8fab-81-8bad-594e.ngrok.io';
@@ -98,6 +99,8 @@ export const useCommentStore = defineStore('comments', {
                 console.log("Post comment", this.commentsDto, 'Current comment posted', response.data);
                 this.commentsDto.push(response.data);
                 toast.success("Comment posted");
+                this.sendEvent('ADD_COMMENT', postAComment.postId);
+                
             }).catch(function (ex) {
                 if(ex.response.status === 401) {
                     toast.warning("Unaothorized")
@@ -164,7 +167,35 @@ export const useCommentStore = defineStore('comments', {
             let number = 0;
             comment.likedOrDislikedComments.filter((x) => x.likedOrDisliked === false).map(() => number++);
             return number;
-        }
+        },
+        openWebsocket: function(){
+
+            console.log("WS", ws.readyState);
+         
+            if (ws.readyState === undefined){
+               console.log("Open connection");
+               ws = new WebSocket('ws://127.0.0.1:80/ws/comment');
+            }
+   
+            if (ws.readyState === 3) {
+               console.log("Connection was closed, create new connection!");
+               ws = new WebSocket('ws://127.0.0.1:80/ws/comment');
+            }
+
+        },
+         sendEvent: function(message : string, postId: number) {
+            ws.send(message + ' ' + postId);
+         },
+         getEvent: function(): void{
+            ws.onmessage = event => {
+               console.log("event triggered in comments", event.data);
+               console.log('SKrati', event.data.substring(11, event.data.length));
+               this.fetchAllCommentsFromPostById(event.data.substring(11, event.data.length));
+            }
+         },
+         closeWebSocket: function() {
+            ws.close();
+         }
 
     }
 })

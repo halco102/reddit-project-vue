@@ -98,6 +98,7 @@ import { usePostStore , PostRequest} from "../store/PostStore";
 import { mapState, mapActions } from "pinia";
 import NavigationBar from "./NavigationBar.vue";
 
+
 export default defineComponent({
   name: "PostRequest",
   components: {
@@ -108,12 +109,13 @@ export default defineComponent({
     ...mapState(usePostStore, ["isLoading"]),
   },
   methods: {
-    ...mapActions(usePostStore, ["savePost"]),
+    ...mapActions(usePostStore, ["savePost", 'getEvent', 'openWebsocket','closeWebSocket']),
     onChangeInput: function (event: any): void {
       this.locationOfFile = event.target.files[0];
     },
     savePostMethod: function(request: PostRequest, location: string) {
         this.savePost(request, location);
+        
         this.$router.push('/');
     }
   },
@@ -126,6 +128,13 @@ export default defineComponent({
       locationOfFile: null,
     };
   },
+  created() {
+    console.log("Open ws on post request");
+    this.openWebsocket();
+  },
+  unmounted() {
+    console.log("Destroy")
+  }
 });
 </script>
 

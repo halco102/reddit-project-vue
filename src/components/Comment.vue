@@ -242,6 +242,9 @@ export default defineComponent({
     const toast = useToast();
     return { toast }
   },
+  mounted(){
+    this.openWebsocket();
+  },
   methods: {
     ...mapActions(useCommentStore, [
       "postCommentAction",
@@ -250,7 +253,11 @@ export default defineComponent({
       "resetState",
       'patchComments',
       'getNumberOfLikes',
-      'getNumberOfDislikes'
+      'getNumberOfDislikes',
+      'getEvent',
+      'sendEvent',
+      'closeWebSocket',
+      'openWebsocket'
     ]),
     ...mapActions(useUserStore, ["getUserByIdOrUsername"]),
     getNumberOfComments: function (comments: CommentDto[]): number {
@@ -284,10 +291,8 @@ export default defineComponent({
     },
     checkIfUserIsLogged: function (): boolean {
       if (this.getUserLogin.userProfileDto.id != 0) {
-        console.log("Logged user");
         return true;
       }
-      console.log("Not logged");
       return false;
     },
     isReply: function (comment: FrontPagePost): boolean {
@@ -317,9 +322,16 @@ export default defineComponent({
       return filteredArray;
     },
     updateValue(value: string) {
-      console.log("Update");
       this.writingComment = value;
     },
+  },
+  beforeUpdate(){
+    console.log("Try to get event")
+    this.getEvent();
+  },
+  unmounted(){
+    console.log("Close comment websocket");
+    this.closeWebSocket();
   },
   data() {
     return {
@@ -343,7 +355,6 @@ export default defineComponent({
       console.log("FETCH DATA WATCH")
       this.dataComments = this.getAllCommentsByPostId;
     }
-    
   }
 });
 </script>

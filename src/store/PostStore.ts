@@ -4,6 +4,8 @@ import { PostedBy, useUserStore as user } from "./UserStore";
 import { CommentDto } from './CommentStore'
 import { useToast } from 'vue-toastification';
 
+let ws = {} as WebSocket;
+
 
 
 
@@ -94,10 +96,10 @@ export const usePostStore = defineStore('postStore', {
       getPostRequest(state): PostRequest {
          return state.request;
       },
-      getIsLoading(state) : boolean {
+      getIsLoading(state): boolean {
          return state.isLoading;
       },
-      getIsDeleted(state) : boolean {
+      getIsDeleted(state): boolean {
          return state.isDeleted;
       }
    },
@@ -131,7 +133,7 @@ export const usePostStore = defineStore('postStore', {
       },
 
       async savePost(request: PostRequest, location: string) {
-         
+
          const json = JSON.stringify(request);
          const temp = new FormData();
          temp.append('file', location);
@@ -143,9 +145,11 @@ export const usePostStore = defineStore('postStore', {
                'Content-Type': 'multipart/form-data',
 
             },
-            onUploadProgress: (() => {this.isLoading = true})
+            onUploadProgress: (() => { this.isLoading = true })
          }).then(response => {
-            this.request = response.data;
+            //this.request = response.data;
+            //this.posts.push(response.data);
+            this.sendEvent('ADD_POST');
             toast.success("Successfuly posted");
          }).catch(function (ex) {
             console.log("ex", ex.response);
@@ -185,10 +189,7 @@ export const usePostStore = defineStore('postStore', {
                console.log(state);
             })
 
-            this.$subscribe((mut, state) => {
-               console.log("mut", mut);
-            })
-
+            this.post = response.data;
          }).catch(function (ex) {
             if (ex.response.status === 400) {
                toast.error("Bad request");
@@ -197,7 +198,7 @@ export const usePostStore = defineStore('postStore', {
             } else {
                toast.error("Something went wrong while saving post");
             }
-         })
+         });
       },
 
       getNumberOfLikes: function (post: FrontPagePost): number {
@@ -216,12 +217,14 @@ export const usePostStore = defineStore('postStore', {
          return dislikes;
       },
 
-      deletePostById: async function(id : number) {
+      deletePostById: async function (id: number) {
          console.log("Delete action", id)
 
-         await axios.delete(BASE_URL + '/' + id, {headers: {
-            'Authorization': 'Bearer ' + this.getJwtFromUser(),
-         }}).then(() => {
+         await axios.delete(BASE_URL + '/' + id, {
+            headers: {
+               'Authorization': 'Bearer ' + this.getJwtFromUser(),
+            }
+         }).then(() => {
             const index = this.posts.findIndex(object => {
                return object.id === id;
             })
@@ -238,7 +241,34 @@ export const usePostStore = defineStore('postStore', {
                toast.error("Something went wrong while saving post");
             }
          })
-      }
+      },
+      openWebsocket: function () : void{
 
-   }
+         console.log("WS", ws.readyState);
+         
+         if (ws.readyState === undefined){
+            console.log("Open connection");
+            ws = new WebSocket('ws://127.0.0.1:80/ws/post');
+         }
+
+         if (ws.readyState === 3) {
+            console.log("Connection was closed, create new connection!");
+            ws = new WebSocket('ws://127.0.0.1:80/ws/post');
+         }
+      
+      },
+      sendEvent: function (message: string) {
+         ws.send(message);
+      },
+      getEvent: function (): void {
+         ws.onmessage = event => {
+            console.log("event triggered", event.data);
+            this.fetchAllPostToShow();
+         }
+      },
+      closeWebSocket: function () {
+         console.log("Close post websocket");
+         ws.close();
+      }
+   },
 })

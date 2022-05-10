@@ -148,26 +148,6 @@
         </div>
       </router-link>
     </div>
-    <button
-      @click="
-        sendPostToWs({
-          id: 1000,
-          title: 'String',
-          text: 'STring',
-          imageUrl: 'String',
-          postedBy: {
-            id: 1,
-            username: 'a',
-            imageUrl: 'a',
-          },
-          allowComments: true,
-          commentsDto: [],
-          postLikeOrDislikeDtos: [],
-        })
-      "
-    >
-      DUGME
-    </button>
   </div>
 </template>
 
@@ -183,11 +163,8 @@ import {
 import UserSignup from "./UserSignup.vue";
 import { useUserStore, PostedBy } from "../store/UserStore";
 import UserLogin from "./UserLogin.vue";
-import SockJS from "sockjs-client";
-import * as Stomp from 'webstomp-client';
 
 
-var stompClient = {} as Stomp.Client;
 
 export default defineComponent({
   name: "PostsGallery",
@@ -230,23 +207,8 @@ export default defineComponent({
         postLikeOrDislikeDtos: [],
       };
 
-      stompClient.send('/app/post', JSON.stringify(dummyData), {});
-      
-      //stompClient.send('/topic/post', JSON.stringify(dummyData), {});
-      
     },
 
-    connectWs : function() : void{
-      var websocket = new WebSocket('ws://localhost:8082/temp');
-      console.log(websocket)
-      stompClient = Stomp.over(websocket);
-      stompClient.connect({}, function (frame){
-        console.log('frame', frame);
-        stompClient.subscribe('/topic/post', tick => {
-          console.log(tick);
-        })
-      })
-    }
   },
   computed: {
     ...mapState(useUserStore, ["userLoginResponse"]),
@@ -268,9 +230,6 @@ export default defineComponent({
       this.isClose = true;
     }
   },
-  created() {
-    this.connectWs()
-  }
 });
 </script>
 
