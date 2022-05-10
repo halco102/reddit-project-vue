@@ -5,6 +5,8 @@ import { UserPosts } from './PostStore'
 import { useToast } from "vue-toastification";
 
 const BASE_URL = 'http://localhost:8082/api/v1/user'
+//const ngrok = ' https://d2c0-2a02-810d-4b3f-cfe8-8fab-81-8bad-594e.ngrok.io';
+//const BASE_URL = ngrok + '/api/v1/user'
 const toast = useToast();
 
 export interface signupRequest {

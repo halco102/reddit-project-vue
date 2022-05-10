@@ -7,7 +7,7 @@
         <div class="card-body">
           <form
             v-on:submit.prevent="
-              savePost(
+              savePostMethod(
                 {
                   title: titleData,
                   text: textData,
@@ -40,7 +40,7 @@
 
             <div class="mb-3">
               <label for="formFile" class="form-label"
-                >Default file input example</label
+                >Upload image</label
               >
               <input
                 class="form-control"
@@ -80,13 +80,11 @@
             </div>
           </form>
 
-<div class="clearfix" v-show="isLoading">
-  <div class="spinner-border float-end text-primary" role="status">
-    <span class="visually-hidden">Loading...</span>
-  </div>
-</div>
-
-
+          <div class="clearfix" v-show="isLoading">
+            <div class="spinner-border float-end text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -96,9 +94,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useUserStore } from "../store/UserStore";
-import { usePostStore } from "../store/PostStore";
+import { usePostStore , PostRequest} from "../store/PostStore";
 import { mapState, mapActions } from "pinia";
 import NavigationBar from "./NavigationBar.vue";
+
 
 export default defineComponent({
   name: "PostRequest",
@@ -110,13 +109,15 @@ export default defineComponent({
     ...mapState(usePostStore, ["isLoading"]),
   },
   methods: {
-    ...mapActions(usePostStore, ["savePost", "testUploadImage"]),
+    ...mapActions(usePostStore, ["savePost", 'getEvent', 'openWebsocket','closeWebSocket']),
     onChangeInput: function (event: any): void {
-      console.log("On change");
       this.locationOfFile = event.target.files[0];
-
-      console.log(event.target.files[0], "this", this.locationOfFile);
     },
+    savePostMethod: function(request: PostRequest, location: string) {
+        this.savePost(request, location);
+        
+        this.$router.push('/');
+    }
   },
   data() {
     return {
@@ -127,6 +128,13 @@ export default defineComponent({
       locationOfFile: null,
     };
   },
+  created() {
+    console.log("Open ws on post request");
+    this.openWebsocket();
+  },
+  unmounted() {
+    console.log("Destroy")
+  }
 });
 </script>
 

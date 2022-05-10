@@ -4,11 +4,16 @@ import { PostedBy, useUserStore as user } from "./UserStore";
 import { CommentDto } from './CommentStore'
 import { useToast } from 'vue-toastification';
 
+let ws = {} as WebSocket;
+
 
 
 
 const BASE_URL = 'http://localhost:8082/api/v1/post'
-//axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+
+//const ngrok = ' https://d2c0-2a02-810d-4b3f-cfe8-8fab-81-8bad-594e.ngrok.io';
+//const BASE_URL = ngrok + '/api/v1/post'
+
 const toast = useToast();
 
 export interface UserPosts {
@@ -49,7 +54,8 @@ export interface PostInterface {
    posts: FrontPagePost[],
    post: FrontPagePost,
    request: PostRequest,
-   isLoading: boolean
+   isLoading: boolean,
+   isDeleted: boolean
 }
 
 export const usePostStore = defineStore('postStore', {
@@ -76,7 +82,8 @@ export const usePostStore = defineStore('postStore', {
             imageUrl: '',
             allowComments: true,
          },
-         isLoading: false
+         isLoading: false,
+         isDeleted: false
       }
    },
    getters: {
@@ -89,8 +96,11 @@ export const usePostStore = defineStore('postStore', {
       getPostRequest(state): PostRequest {
          return state.request;
       },
-      getIsLoading(state) : boolean {
+      getIsLoading(state): boolean {
          return state.isLoading;
+      },
+      getIsDeleted(state): boolean {
+         return state.isDeleted;
       }
    },
    actions: {
@@ -123,7 +133,7 @@ export const usePostStore = defineStore('postStore', {
       },
 
       async savePost(request: PostRequest, location: string) {
-         
+
          const json = JSON.stringify(request);
          const temp = new FormData();
          temp.append('file', location);
@@ -135,10 +145,12 @@ export const usePostStore = defineStore('postStore', {
                'Content-Type': 'multipart/form-data',
 
             },
-            onUploadProgress: (() => {this.isLoading = true})
+            onUploadProgress: (() => { this.isLoading = true })
          }).then(response => {
-            this.request = response.data;
-            
+            //this.request = response.data;
+            //this.posts.push(response.data);
+            this.sendEvent('ADD_POST');
+            toast.success("Successfuly posted");
          }).catch(function (ex) {
             console.log("ex", ex.response);
             if (ex.response.status === 400) {
@@ -149,7 +161,6 @@ export const usePostStore = defineStore('postStore', {
                toast.error("Something went wrong while saving post");
             }
          }).finally(() => {
-            toast.success("Successfuly posted");
             this.isLoading = false;
          })
       },
@@ -178,10 +189,7 @@ export const usePostStore = defineStore('postStore', {
                console.log(state);
             })
 
-            this.$subscribe((mut, state) => {
-               console.log("mut", mut);
-            })
-
+            this.post = response.data;
          }).catch(function (ex) {
             if (ex.response.status === 400) {
                toast.error("Bad request");
@@ -190,7 +198,7 @@ export const usePostStore = defineStore('postStore', {
             } else {
                toast.error("Something went wrong while saving post");
             }
-         })
+         });
       },
 
       getNumberOfLikes: function (post: FrontPagePost): number {
@@ -209,16 +217,58 @@ export const usePostStore = defineStore('postStore', {
          return dislikes;
       },
 
-      testUploadImage: async function (image: FormData) {
+      deletePostById: async function (id: number) {
+         console.log("Delete action", id)
 
-
-         await axios.post('http://localhost:8082/api/v1/cloudinary/', image, {
+         await axios.delete(BASE_URL + '/' + id, {
             headers: {
-               'Content-Type': 'multipart/form-data'
+               'Authorization': 'Bearer ' + this.getJwtFromUser(),
+            }
+         }).then(() => {
+            const index = this.posts.findIndex(object => {
+               return object.id === id;
+            })
+            this.posts.splice(index);
+            console.log("After delte", this.posts)
+            toast.success("Post deleted");
+            this.isDeleted = true;
+         }).catch(function (ex) {
+            if (ex.response.status === 404) {
+               toast.error(ex.response.statusText);
+            } else if (ex.response.status === 401) {
+               toast.error("Unathorized");
+            } else {
+               toast.error("Something went wrong while saving post");
             }
          })
+      },
+      openWebsocket: function () : void{
 
+         console.log("WS", ws.readyState);
+         
+         if (ws.readyState === undefined){
+            console.log("Open connection");
+            ws = new WebSocket('ws://127.0.0.1:80/ws/post');
+         }
+
+         if (ws.readyState === 3) {
+            console.log("Connection was closed, create new connection!");
+            ws = new WebSocket('ws://127.0.0.1:80/ws/post');
+         }
+      
+      },
+      sendEvent: function (message: string) {
+         ws.send(message);
+      },
+      getEvent: function (): void {
+         ws.onmessage = event => {
+            console.log("event triggered", event.data);
+            this.fetchAllPostToShow();
+         }
+      },
+      closeWebSocket: function () {
+         console.log("Close post websocket");
+         ws.close();
       }
-
-   }
+   },
 })
