@@ -115,8 +115,6 @@ export default defineComponent({
     },
     savePostMethod: function(request: PostRequest, location: string) {
         this.savePost(request, location);
-        
-        this.$router.push('/');
     }
   },
   data() {
@@ -134,6 +132,13 @@ export default defineComponent({
   },
   unmounted() {
     console.log("Destroy")
+  },
+  watch: {
+    isLoading: function() {
+      if (!this.isLoading) {
+        this.$router.push('/');
+      }
+    }
   }
 });
 </script>

@@ -4,9 +4,15 @@ import { PostLikeOrDislikeResponse } from "./CommentStore";
 import { UserPosts } from './PostStore'
 import { useToast } from "vue-toastification";
 
+//Base url localhost
 const BASE_URL = 'http://localhost:8082/api/v1/user'
-//const ngrok = ' https://d2c0-2a02-810d-4b3f-cfe8-8fab-81-8bad-594e.ngrok.io';
-//const BASE_URL = ngrok + '/api/v1/user'
+
+// Deployed url
+/*
+const ngrok = 'http://2434-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.ngrok.io';
+const BASE_URL = ngrok +  '/api/v1/user'
+*/
+
 const toast = useToast();
 
 export interface signupRequest {
@@ -109,36 +115,42 @@ export const useUserStore = defineStore('userStore', {
         signupUser: async function (signupRequest: signupRequest) {
             const json = JSON.stringify(signupRequest);
             console.log("Start signupRequest", json);
-            const signupResponse = await axios.post(BASE_URL, json, {
+            await axios.post(BASE_URL, json, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
-            })
-            console.log("Signup user", signupResponse.data)
-            if (signupResponse.status === 200) {
+            }).then(response => {
+                console.log("Signup user", response.data);
                 toast.success("User signed up");
-            } else {
-                toast.error("Error on signup");
-            }
+            }).catch(function(ex) {
+                if (ex.response.status === 409) {
+                    toast.error('Email already taken');
+                }else {
+                    toast.error("Error on signup");
+                }
+            })
+            
         },
 
         loginUser: async function (signInRequest: signInRequest) {
             const json = JSON.stringify(signInRequest);
             console.log("Start signin", json);
 
-            const signInResponse = await axios.post(BASE_URL + '/login', json, {
+            await axios.post(BASE_URL + '/login', json, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
+            }).then(response => {
+                this.userLoginResponse = response.data;
+                toast.success("Logged in");
+            }).catch(function(ex){
+                if(ex.response.status === 404) {
+                    toast.error("User does not exist");
+                }else{
+                    toast.error("Something went wrong");
+                }
             });
 
-            console.log("Sign in response", signInResponse.data);
-            if (signInResponse.status === 200) {
-                this.userLoginResponse = signInResponse.data;
-                toast.success("Logged in");
-            } else {
-                toast.error("Error on loggin");
-            }
         },
 
         getUserByIdOrUsername: async function (id: number | null, username: string | null) {
