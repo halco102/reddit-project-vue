@@ -36,6 +36,11 @@
         Submit
       </button>
     </form>
+    <div class="clearfix" v-show="getIsLoginLoading">
+      <div class="spinner-border float-end text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -43,7 +48,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useUserStore, signInRequest } from "../store/UserStore";
-import { mapActions } from "pinia";
+import { mapActions, mapState } from "pinia";
 import { v4 as uuidv4 } from "uuid";
 
 let id = null;
@@ -52,23 +57,36 @@ export default defineComponent({
   name: "UserLoginForm",
   components: {},
   methods: {
-    ...mapActions(useUserStore, ["loginUser"]),
+    ...mapActions(useUserStore, ["loginUser", "stopLoadingAnimation"]),
     loginUserMethod: function (siginRequest: signInRequest) {
       console.log("Login user to app", siginRequest);
-
       this.loginUser(siginRequest);
+      this.closeEvent(this.getIsLoginLoading);
+    },
+    closeEvent: function (val: boolean) {
+      this.$emit("close", val);
     },
   },
-  computed: {},
+  watch: {
+    getIsLoginLoading: function (value: boolean) {
+      if (!value) {
+        this.closeEvent(!value);
+      }
+    },
+  },
+  computed: {
+    ...mapState(useUserStore, ["getIsLoginLoading", "userLoginResponse"]),
+  },
   data() {
     return {
       email1: "",
       password1: "",
       id: null,
+      temp: false,
     };
   },
   beforeMount() {
-    id = uuidv4()
+    id = uuidv4();
   },
 });
 </script>

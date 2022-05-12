@@ -25,7 +25,8 @@ export interface UserPosts {
    id: number,
    title: string,
    text: string,
-   imageUrl: string
+   imageUrl: string,
+   postLikeOrDislikeDtos: PostLikeOrDislike[]
 }
 
 export interface postLikeOrDislikeRequest {

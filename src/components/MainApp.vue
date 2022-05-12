@@ -37,7 +37,7 @@ export default defineComponent({
   },
   beforeUnmount(){
     console.log("Close Mainapp websocket");
-    this.closeWebSocket();
+    //this.closeWebSocket();
   },
   computed: {
     ...mapState(usePostStore, ["getAllPosts"]),

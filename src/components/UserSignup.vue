@@ -2,11 +2,11 @@
   <div class="main-signup-div">
     <form>
       <div class="mb-3">
-        <label :for="this.id" class="form-label">Username</label>
+        <label :for="id" class="form-label">Username</label>
         <input
           type="username"
           class="form-control"
-          :id="this.id"
+          :id="id"
           aria-describedby="signupUsernameHelp"
           v-model="username"
         />
@@ -15,11 +15,11 @@
         </p>
       </div>
       <div class="mb-3">
-        <label :for="this.id" class="form-label">Email address</label>
+        <label :for="id" class="form-label">Email address</label>
         <input
           type="email"
           class="form-control"
-          :id="this.id + 'signupEmail'"
+          :id="id + 'signupEmail'"
           aria-describedby="signupEmailHelp"
           v-model="email"
         />
@@ -28,24 +28,22 @@
         </div>
       </div>
       <div class="mb-3">
-        <label :for="this.id" class="form-label"
-          >Repeat email address</label
-        >
+        <label :for="id" class="form-label">Repeat email address</label>
         <input
           type="email"
           class="form-control"
-          :id="this.id + 'repeatEmail'"
+          :id="id + 'repeatEmail'"
           aria-describedby="signupEmailHelp"
           v-model="repeatEmail"
         />
         <p v-if="!emailMatch(email, repeatEmail)">Email does not match</p>
       </div>
       <div class="mb-3">
-        <label :for="this.id" class="form-label">Password</label>
+        <label :for="id" class="form-label">Password</label>
         <input
           type="password"
           class="form-control"
-          :id="this.id + 'password'"
+          :id="id + 'password'"
           v-model="password"
         />
         <p v-if="!passwordLengthGreater(password)">
@@ -53,13 +51,11 @@
         </p>
       </div>
       <div class="mb-3">
-        <label :for="this.id" class="form-label"
-          >Repeat password</label
-        >
+        <label :for="id" class="form-label">Repeat password</label>
         <input
           type="password"
           class="form-control"
-          :id="this.id + 'repeatPassword'"
+          :id="id + 'repeatPassword'"
           v-model="repeatPassword"
         />
         <p v-if="!passwordMatch(password, repeatPassword)">
@@ -82,6 +78,11 @@
         Submit
       </button>
     </form>
+    <div class="clearfix" v-show="getIsSignupLoading">
+      <div class="spinner-border float-end text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -90,8 +91,6 @@ import { defineComponent } from "vue";
 import { useUserStore } from "../store/UserStore";
 import { mapActions, mapState } from "pinia";
 import { v4 as uuidv4 } from "uuid";
-
-let id = null;
 
 export default defineComponent({
   name: "UserSignupForm",
@@ -155,7 +154,7 @@ export default defineComponent({
     },
   },
   computed: {
-    ...mapState(useUserStore, ["user"]),
+    ...mapState(useUserStore, ["user", "getIsSignupLoading"]),
   },
   data() {
     return {
@@ -171,10 +170,11 @@ export default defineComponent({
       isPasswordLengthGreater: false,
       isUsernameLengthGreater: false,
 
+      id: "",
     };
   },
-    beforeMount() {
-      this.id = uuidv4();
+  beforeMount() {
+    this.id = uuidv4();
   },
 });
 </script>

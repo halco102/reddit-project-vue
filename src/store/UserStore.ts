@@ -1,7 +1,7 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 import { PostLikeOrDislikeResponse } from "./CommentStore";
-import { UserPosts } from './PostStore'
+import { UserPosts, FrontPagePost } from './PostStore'
 import { useToast } from "vue-toastification";
 
 //Base url localhost
@@ -58,10 +58,15 @@ export interface UserProfile {
 
 
 
+
+
 export interface UserState {
     user: User,
     userProfile: UserProfile,
-    userLoginResponse: UserLoginResponse
+    userLoginResponse: UserLoginResponse,
+    postForLikeDislike: FrontPagePost[],
+    isSignupLoading: boolean,
+    isLoginLoading: boolean,
 }
 
 
@@ -96,7 +101,10 @@ export const useUserStore = defineStore('userStore', {
                     posts: [],
                     likedOrDislikedComments: []
                 }
-            }
+            },
+            postForLikeDislike: [],
+            isSignupLoading: false,
+            isLoginLoading: false,
         }
     },
     getters: {
@@ -106,9 +114,18 @@ export const useUserStore = defineStore('userStore', {
         getUserProfile(state): UserProfile {
             return state.userProfile;
         },
-        getUserLogin(state) : UserLoginResponse {
+        getUserLogin(state): UserLoginResponse {
             return state.userLoginResponse;
-        }
+        },
+        getLikesDislikesFromPost(state): FrontPagePost[] {
+            return state.postForLikeDislike;
+        },
+        getIsSignupLoading(state): boolean {
+            return state.isSignupLoading;
+        },
+        getIsLoginLoading(state): boolean {
+            return state.isLoginLoading;
+        },
     },
     actions: {
 
@@ -118,18 +135,23 @@ export const useUserStore = defineStore('userStore', {
             await axios.post(BASE_URL, json, {
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                onUploadProgress: (() => { this.isSignupLoading = true; })
             }).then(response => {
+
                 console.log("Signup user", response.data);
                 toast.success("User signed up");
-            }).catch(function(ex) {
+            }).catch(function (ex) {
                 if (ex.response.status === 409) {
                     toast.error('Email already taken');
-                }else {
+                } else {
                     toast.error("Error on signup");
                 }
+            }).finally(() => {
+                console.log("Signut loading")
+                this.isSignupLoading = false;
             })
-            
+
         },
 
         loginUser: async function (signInRequest: signInRequest) {
@@ -139,18 +161,25 @@ export const useUserStore = defineStore('userStore', {
             await axios.post(BASE_URL + '/login', json, {
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                onUploadProgress: (() => { this.isLoginLoading = true })
             }).then(response => {
                 this.userLoginResponse = response.data;
                 toast.success("Logged in");
-            }).catch(function(ex){
-                if(ex.response.status === 404) {
+            }).catch(function (ex) {
+                if (ex.response.status === 404) {
                     toast.error("User does not exist");
-                }else{
+                } else {
                     toast.error("Something went wrong");
                 }
-            });
+            }).finally(() => {
+                this.isLoginLoading = false;
+            })
 
+        },
+
+        stopLoadingAnimation: function (val: boolean): boolean {
+            return val;
         },
 
         getUserByIdOrUsername: async function (id: number | null, username: string | null) {
@@ -174,6 +203,14 @@ export const useUserStore = defineStore('userStore', {
                     alert("Error on fetch by username");
                 }
             }
+        },
+        getAllPostsFromUserByUserId: async function (userId: number) {
+
+            await axios.get(BASE_URL + '/' + 'user/' + userId + '/post')
+                .then(response => {
+                    console.log("Response of get", response.data);
+                    this.postForLikeDislike = response.data;
+                })
         }
 
     }

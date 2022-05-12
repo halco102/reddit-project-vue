@@ -28,8 +28,8 @@
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body" @click="closeModal">
-            <UserLogin />
+          <div class="modal-body">
+            <UserLogin @close = "closeModal"/>
           </div>
         </div>
       </div>
@@ -52,8 +52,11 @@ export default defineComponent({
     ...mapState(useUserStore, ["userLoginResponse"]),
   },
   methods: {
-    closeModal: function (): void {
-      document.getElementById('closeModal').click();
+    closeModal: function (value : boolean): void {
+      console.log("click", value)
+      if (value) {
+        document.getElementById('closeModal')!.click();
+      }
     },
   },
   data() {
