@@ -8,11 +8,16 @@ let ws = {} as WebSocket;
 
 
 
-
+// Base url on localhost and ws
 const BASE_URL = 'http://localhost:8082/api/v1/post'
+const wsUrl = 'ws://127.0.0.1:80/ws/post'
 
-//const ngrok = ' https://d2c0-2a02-810d-4b3f-cfe8-8fab-81-8bad-594e.ngrok.io';
-//const BASE_URL = ngrok + '/api/v1/post'
+//when deployed
+/*
+const ngrok = 'http://2434-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.ngrok.io';
+const BASE_URL = ngrok +  '/api/v1/post'
+const wsUrl = 'ws://b6b4-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.jp.ngrok.io/ws/post'
+*/
 
 const toast = useToast();
 
@@ -20,7 +25,8 @@ export interface UserPosts {
    id: number,
    title: string,
    text: string,
-   imageUrl: string
+   imageUrl: string,
+   postLikeOrDislikeDtos: PostLikeOrDislike[]
 }
 
 export interface postLikeOrDislikeRequest {
@@ -149,16 +155,19 @@ export const usePostStore = defineStore('postStore', {
          }).then(response => {
             //this.request = response.data;
             //this.posts.push(response.data);
-            this.sendEvent('ADD_POST');
             toast.success("Successfuly posted");
+            this.sendEvent('ADD_POST');
          }).catch(function (ex) {
             console.log("ex", ex.response);
             if (ex.response.status === 400) {
                toast.error("Bad request");
+               return;
             } else if (ex.response.status === 401) {
                toast.error("Unathorized to post");
+               return;
             } else {
                toast.error("Something went wrong while saving post");
+               return;
             }
          }).finally(() => {
             this.isLoading = false;
@@ -186,10 +195,10 @@ export const usePostStore = defineStore('postStore', {
                this.post = response.data;
                const temp = state.posts.map((i) => i.id).indexOf(this.post.id);
                state.posts[temp] = this.post;
-               console.log(state);
             })
 
             this.post = response.data;
+            this.sendEvent('LIKE_DISLIKE_POST');
          }).catch(function (ex) {
             if (ex.response.status === 400) {
                toast.error("Bad request");
@@ -248,12 +257,12 @@ export const usePostStore = defineStore('postStore', {
          
          if (ws.readyState === undefined){
             console.log("Open connection");
-            ws = new WebSocket('ws://127.0.0.1:80/ws/post');
+            ws = new WebSocket(wsUrl);
          }
 
          if (ws.readyState === 3) {
             console.log("Connection was closed, create new connection!");
-            ws = new WebSocket('ws://127.0.0.1:80/ws/post');
+            ws = new WebSocket(wsUrl);
          }
       
       },
@@ -263,7 +272,18 @@ export const usePostStore = defineStore('postStore', {
       getEvent: function (): void {
          ws.onmessage = event => {
             console.log("event triggered", event.data);
-            this.fetchAllPostToShow();
+            if (event.data === 'ADD_POST') {
+               console.log("Add post event");
+               this.fetchAllPostToShow();
+            }
+            if (event.data === 'LIKE_DISLIKE_POST') {
+               console.log("Like or dislike post event");
+               // get new state ? 
+               
+            }
+
+            
+
          }
       },
       closeWebSocket: function () {

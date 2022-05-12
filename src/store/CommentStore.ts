@@ -7,10 +7,17 @@ import { useUserStore as user } from "./UserStore";
 
 
 let ws = {} as WebSocket;
-const BASE_URL = 'http://localhost:8082/api/v1/comment'
 
-//const ngrok = ' https://d2c0-2a02-810d-4b3f-cfe8-8fab-81-8bad-594e.ngrok.io';
-//const BASE_URL = ngrok +  '/api/v1/comment'
+// base url when using localhost
+const BASE_URL = 'http://localhost:8082/api/v1/comment'
+const wsUrl = 'ws://127.0.0.1:80/ws/comment'
+
+//base url when deployed
+/*
+const ngrok = 'http://2434-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.ngrok.io';
+const BASE_URL = ngrok +  '/api/v1/comment'
+const wsUrl = 'ws://b6b4-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.jp.ngrok.io/ws/comment'
+*/
 
 const toast = useToast();
 
@@ -174,12 +181,12 @@ export const useCommentStore = defineStore('comments', {
          
             if (ws.readyState === undefined){
                console.log("Open connection");
-               ws = new WebSocket('ws://127.0.0.1:80/ws/comment');
+               ws = new WebSocket(wsUrl);
             }
    
             if (ws.readyState === 3) {
                console.log("Connection was closed, create new connection!");
-               ws = new WebSocket('ws://127.0.0.1:80/ws/comment');
+               ws = new WebSocket(wsUrl);
             }
 
         },

@@ -4,6 +4,7 @@
       <router-link class="navbar-brand" :to="{ name: 'Home' }"
         >Logo</router-link
       >
+
       <button
         class="navbar-toggler"
         type="button"
@@ -29,10 +30,18 @@
           </li>
         </ul>
 
+        <div
+          class="second-type-login-signup"
+          v-show="!exit()"
+        > 
+          <UserLoginModal ref="temp" @close="hideModal" />
+          <UserSignupModal />
+        </div>
+
         <router-link :to="{ path: '/user/' + getUserLogin.userProfileDto.id }">
           <div
+            v-show="getUserLogin.userProfileDto.id != 0"
             class="username-img"
-            v-show="getUserLogin.userProfileDto.id !== 0"
           >
             <img
               :src="getUserLogin.userProfileDto.imageUrl"
@@ -62,19 +71,40 @@
 import { defineComponent } from "vue";
 import { useUserStore } from "../store/UserStore";
 import { mapState } from "pinia";
+import UserLoginModal from "./modal/UserLoginModal.vue";
+import UserSignupModal from "./modal/UserSignupModal.vue";
 
 export default defineComponent({
   name: "NavigationBar",
-  components: {},
+  components: {
+    UserLoginModal,
+    UserSignupModal,
+  },
   methods: {
     refreshPage: function (): void {
       console.log("Refresh page");
       this.$router.go(0);
     },
+    hideModal: function() : void{
+      console.log("CLOSE");
+      this.isClose = true;
+      console.log('ISCLOSE', this.isClose)
+    },
+    exit: function() {
+      if (this.getUserLogin.userProfileDto.id != 0) {
+        return true;
+      }
+      return false;
+    }
   },
   computed: {
     ...mapState(useUserStore, ["getUserLogin"]),
   },
+  data(){
+    return {
+      isClose: false
+    }
+  }
 });
 </script>
 
@@ -84,5 +114,17 @@ export default defineComponent({
 }
 .username-img {
   display: flex;
+}
+.second-type-login-signup {
+  display: flex;
+  margin-right: 10px;
+}
+
+..second-type-login-signup UserLoginModal {
+  margin: 10px;
+}
+
+.signup-modal {
+  margin-left: 10px;
 }
 </style>

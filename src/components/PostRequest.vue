@@ -52,13 +52,17 @@
             </div>
 
             <div class="mb-3">
+
               <label for="insertImage" class="form-label">Image url</label>
               <input
                 type="text"
                 class="form-control"
                 v-model="imageUrlData"
-                placeholder="255 characters"
+                :placeholder="isDisabled ? 'Disabled' : '255 characters'"
+                :disabled="isDisabled"
               />
+              <p v-show="!isImage(imageUrlData) && imageUrlData.length > 0">Url does not show a image </p>
+
             </div>
 
             <div class="comment-checkbox-button">
@@ -97,6 +101,7 @@ import { useUserStore } from "../store/UserStore";
 import { usePostStore , PostRequest} from "../store/PostStore";
 import { mapState, mapActions } from "pinia";
 import NavigationBar from "./NavigationBar.vue";
+import { useToast } from 'vue-toastification'
 
 
 export default defineComponent({
@@ -108,15 +113,27 @@ export default defineComponent({
     ...mapState(useUserStore, ["user"]),
     ...mapState(usePostStore, ["isLoading"]),
   },
+    setup() {
+    const toast = useToast();
+    return { toast }
+  },
   methods: {
     ...mapActions(usePostStore, ["savePost", 'getEvent', 'openWebsocket','closeWebSocket']),
     onChangeInput: function (event: any): void {
       this.locationOfFile = event.target.files[0];
+      this.isDisabled = true;
     },
     savePostMethod: function(request: PostRequest, location: string) {
+        if(request.imageUrl.length > 0) {
+          if (!this.isImage(request.imageUrl)) {
+            this.toast.warning("Not a valid image url");
+            return;
+          }
+        }
         this.savePost(request, location);
-        
-        this.$router.push('/');
+    },
+    isImage: function(url : string) : boolean {
+      return /\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(url);
     }
   },
   data() {
@@ -126,6 +143,7 @@ export default defineComponent({
       imageUrlData: "",
       allowCommentsData: true,
       locationOfFile: null,
+      isDisabled: false
     };
   },
   created() {
@@ -134,6 +152,13 @@ export default defineComponent({
   },
   unmounted() {
     console.log("Destroy")
+  },
+  watch: {
+    isLoading: function() {
+      if (!this.isLoading) {
+        this.$router.push('/');
+      }
+    }
   }
 });
 </script>

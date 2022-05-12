@@ -2,78 +2,87 @@
   <div class="main-signup-div">
     <form>
       <div class="mb-3">
-        <label for="exampleInputEmail1" class="form-label">Username</label>
+        <label :for="id" class="form-label">Username</label>
         <input
           type="username"
           class="form-control"
-          id="inputUsername"
-          aria-describedby="usernameHelp"
+          :id="id"
+          aria-describedby="signupUsernameHelp"
           v-model="username"
         />
-        <p v-show="username.length < 8" style="margin-top: 2px">
-          Username has to be minimum 8 characters long
+        <p v-if="!usernameLength(username)" style="margin-top: 2px">
+          Username has to be minimum 5 characters long
         </p>
       </div>
       <div class="mb-3">
-        <label for="exampleInputEmail1" class="form-label">Email address</label>
+        <label :for="id" class="form-label">Email address</label>
         <input
           type="email"
           class="form-control"
-          id="inputEmail"
-          aria-describedby="emailHelp"
+          :id="id + 'signupEmail'"
+          aria-describedby="signupEmailHelp"
           v-model="email"
         />
-        <div id="emailHelp" class="form-text">
+        <div id="signupEmailHelp" class="form-text">
           We'll never share your email with anyone else.
         </div>
       </div>
       <div class="mb-3">
-        <label for="exampleInputEmail1" class="form-label"
-          >Repeat email address</label
-        >
+        <label :for="id" class="form-label">Repeat email address</label>
         <input
           type="email"
           class="form-control"
-          id="inputRepeatEmail"
-          aria-describedby="emailHelp"
+          :id="id + 'repeatEmail'"
+          aria-describedby="signupEmailHelp"
           v-model="repeatEmail"
         />
+        <p v-if="!emailMatch(email, repeatEmail)">Email does not match</p>
       </div>
       <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">Password</label>
+        <label :for="id" class="form-label">Password</label>
         <input
           type="password"
           class="form-control"
-          id="inputPassowrd"
+          :id="id + 'password'"
           v-model="password"
         />
+        <p v-if="!passwordLengthGreater(password)">
+          Password has to be atleast 8 characters long
+        </p>
       </div>
       <div class="mb-3">
-        <label for="exampleInputPassword2" class="form-label"
-          >Repeat password</label
-        >
+        <label :for="id" class="form-label">Repeat password</label>
         <input
           type="password"
           class="form-control"
-          id="inputPassowrd2"
+          :id="id + 'repeatPassword'"
           v-model="repeatPassword"
         />
+        <p v-if="!passwordMatch(password, repeatPassword)">
+          Password does not match
+        </p>
       </div>
       <button
         type="submit"
-        class="btn btn-primary"
+        :class="[
+          submitFormCheck() ? 'btn btn-primary' : 'btn btn-primary disabled',
+        ]"
         @click.prevent="
-          checkRepeatedEmailAndPassword(
-            this.password,
-            this.repeatPassword,
-            this.email,
-            this.repeatEmail
-          )
+          signupUser({
+            username: this.username,
+            email: email,
+            password: password,
+          })
         "
       >
         Submit
       </button>
     </form>
+    <div class="clearfix" v-show="getIsSignupLoading">
+      <div class="spinner-border float-end text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -81,16 +90,14 @@
 import { defineComponent } from "vue";
 import { useUserStore } from "../store/UserStore";
 import { mapActions, mapState } from "pinia";
+import { v4 as uuidv4 } from "uuid";
 
 export default defineComponent({
   name: "UserSignupForm",
   components: {},
-  expose:['closePopUp'],
+  expose: ["closePopUp"],
   methods: {
     ...mapActions(useUserStore, ["signupUser"]),
-    testMethod: function (exampleCheck1: string) {
-      console.log(exampleCheck1);
-    },
     checkRepeatedEmailAndPassword: function (
       password: string,
       repeatPassword: string,
@@ -107,9 +114,47 @@ export default defineComponent({
       }
       return;
     },
+    passwordMatch: function (
+      password: string,
+      repeatPassword: string
+    ): boolean {
+      if (password === repeatPassword) {
+        return (this.isPasswordMatch = true);
+      }
+      return (this.isPasswordMatch = false);
+    },
+    passwordLengthGreater: function (password: string): boolean {
+      if (password.length >= 8) {
+        return (this.isPasswordLengthGreater = true);
+      }
+      return (this.isPasswordLengthGreater = false);
+    },
+    emailMatch: function (email: string, repeatEmail: string): boolean {
+      if (email === repeatEmail) {
+        return (this.isEmailMatch = true);
+      }
+      return (this.isEmailMatch = false);
+    },
+    usernameLength: function (username: string): boolean {
+      if (username.length >= 5) {
+        return (this.isUsernameLengthGreater = true);
+      }
+      return (this.isUsernameLengthGreater = false);
+    },
+    submitFormCheck: function (): boolean {
+      if (
+        this.isEmailMatch &&
+        this.isPasswordMatch &&
+        this.isPasswordLengthGreater &&
+        this.isUsernameLengthGreater
+      ) {
+        return true;
+      }
+      return false;
+    },
   },
   computed: {
-    ...mapState(useUserStore, ["user"]),
+    ...mapState(useUserStore, ["user", "getIsSignupLoading"]),
   },
   data() {
     return {
@@ -118,8 +163,18 @@ export default defineComponent({
       repeatEmail: "",
       password: "",
       repeatPassword: "",
-      closePopUp: false
+      closePopUp: false,
+
+      isEmailMatch: false,
+      isPasswordMatch: false,
+      isPasswordLengthGreater: false,
+      isUsernameLengthGreater: false,
+
+      id: "",
     };
+  },
+  beforeMount() {
+    this.id = uuidv4();
   },
 });
 </script>

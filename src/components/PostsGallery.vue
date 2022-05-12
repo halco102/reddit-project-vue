@@ -1,88 +1,14 @@
 <template>
   <div class="main-div">
     <div class="wrapper-post">
-      <div class="signup" v-if="!isClose">
-        <h3>New to App ?</h3>
-        <h4>Signup below</h4>
-        <!-- Button trigger modal -->
-        <button
-          type="button"
-          class="btn btn-primary"
-          data-bs-toggle="modal"
-          data-bs-target="#exampleModal"
-        >
-          Sign up
-        </button>
-
-        <!-- Modal -->
-        <div
-          class="modal fade"
-          id="exampleModal"
-          tabindex="-1"
-          aria-labelledby="exampleModalLabel"
-          aria-hidden="true"
-          ref="signupModal"
-        >
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Signup</h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div class="modal-body">
-                <UserSignup />
-              </div>
-            </div>
-          </div>
+      <div class="signup" v-show="userLoginResponse.userProfileDto.id == 0">
+        <h3> New to app? </h3>
+        <UserSignupModal />
+        <p style="color:beige;">Alredy have a account ?</p>
+        <UserLoginModal />
         </div>
 
-        <div class="link-to-login">
-          <p>Already have an account?</p>
-          <button
-            type="button"
-            class="btn btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#loginModal"
-          >
-            Login
-          </button>
-          <div
-            class="modal fade"
-            id="loginModal"
-            tabindex="-1"
-            aria-labelledby="loginModal"
-            aria-hidden="true"
-            ref="loginModal"
-            @click="exitedModal"
-          >
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Login</h5>
-                  <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                  ></button>
-                </div>
-                <div class="modal-body">
-                  <UserLogin />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!--
-      <img v-if="posts.length === 0" src="https://camden.rutgers.edu/new/wp-content/plugins/elementor/assets/images/no-search-results.svg" >
-      -->
+<div class="test">
       <img
         style="display: grid"
         v-if="posts.length === 0"
@@ -147,6 +73,7 @@
           </div>
         </div>
       </router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -160,9 +87,9 @@ import {
   BIconHandThumbsDownFill,
   BIconChatFill,
 } from "bootstrap-icons-vue";
-import UserSignup from "./UserSignup.vue";
 import { useUserStore, PostedBy } from "../store/UserStore";
-import UserLogin from "./UserLogin.vue";
+import UserLoginModal from './modal/UserLoginModal.vue'
+import UserSignupModal from './modal/UserSignupModal.vue'
 
 
 
@@ -172,14 +99,15 @@ export default defineComponent({
     BIconHandThumbsUpFill,
     BIconHandThumbsDownFill,
     BIconChatFill,
-    UserSignup,
-    UserLogin,
+    UserLoginModal,
+    UserSignupModal
   },
   methods: {
     ...mapActions(usePostStore, [
       "postLikeOrDislikeForPost",
       "getNumberOfLikes",
       "getNumberOfDislikes",
+      'getEvent'
     ]),
     getPostId: function (id: number) {
       return id;
@@ -189,24 +117,6 @@ export default defineComponent({
         console.log("Hide modal");
         this.isClose = true;
       }
-    },
-
-    sendPostToWs: function (post: FrontPagePost): void {
-      const dummyData = {
-        id: 1000,
-        title: "String",
-        text: "STring",
-        imageUrl: "String",
-        postedBy: {
-          id: 1,
-          username: "a",
-          imageUrl: "a",
-        },
-        allowComments: true,
-        commentsDto: [],
-        postLikeOrDislikeDtos: [],
-      };
-
     },
 
   },
@@ -230,10 +140,19 @@ export default defineComponent({
       this.isClose = true;
     }
   },
+  updated(){
+    console.log("Post component updated")
+    this.getEvent();
+  }
 });
 </script>
 
 <style scoped>
+
+.signup-modal{
+  margin-left:0px;
+}
+
 .user-avatar {
   display: inline-block;
   float: left;
@@ -249,6 +168,13 @@ export default defineComponent({
   padding: 25px 0px;
   margin: 2% 16%;
 }
+
+.modal{
+  position:absolute;
+  display:grid;
+}
+
+
 .signup {
   position: absolute;
   width: 225px;
@@ -268,11 +194,15 @@ h4 {
   color: beige;
 }
 
-.link-to-login {
-  margin-top: 10px;
-}
-
 .bicon-reply-button {
   margin: 10px 4px 10px 4px;
+}
+
+
+
+@media only screen and (max-width: 992px){
+ .signup{
+   background-color:white;
+ } 
 }
 </style>

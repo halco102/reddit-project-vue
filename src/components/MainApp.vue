@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <NavigationBar />
-    <PostsGallery :posts="getAllPosts" @click="closeWebSocket()"/>
+    <PostsGallery :posts="getAllPosts" />
   </div>
 </template>
 
@@ -35,11 +35,15 @@ export default defineComponent({
 
 
   },
+  beforeUnmount(){
+    console.log("Close Mainapp websocket");
+    //this.closeWebSocket();
+  },
   computed: {
     ...mapState(usePostStore, ["getAllPosts"]),
   },
   created() {
-    this.stompConnection();
+    this.openWebsocket();
   },
   beforeMount(){
     console.log("before mount");
@@ -59,4 +63,5 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
 </style>
