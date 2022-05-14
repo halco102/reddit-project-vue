@@ -2,6 +2,11 @@
   <div class="main">
     <NavigationBar />
     <PostsGallery :posts="getAllPosts" />
+
+    <p> Test stomp nginx + spring stomp </p>
+
+    <button @click="subscribeToWs"> Subscribe to hear latest news </button>
+    <button @click="sendMessage"> Send data over stomp </button>
   </div>
 </template>
 
@@ -12,8 +17,11 @@ import PostsGallery from "./PostsGallery.vue";
 import { usePostStore } from "../store/PostStore";
 import { mapActions, mapState } from "pinia";
 
+//for stomp
+import * as Stomp from 'webstomp-client';
 
-//var ws = new WebSocket('ws://127.0.0.1:80/ws');
+let client : Stomp.Client;
+//end
 
 export default defineComponent({
   name: "MainApp",
@@ -22,17 +30,7 @@ export default defineComponent({
     PostsGallery,
   },
   methods: {
-    ...mapActions(usePostStore, ["fetchAllPostToShow", 'getEvent', 'openWebsocket', 'closeWebSocket']),
-    stompConnection: function() {
-      this.openWebsocket();
-      /*
-        ws.onopen = function() {
-          console.log("Open ws");
-        }; 
-        */     
-
-    },
-
+    ...mapActions(usePostStore, ["fetchAllPostToShow", 'getEvent', 'openWebsocket', 'closeWebSocket', 'subscribeToWs', 'sendMessage']),
 
   },
   beforeUnmount(){

@@ -3,9 +3,10 @@ import axios from "axios";
 import { PostedBy, useUserStore as user } from "./UserStore";
 import { CommentDto } from './CommentStore'
 import { useToast } from 'vue-toastification';
+import * as Stomp from 'webstomp-client';
 
 let ws = {} as WebSocket;
-
+const customWebsocket = Stomp.over(new WebSocket('ws://127.0.0.1:80/ws'));
 
 
 // Base url on localhost and ws
@@ -35,7 +36,7 @@ export interface postLikeOrDislikeRequest {
 }
 
 export interface PostLikeOrDislike {
-   likeOrDislike: boolean;
+   likeOrDislike: boolean | null;
 }
 
 export interface FrontPagePost {
@@ -61,7 +62,8 @@ export interface PostInterface {
    post: FrontPagePost,
    request: PostRequest,
    isLoading: boolean,
-   isDeleted: boolean
+   isDeleted: boolean,
+   isSameLikeOrDislikeButton: boolean
 }
 
 export const usePostStore = defineStore('postStore', {
@@ -89,7 +91,8 @@ export const usePostStore = defineStore('postStore', {
             allowComments: true,
          },
          isLoading: false,
-         isDeleted: false
+         isDeleted: false,
+         isSameLikeOrDislikeButton: false
       }
    },
    getters: {
@@ -156,6 +159,8 @@ export const usePostStore = defineStore('postStore', {
             //this.request = response.data;
             //this.posts.push(response.data);
             toast.success("Successfuly posted");
+            this.$state.posts.push(response.data);
+            this.sendMessage(this.$state.posts);
             this.sendEvent('ADD_POST');
          }).catch(function (ex) {
             console.log("ex", ex.response);
@@ -185,7 +190,7 @@ export const usePostStore = defineStore('postStore', {
                'Content-Type': 'application/json'
             }
          }).then(response => {
-
+            console.log("POST LIKED ", response.data);
             /*
             this.post = response.data;
             const temp = this.$state.posts.map((i) => i.id).indexOf(this.post.id);
@@ -196,6 +201,7 @@ export const usePostStore = defineStore('postStore', {
                const temp = state.posts.map((i) => i.id).indexOf(this.post.id);
                state.posts[temp] = this.post;
             })
+            
 
             this.post = response.data;
             this.sendEvent('LIKE_DISLIKE_POST');
@@ -208,6 +214,10 @@ export const usePostStore = defineStore('postStore', {
                toast.error("Something went wrong while saving post");
             }
          });
+      },
+
+      checkIfItsTheSameLikeOrDislike: function (postId: number, user: number) : boolean {
+         return false;
       },
 
       getNumberOfLikes: function (post: FrontPagePost): number {
@@ -253,6 +263,11 @@ export const usePostStore = defineStore('postStore', {
       },
       openWebsocket: function () : void{
 
+         // custom ws
+            console.log("Open custom websocket");
+         //end
+
+         
          console.log("WS", ws.readyState);
          
          if (ws.readyState === undefined){
@@ -266,6 +281,23 @@ export const usePostStore = defineStore('postStore', {
          }
       
       },
+      //stomp
+      subscribeToWs: function() : FrontPagePost[] {
+         let array : FrontPagePost[] = [];
+         console.log("SUBSCRIBED");
+
+         customWebsocket.subscribe('/topic/post', function(data){
+            console.log("User subscribed")
+            array = JSON.parse(data.body);
+            console.log("Data from server", array);
+         })
+         return array;
+      },
+      sendMessage: function(object : FrontPagePost[]) : void{
+         customWebsocket.send('/app/post', JSON.stringify(object));
+      },
+
+      //ws
       sendEvent: function (message: string) {
          ws.send(message);
       },

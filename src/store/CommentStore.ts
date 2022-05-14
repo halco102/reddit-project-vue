@@ -49,12 +49,12 @@ export interface Comment {
 
 export interface PostLikeOrDislikeRequest {
     commentId: number,
-    likeOrDislike: boolean | null
+    likeOrDislike: boolean
 }
 
 export interface PostLikeOrDislikeResponse {
     commentDto: CommentDto,
-    likeOrDislike: boolean | null,
+    likeOrDislike: boolean,
 }
 
 export const useCommentStore = defineStore('comments', {
@@ -124,7 +124,6 @@ export const useCommentStore = defineStore('comments', {
         postLikeOrDislike: async function (request: PostLikeOrDislikeRequest) {
             const json = JSON.stringify(request);
             console.log("Post like or dislike", json);
-            console.log("JWT", this.getJwtFromUser())
 
             await axios.post(BASE_URL + '/like-dislike', json, {
                 headers: {
@@ -132,12 +131,13 @@ export const useCommentStore = defineStore('comments', {
                     'Content-Type': 'application/json'
                 }
             }).then(response => {
-
+                    console.log("Response", response);
                 //this.$patch((state) => {
                     this.commentDto = response.data;
                     const temp = this.$state.commentsDto.map(i => i.id).indexOf(this.commentDto.id);
                     this.$state.commentsDto[temp] = this.commentDto;
                 //})
+
             }).catch(function (ex) {
                 if (ex.response.status === 401) {
                     toast.warning("You have to login to like or dislike a comment");

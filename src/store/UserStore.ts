@@ -164,13 +164,14 @@ export const useUserStore = defineStore('userStore', {
                 },
                 onUploadProgress: (() => { this.isLoginLoading = true })
             }).then(response => {
+                
                 this.userLoginResponse = response.data;
                 toast.success("Logged in");
             }).catch(function (ex) {
                 if (ex.response.status === 404) {
-                    toast.error("User does not exist");
+                    toast.error("Wrong email or/and password");
                 } else {
-                    toast.error("Something went wrong");
+                    toast.error(ex.response.data.message);
                 }
             }).finally(() => {
                 this.isLoginLoading = false;
