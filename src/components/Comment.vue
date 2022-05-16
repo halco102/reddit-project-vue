@@ -242,8 +242,9 @@ export default defineComponent({
     const toast = useToast();
     return { toast }
   },
-  mounted(){
-    this.openWebsocket();
+  created() {
+    console.log("Open Stomp connection in Comments.vue");
+    this.openWebsocketConnection();
   },
   methods: {
     ...mapActions(useCommentStore, [
@@ -254,10 +255,7 @@ export default defineComponent({
       'patchComments',
       'getNumberOfLikes',
       'getNumberOfDislikes',
-      'getEvent',
-      'sendEvent',
-      'closeWebSocket',
-      'openWebsocket'
+      'openWebsocketConnection'
     ]),
     ...mapActions(useUserStore, ["getUserByIdOrUsername"]),
     getNumberOfComments: function (comments: CommentDto[]): number {
@@ -324,14 +322,6 @@ export default defineComponent({
     updateValue(value: string) {
       this.writingComment = value;
     },
-  },
-  beforeUpdate(){
-    console.log("Try to get event")
-    this.getEvent();
-  },
-  unmounted(){
-    console.log("Close comment websocket");
-    this.closeWebSocket();
   },
   data() {
     return {

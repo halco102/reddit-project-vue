@@ -1,26 +1,24 @@
 import { defineStore } from "pinia";
 import axios from "axios";
-import { PostedBy, useUserStore as user } from "./UserStore";
+import { PostedBy, UserState, useUserStore as user, useUserStore } from "./UserStore";
 import { CommentDto } from './CommentStore'
 import { useToast } from 'vue-toastification';
 import * as Stomp from 'webstomp-client';
 
-let ws = {} as WebSocket;
-const customWebsocket = Stomp.over(new WebSocket('ws://127.0.0.1:80/ws'));
 
 
 // Base url on localhost and ws
-const BASE_URL = 'http://localhost:8082/api/v1/post'
-const wsUrl = 'ws://127.0.0.1:80/ws/post'
+//const BASE_URL = 'http://localhost:8082/api/v1/post'
+//const customWebsocket = Stomp.over(new WebSocket('ws://127.0.0.1:80/ws'));
+
 
 //when deployed
-/*
-const ngrok = 'http://2434-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.ngrok.io';
-const BASE_URL = ngrok +  '/api/v1/post'
-const wsUrl = 'ws://b6b4-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.jp.ngrok.io/ws/post'
-*/
+const BASE_URL = 'http://c739-2a02-810d-4b3f-cfe8-15a7-c810-4e3a-50d2.eu.ngrok.io' +  '/api/v1/post'
+const customWebsocket = Stomp.over(new WebSocket('ws://9e12-2a02-810d-4b3f-cfe8-15a7-c810-4e3a-50d2.ngrok.io/ws'));
+
 
 const toast = useToast();
+
 
 export interface UserPosts {
    id: number,
@@ -120,7 +118,6 @@ export const usePostStore = defineStore('postStore', {
 
       async fetchAllPostToShow() {
          await axios.get(BASE_URL).then(response => {
-            console.log("Fetch data", response.data)
             this.posts = response.data;
          }).catch(function (ex) {
             if (ex.response.status === 500) {
@@ -131,7 +128,6 @@ export const usePostStore = defineStore('postStore', {
 
       async fetchPostById(id: number) {
          await axios.get(BASE_URL + '/' + id).then(response => {
-            console.log("Single data fetch ", response.data)
             this.post = response.data;
          }).catch(function (ex) {
             if (ex.response.state === 500) {
@@ -160,8 +156,8 @@ export const usePostStore = defineStore('postStore', {
             //this.posts.push(response.data);
             toast.success("Successfuly posted");
             this.$state.posts.push(response.data);
-            this.sendMessage(this.$state.posts);
-            this.sendEvent('ADD_POST');
+            this.sendMessage(this.$state.posts, '');
+
          }).catch(function (ex) {
             console.log("ex", ex.response);
             if (ex.response.status === 400) {
@@ -190,7 +186,6 @@ export const usePostStore = defineStore('postStore', {
                'Content-Type': 'application/json'
             }
          }).then(response => {
-            console.log("POST LIKED ", response.data);
             /*
             this.post = response.data;
             const temp = this.$state.posts.map((i) => i.id).indexOf(this.post.id);
@@ -201,10 +196,9 @@ export const usePostStore = defineStore('postStore', {
                const temp = state.posts.map((i) => i.id).indexOf(this.post.id);
                state.posts[temp] = this.post;
             })
-            
+
 
             this.post = response.data;
-            this.sendEvent('LIKE_DISLIKE_POST');
          }).catch(function (ex) {
             if (ex.response.status === 400) {
                toast.error("Bad request");
@@ -214,10 +208,6 @@ export const usePostStore = defineStore('postStore', {
                toast.error("Something went wrong while saving post");
             }
          });
-      },
-
-      checkIfItsTheSameLikeOrDislike: function (postId: number, user: number) : boolean {
-         return false;
       },
 
       getNumberOfLikes: function (post: FrontPagePost): number {
@@ -237,20 +227,26 @@ export const usePostStore = defineStore('postStore', {
       },
 
       deletePostById: async function (id: number) {
-         console.log("Delete action", id)
 
+
+         
          await axios.delete(BASE_URL + '/' + id, {
             headers: {
                'Authorization': 'Bearer ' + this.getJwtFromUser(),
             }
          }).then(() => {
-            const index = this.posts.findIndex(object => {
-               return object.id === id;
+         
+            this.$state.posts.forEach((element, index) => {
+               if (element.id === id) {
+                  this.$state.posts.splice(index, 1);
+               }
             })
-            this.posts.splice(index);
-            console.log("After delte", this.posts)
-            toast.success("Post deleted");
+            console.log("After delete post", this.$state.posts);
+
+            this.sendMessage('POST_DELETED', '/delete');
             this.isDeleted = true;
+            
+
          }).catch(function (ex) {
             if (ex.response.status === 404) {
                toast.error(ex.response.statusText);
@@ -261,66 +257,36 @@ export const usePostStore = defineStore('postStore', {
             }
          })
       },
-      openWebsocket: function () : void{
-
-         // custom ws
-            console.log("Open custom websocket");
-         //end
-
-         
-         console.log("WS", ws.readyState);
-         
-         if (ws.readyState === undefined){
-            console.log("Open connection");
-            ws = new WebSocket(wsUrl);
+      openWebsocket: function (): void {
+         if (!customWebsocket.connected) {
+            customWebsocket.connect({}, () => {
+               console.log("On connect subscribe to post endpoint");
+               customWebsocket.subscribe('/topic/post', (msg) => {
+                  console.log("Message body ", JSON.parse(msg.body));
+                  this.$state.posts = JSON.parse(msg.body);
+               })
+            })
          }
 
-         if (ws.readyState === 3) {
-            console.log("Connection was closed, create new connection!");
-            ws = new WebSocket(wsUrl);
-         }
-      
       },
       //stomp
-      subscribeToWs: function() : FrontPagePost[] {
-         let array : FrontPagePost[] = [];
-         console.log("SUBSCRIBED");
+      sendMessage: function (object: FrontPagePost[] | string, path: string): void {
+         let msgEvent: string;
 
-         customWebsocket.subscribe('/topic/post', function(data){
-            console.log("User subscribed")
-            array = JSON.parse(data.body);
-            console.log("Data from server", array);
-         })
-         return array;
-      },
-      sendMessage: function(object : FrontPagePost[]) : void{
-         customWebsocket.send('/app/post', JSON.stringify(object));
-      },
-
-      //ws
-      sendEvent: function (message: string) {
-         ws.send(message);
-      },
-      getEvent: function (): void {
-         ws.onmessage = event => {
-            console.log("event triggered", event.data);
-            if (event.data === 'ADD_POST') {
-               console.log("Add post event");
-               this.fetchAllPostToShow();
-            }
-            if (event.data === 'LIKE_DISLIKE_POST') {
-               console.log("Like or dislike post event");
-               // get new state ? 
-               
-            }
-
-            
-
+         if (typeof object === 'string') {
+            console.log("String");
+            msgEvent = object;
+            customWebsocket.send('/app/post' + path, msgEvent);
+            return;
          }
+
+         console.log("Send object");
+         customWebsocket.send('/app/post' + path, JSON.stringify(object));
       },
-      closeWebSocket: function () {
-         console.log("Close post websocket");
-         ws.close();
-      }
+      disconnectFromWs: function (): void {
+         console.log("Disconnecting post ws");
+         customWebsocket.disconnect(() => { console.log("Disconnected") });
+      },
+
    },
 })

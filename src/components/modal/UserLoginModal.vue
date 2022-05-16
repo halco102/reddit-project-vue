@@ -53,7 +53,6 @@ export default defineComponent({
   },
   methods: {
     closeModal: function (value : boolean): void {
-      console.log("click", value)
       if (value) {
         document.getElementById('closeModal')!.click();
       }

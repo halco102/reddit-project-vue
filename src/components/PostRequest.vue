@@ -118,7 +118,7 @@ export default defineComponent({
     return { toast }
   },
   methods: {
-    ...mapActions(usePostStore, ["savePost", 'getEvent', 'openWebsocket','closeWebSocket']),
+    ...mapActions(usePostStore, ["savePost"]),
     onChangeInput: function (event: any): void {
       this.locationOfFile = event.target.files[0];
       this.isDisabled = true;
@@ -148,7 +148,6 @@ export default defineComponent({
   },
   created() {
     console.log("Open ws on post request");
-    this.openWebsocket();
   },
   unmounted() {
     console.log("Destroy")

@@ -3,26 +3,26 @@ import axios from "axios";
 import { PostedBy } from "./UserStore";
 import { useToast } from 'vue-toastification';
 import { useUserStore as user } from "./UserStore";
+import * as Stomp from 'webstomp-client';
 
 
 
-let ws = {} as WebSocket;
 
 // base url when using localhost
-const BASE_URL = 'http://localhost:8082/api/v1/comment'
-const wsUrl = 'ws://127.0.0.1:80/ws/comment'
+//const BASE_URL = 'http://localhost:8082/api/v1/comment'
+//const customWebsocket = Stomp.over(new WebSocket('ws://127.0.0.1:80/ws'));
 
 //base url when deployed
-/*
-const ngrok = 'http://2434-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.ngrok.io';
-const BASE_URL = ngrok +  '/api/v1/comment'
-const wsUrl = 'ws://b6b4-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.jp.ngrok.io/ws/comment'
-*/
+//const ngrok = 'http://9559-2a02-810d-4b3f-cfe8-4ef6-295d-3f06-9ad0.eu.ngrok.io';
+const BASE_URL = 'http://c739-2a02-810d-4b3f-cfe8-15a7-c810-4e3a-50d2.eu.ngrok.io' +  '/api/v1/comment'
+
+const customWebsocket = Stomp.over(new WebSocket('ws://9e12-2a02-810d-4b3f-cfe8-15a7-c810-4e3a-50d2.ngrok.io/ws'));
+
 
 const toast = useToast();
 
-export interface LikesDislikesComment{
-    likedOrDisliked : boolean;
+export interface LikesDislikesComment {
+    likedOrDisliked: boolean;
 }
 
 export interface CommentDto {
@@ -86,7 +86,7 @@ export const useCommentStore = defineStore('comments', {
 
     },
     actions: {
-        getJwtFromUser : function() : string{
+        getJwtFromUser: function (): string {
             return user().$state.userLoginResponse.jwt;
         },
 
@@ -106,14 +106,14 @@ export const useCommentStore = defineStore('comments', {
                 console.log("Post comment", this.commentsDto, 'Current comment posted', response.data);
                 this.commentsDto.push(response.data);
                 toast.success("Comment posted");
-                this.sendEvent('ADD_COMMENT', postAComment.postId);
-                
+
+                this.sendMessage(this.commentsDto, '');
             }).catch(function (ex) {
-                if(ex.response.status === 401) {
+                if (ex.response.status === 401) {
                     toast.warning("Unaothorized")
-                }else if (ex.response.status === 400) {
+                } else if (ex.response.status === 400) {
                     toast.warning("Bad request");
-                }else{
+                } else {
                     toast.warning("Something went wrong");
                 }
             })
@@ -127,21 +127,21 @@ export const useCommentStore = defineStore('comments', {
 
             await axios.post(BASE_URL + '/like-dislike', json, {
                 headers: {
-                    'Authorization' : 'Bearer ' + this.getJwtFromUser(),
+                    'Authorization': 'Bearer ' + this.getJwtFromUser(),
                     'Content-Type': 'application/json'
                 }
             }).then(response => {
-                    console.log("Response", response);
+                console.log("Response", response);
                 //this.$patch((state) => {
-                    this.commentDto = response.data;
-                    const temp = this.$state.commentsDto.map(i => i.id).indexOf(this.commentDto.id);
-                    this.$state.commentsDto[temp] = this.commentDto;
+                this.commentDto = response.data;
+                const temp = this.$state.commentsDto.map(i => i.id).indexOf(this.commentDto.id);
+                this.$state.commentsDto[temp] = this.commentDto;
                 //})
 
             }).catch(function (ex) {
                 if (ex.response.status === 401) {
                     toast.warning("You have to login to like or dislike a comment");
-                }else{
+                } else {
                     toast.warning("Something went wrong");
                 }
             })
@@ -151,7 +151,7 @@ export const useCommentStore = defineStore('comments', {
             await axios.get(BASE_URL + '/post/' + id).then(response => {
                 console.log("All comments from post", response.data)
                 this.commentsDto = response.data;
-            }).catch(function (){
+            }).catch(function () {
                 toast.warning("Something went wrong");
             })
         },
@@ -161,48 +161,40 @@ export const useCommentStore = defineStore('comments', {
             this.$reset();
         },
 
-        patchComments: function(comments: CommentDto[]) {
+        patchComments: function (comments: CommentDto[]) {
             this.commentsDto = comments;
         },
 
-        getNumberOfLikes: function(comment: CommentDto) : number{
+        getNumberOfLikes: function (comment: CommentDto): number {
             let number = 0;
             comment.likedOrDislikedComments.filter((x) => x.likedOrDisliked === true).map(() => number++);
             return number;
         },
-        getNumberOfDislikes: function(comment : CommentDto) : number{
+        getNumberOfDislikes: function (comment: CommentDto): number {
             let number = 0;
             comment.likedOrDislikedComments.filter((x) => x.likedOrDisliked === false).map(() => number++);
             return number;
         },
-        openWebsocket: function(){
+        openWebsocketConnection: function () {
 
-            console.log("WS", ws.readyState);
-         
-            if (ws.readyState === undefined){
-               console.log("Open connection");
-               ws = new WebSocket(wsUrl);
-            }
-   
-            if (ws.readyState === 3) {
-               console.log("Connection was closed, create new connection!");
-               ws = new WebSocket(wsUrl);
-            }
 
+            if (!customWebsocket.connected) {
+                customWebsocket.connect({}, (frame) => {
+                    // subscribe
+                    customWebsocket.subscribe('/topic/comment', (msg) => {
+                        console.log("Subscribed to comments", JSON.parse(msg.body));
+                        this.$state.commentsDto = JSON.parse(msg.body);
+                    })
+                })
+            }
         },
-         sendEvent: function(message : string, postId: number) {
-            ws.send(message + ' ' + postId);
-         },
-         getEvent: function(): void{
-            ws.onmessage = event => {
-               console.log("event triggered in comments", event.data);
-               console.log('SKrati', event.data.substring(11, event.data.length));
-               this.fetchAllCommentsFromPostById(event.data.substring(11, event.data.length));
-            }
-         },
-         closeWebSocket: function() {
-            ws.close();
-         }
+        sendMessage: function (object: CommentDto[] | string, path: string) {
+            customWebsocket.send('/app/comment' + path, JSON.stringify(object));
+        },
+        disconnectFromWs: function () {
+            console.log("Disconnect from ws");
+            customWebsocket.disconnect();
+        }
 
     }
 })

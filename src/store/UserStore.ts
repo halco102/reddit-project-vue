@@ -3,15 +3,23 @@ import { defineStore } from "pinia";
 import { PostLikeOrDislikeResponse } from "./CommentStore";
 import { UserPosts, FrontPagePost } from './PostStore'
 import { useToast } from "vue-toastification";
+//import * as Stomp from 'webstomp-client';
+import { Client, Frame, IFrame, Stomp } from "@stomp/stompjs";
+
 
 //Base url localhost
-const BASE_URL = 'http://localhost:8082/api/v1/user'
+//const BASE_URL = 'http://localhost:8082/api/v1/user'
+//const customWebsocket = Stomp.over(new WebSocket('ws://127.0.0.1:80/ws'));
 
 // Deployed url
-/*
-const ngrok = 'http://2434-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.ngrok.io';
-const BASE_URL = ngrok +  '/api/v1/user'
-*/
+
+const BASE_URL = 'http://172.18.0.4:8082' + '/api/v1/user'
+
+//const customWebsocket = Stomp.over(new WebSocket('ws://9e12-2a02-810d-4b3f-cfe8-15a7-c810-4e3a-50d2.ngrok.io/ws'));
+let customWebsocket: Client;
+
+
+
 
 const toast = useToast();
 
@@ -126,6 +134,9 @@ export const useUserStore = defineStore('userStore', {
         getIsLoginLoading(state): boolean {
             return state.isLoginLoading;
         },
+        getUserId(state): number {
+            return state.userLoginResponse.userProfileDto.id;
+        }
     },
     actions: {
 
@@ -164,7 +175,7 @@ export const useUserStore = defineStore('userStore', {
                 },
                 onUploadProgress: (() => { this.isLoginLoading = true })
             }).then(response => {
-                
+
                 this.userLoginResponse = response.data;
                 toast.success("Logged in");
             }).catch(function (ex) {
@@ -207,12 +218,69 @@ export const useUserStore = defineStore('userStore', {
         },
         getAllPostsFromUserByUserId: async function (userId: number) {
 
-            await axios.get(BASE_URL + '/' + 'user/' + userId + '/post')
+            await axios.get(BASE_URL + '/' + userId + '/posts')
                 .then(response => {
                     console.log("Response of get", response.data);
                     this.postForLikeDislike = response.data;
+
                 })
-        }
+        },
+        openUserWebsocket: function (): void {
+            
+            customWebsocket = new Client({
+                brokerURL: 'ws://172.18.0.4/ws',
+                    connectHeaders: {},
+                    debug: function (str) {
+                        console.log(str)
+                    },
+                    reconnectDelay: 5000,
+                    heartbeatIncoming: 4000,
+                    heartbeatOutgoing: 4000,
+                    onConnect: () => {
+                        console.log("Subscribe when connected");
+                        customWebsocket.subscribe('/topic/user', (msg) => {
+                            console.log("Message body ", JSON.parse(msg.body));
+                            this.$state.userProfile = JSON.parse(msg.body);
+                        })
+                    },
+                
+                    
+            });
+            
+            customWebsocket.activate();
+            /*
+            if (!customWebsocket.connected) {
+                customWebsocket.connect({}, () => {
+                    console.log("On connect subscribe to User endpoint");
+                    customWebsocket.subscribe('/topic/user', (msg) => {
+                        console.log("Message body ", JSON.parse(msg.body));
+                        this.$state.userProfile = JSON.parse(msg.body);
+                    })
+                })
+            }*/
+
+        },
+        //stomp
+        sendUserMessage: function (object: UserProfile | string, path: string): void {
+            let msgEvent: string;
+
+            if (typeof object === 'string') {
+                console.log("String");
+                msgEvent = object;
+                //customWebsocket.send('/app/user/update' + path, [], msgEvent);
+                return;
+            }
+
+            console.log("Send object");
+            customWebsocket.publish({
+                destination: '/app/user/update',
+                body: JSON.stringify(object)
+            });
+        },
+        disconnectFromWs: function (): void {
+            console.log("Disconnecting post ws");
+            //customWebsocket.disconnect(() => { console.log("Disconnected") });
+        },
 
     }
 })

@@ -9,7 +9,7 @@ const routes = [
     {
         path: '/',
         name: 'Home',
-        component: MainApp
+        component: MainApp,
     },
     {
         path: '/post/:id',

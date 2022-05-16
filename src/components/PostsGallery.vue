@@ -106,8 +106,7 @@ export default defineComponent({
     ...mapActions(usePostStore, [
       "postLikeOrDislikeForPost",
       "getNumberOfLikes",
-      "getNumberOfDislikes",
-      'getEvent'
+      "getNumberOfDislikes"
     ]),
     getPostId: function (id: number) {
       return id;
@@ -142,7 +141,6 @@ export default defineComponent({
   },
   updated(){
     console.log("Post component updated")
-    this.getEvent();
   }
 });
 </script>

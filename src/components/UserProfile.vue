@@ -21,6 +21,18 @@
                 <p class="card-text" style="color: black">
                   {{ post.text }}
                 </p>
+                <div class="delete-icon-wrapper" v-if="isCurrentUser()">
+                  <div class="delete-icon">
+                    <button style="border: none; background: none">
+                      <BIconTrash
+                        @click.prevent="deletePost(post.id)"
+                        color="#0d6efd"
+                        width="25px"
+                        height="25px"
+                      />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -50,20 +62,26 @@
 import { defineComponent } from "vue";
 import NavigationBar from "./NavigationBar.vue";
 import { useUserStore, PostedBy } from "../store/UserStore";
+import { usePostStore } from "../store/PostStore";
 import { mapActions, mapState } from "pinia";
 import UserProfileBar from "./UserProfileBar.vue";
+import { BIconTrash } from "bootstrap-icons-vue";
 
 export default defineComponent({
   name: "UserProfile",
   components: {
     NavigationBar,
     UserProfileBar,
+    BIconTrash,
   },
   methods: {
     ...mapActions(useUserStore, [
       "getUserByIdOrUsername",
       "getAllPostsFromUserByUserId",
+      "openUserWebsocket",
+      'sendUserMessage',
     ]),
+    ...mapActions(usePostStore, ["deletePostById"]),
     getPostedBy: function (): PostedBy {
       console.log("GetPostedBy", this.getUserProfile);
       return {
@@ -73,10 +91,19 @@ export default defineComponent({
       };
     },
     getNumberOfLikesFromAllPosts: function (): number {
-      console.log("Start action");
       console.log(this.getLikesDislikesFromPost);
 
       return this.likes;
+    },
+    deletePost: function (id: number) : void{
+      this.deletePostById(id);
+    },
+    isCurrentUser: function() : boolean {
+      let convert : number = + this.$route.params.userId;
+      if (convert === this.getUserLogin.userProfileDto.id) {
+        return true;
+      }
+      return false;
     },
   },
   data() {
@@ -85,18 +112,29 @@ export default defineComponent({
     };
   },
   computed: {
-    ...mapState(useUserStore, ["getUserProfile", "getLikesDislikesFromPost"]),
+    ...mapState(useUserStore, ["getUserProfile", "getLikesDislikesFromPost",'getUserLogin']),
+    ...mapState(usePostStore, ["getIsDeleted"]),
   },
   created() {
     let convertStringToInt = +this.$route.params.userId;
     this.getUserByIdOrUsername(convertStringToInt, null);
+    this.openUserWebsocket();
   },
   watch: {
-    getUserProfile : function() {
-      console.log("Got data", this.getUserProfile);
-      this.getUserProfile.posts.filter((x) => x.postLikeOrDislikeDtos.filter((y) => y.likeOrDislike === true).map(() => this.likes++));
+    getUserProfile: function () {
+
+      this.getUserProfile.posts.filter((x) =>
+        x.postLikeOrDislikeDtos
+          .filter((y) => y.likeOrDislike === true)
+          .map(() => this.likes++)
+      );
+
+    },
+    getIsDeleted: function(){
+      console.log("Post is deleted");
+      this.sendUserMessage(this.getUserProfile, '');
     }
-  }
+  },
 });
 </script>
 
@@ -137,5 +175,10 @@ export default defineComponent({
 
 .additional-information p {
   color: black;
+}
+
+.delete-icon-wrapper {
+  margin-left: 24.6%;
+  margin-right: 25%;
 }
 </style>
