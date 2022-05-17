@@ -67,7 +67,7 @@
             >
               <BIconHandThumbsUpFill />
             </button>
-            <span class="center-span">{{getNumberOfLikes(com)}}</span>
+            <span class="center-span">{{ getNumberOfLikes(com) }}</span>
             <button
               type="submit"
               class="btn btn-primary bicon-reply-button"
@@ -80,7 +80,7 @@
             >
               <BIconHandThumbsDownFill />
             </button>
-            <span class="center-span">{{getNumberOfDislikes(com)}}</span>
+            <span class="center-span">{{ getNumberOfDislikes(com) }}</span>
             <button
               class="btn btn-primary bicon-reply-button"
               style="float: left"
@@ -88,7 +88,24 @@
             >
               <BIconReply />
             </button>
+
+            <div
+              class="delete-icon-wrapper"
+              v-show="isCommentHolder(com.userInfo.id)"
+            >
+              <div class="delete-icon">
+                <button style="border: none; background: none">
+                  <BIconTrash
+                    @click.prevent="deleteCommentById(com.id)"
+                    color="#0d6efd"
+                    width="25px"
+                    height="25px"
+                  />
+                </button>
+              </div>
+            </div>
           </div>
+
           <div class="reply-form" v-if="com.id === selectedItem">
             <form
               v-on:submit.prevent="
@@ -124,6 +141,7 @@
           </div>
         </div>
 
+        <!-- reply -->
         <div class="reply-comment" v-else>
           <div class="commented-by">
             <div class="user-div">
@@ -146,7 +164,7 @@
               >
                 <BIconHandThumbsUpFill />
               </button>
-              <span class="center-span">{{getNumberOfLikes(com)}}</span>
+              <span class="center-span">{{ getNumberOfLikes(com) }}</span>
               <button
                 type="submit"
                 class="btn btn-primary bicon-reply-button"
@@ -159,7 +177,7 @@
               >
                 <BIconHandThumbsDownFill />
               </button>
-              <span class="center-span">{{getNumberOfDislikes(com)}}</span>
+              <span class="center-span">{{ getNumberOfDislikes(com) }}</span>
               <button
                 class="btn btn-primary bicon-reply-button"
                 style="float: left"
@@ -203,6 +221,7 @@
             </div>
           </div>
         </div>
+        <p style="color: yellow" v-if="com === null">V-for</p>
       </div>
     </div>
     <div class="comments" v-else>
@@ -217,12 +236,13 @@ import {
   BIconHandThumbsUpFill,
   BIconHandThumbsDownFill,
   BIconReply,
+  BIconTrash,
 } from "bootstrap-icons-vue";
 import { FrontPagePost } from "../store/PostStore";
 import { useCommentStore, CommentDto } from "../store/CommentStore";
 import { mapActions, mapState } from "pinia";
 import { useUserStore } from "../store/UserStore";
-import { useToast } from 'vue-toastification';
+import { useToast } from "vue-toastification";
 
 export default defineComponent({
   name: "CommentSection",
@@ -230,6 +250,7 @@ export default defineComponent({
     BIconHandThumbsUpFill,
     BIconHandThumbsDownFill,
     BIconReply,
+    BIconTrash,
   },
   props: {
     post: Object as PropType<FrontPagePost>,
@@ -240,7 +261,7 @@ export default defineComponent({
   },
   setup() {
     const toast = useToast();
-    return { toast }
+    return { toast };
   },
   created() {
     console.log("Open Stomp connection in Comments.vue");
@@ -252,10 +273,11 @@ export default defineComponent({
       "postLikeOrDislike",
       "fetchAllCommentsFromPostById",
       "resetState",
-      'patchComments',
-      'getNumberOfLikes',
-      'getNumberOfDislikes',
-      'openWebsocketConnection'
+      "patchComments",
+      "getNumberOfLikes",
+      "getNumberOfDislikes",
+      "openWebsocketConnection",
+      "deleteCommentById",
     ]),
     ...mapActions(useUserStore, ["getUserByIdOrUsername"]),
     getNumberOfComments: function (comments: CommentDto[]): number {
@@ -317,10 +339,18 @@ export default defineComponent({
           .map((k) => filteredArray.push(k));
       });
 
+      console.log("Filter", filteredArray);
+
       return filteredArray;
     },
     updateValue(value: string) {
       this.writingComment = value;
+    },
+    isCommentHolder(commentUserId: number): boolean {
+      if (this.getUserLogin.userProfileDto.id === commentUserId) {
+        return true;
+      }
+      return false;
     },
   },
   data() {
@@ -341,11 +371,11 @@ export default defineComponent({
       this.resetState();
       this.fetchAllCommentsFromPostById(newVal.id);
     },
-    getAllCommentsByPostId: function(){
-      console.log("FETCH DATA WATCH")
+    getAllCommentsByPostId: function () {
+      console.log("FETCH DATA WATCH");
       this.dataComments = this.getAllCommentsByPostId;
-    }
-  }
+    },
+  },
 });
 </script>
 
@@ -396,9 +426,9 @@ export default defineComponent({
   display: grid;
 }
 
-.center-span{
-  margin-top:auto;
-  margin-bottom:auto;
+.center-span {
+  margin-top: auto;
+  margin-bottom: auto;
   margin-right: 1em;
 }
 
@@ -408,5 +438,10 @@ export default defineComponent({
 
 .bicon-reply-button {
   margin: 10px 4px 10px 4px;
+}
+.delete-icon-wrapper {
+  margin-left: auto;
+  display: grid;
+  align-items: center;
 }
 </style>

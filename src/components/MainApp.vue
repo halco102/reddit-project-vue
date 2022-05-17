@@ -24,7 +24,7 @@ export default defineComponent({
     ...mapActions(usePostStore, [
       "fetchAllPostToShow",
       "openWebsocket",
-      "disconnectFromWs",
+      'disconnectFromWs'
     ]),
   },
   computed: {

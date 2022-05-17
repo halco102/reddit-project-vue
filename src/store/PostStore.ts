@@ -4,6 +4,7 @@ import { PostedBy, UserState, useUserStore as user, useUserStore } from "./UserS
 import { CommentDto } from './CommentStore'
 import { useToast } from 'vue-toastification';
 import * as Stomp from 'webstomp-client';
+import { Client } from "@stomp/stompjs";
 
 
 
@@ -13,9 +14,9 @@ import * as Stomp from 'webstomp-client';
 
 
 //when deployed
-const BASE_URL = 'http://c739-2a02-810d-4b3f-cfe8-15a7-c810-4e3a-50d2.eu.ngrok.io' +  '/api/v1/post'
-const customWebsocket = Stomp.over(new WebSocket('ws://9e12-2a02-810d-4b3f-cfe8-15a7-c810-4e3a-50d2.ngrok.io/ws'));
-
+const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' + '/api/v1/post'
+let customWebsocket : Client; 
+const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws'
 
 const toast = useToast();
 
@@ -241,7 +242,7 @@ export const usePostStore = defineStore('postStore', {
                   this.$state.posts.splice(index, 1);
                }
             })
-            console.log("After delete post", this.$state.posts);
+
 
             this.sendMessage('POST_DELETED', '/delete');
             this.isDeleted = true;
@@ -255,37 +256,60 @@ export const usePostStore = defineStore('postStore', {
             } else {
                toast.error("Something went wrong while saving post");
             }
+         }).finally(() => {
+            this.isDeleted = false;
          })
       },
       openWebsocket: function (): void {
-         if (!customWebsocket.connected) {
-            customWebsocket.connect({}, () => {
-               console.log("On connect subscribe to post endpoint");
-               customWebsocket.subscribe('/topic/post', (msg) => {
-                  console.log("Message body ", JSON.parse(msg.body));
-                  this.$state.posts = JSON.parse(msg.body);
-               })
-            })
-         }
+
+         customWebsocket = new Client({
+            brokerURL: ws,
+                connectHeaders: {},
+                debug: function (str) {
+                    console.log(str)
+                },
+                reconnectDelay: 5000,
+                heartbeatIncoming: 4000,
+                heartbeatOutgoing: 4000,
+                onConnect: () => {
+                    console.log("Subscribe when connected");
+                    customWebsocket.subscribe('/topic/post', (msg) => {
+                        console.log("Message body ", JSON.parse(msg.body));
+                        this.$state.posts = JSON.parse(msg.body);
+                    })
+                },
+            
+                
+        });
+        
+        customWebsocket.activate();
 
       },
       //stomp
       sendMessage: function (object: FrontPagePost[] | string, path: string): void {
          let msgEvent: string;
 
+         
          if (typeof object === 'string') {
             console.log("String");
             msgEvent = object;
-            customWebsocket.send('/app/post' + path, msgEvent);
+            console.log("msgEvent", msgEvent)
+            customWebsocket.publish({
+               destination:'/app/post/delete',
+               body: "POST_DELETED"
+            });
             return;
          }
 
          console.log("Send object");
-         customWebsocket.send('/app/post' + path, JSON.stringify(object));
+         customWebsocket.publish({
+            destination : '/app/post' + path,
+            body: JSON.stringify(object)
+         });
       },
       disconnectFromWs: function (): void {
          console.log("Disconnecting post ws");
-         customWebsocket.disconnect(() => { console.log("Disconnected") });
+         customWebsocket.deactivate();
       },
 
    },

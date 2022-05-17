@@ -4,20 +4,21 @@ import { PostedBy } from "./UserStore";
 import { useToast } from 'vue-toastification';
 import { useUserStore as user } from "./UserStore";
 import * as Stomp from 'webstomp-client';
+import { Client } from "@stomp/stompjs";
 
 
 
 
 // base url when using localhost
 //const BASE_URL = 'http://localhost:8082/api/v1/comment'
-//const customWebsocket = Stomp.over(new WebSocket('ws://127.0.0.1:80/ws'));
+//const ws = 'ws://127.0.0.1/ws'
 
 //base url when deployed
-//const ngrok = 'http://9559-2a02-810d-4b3f-cfe8-4ef6-295d-3f06-9ad0.eu.ngrok.io';
-const BASE_URL = 'http://c739-2a02-810d-4b3f-cfe8-15a7-c810-4e3a-50d2.eu.ngrok.io' +  '/api/v1/comment'
+const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' +  '/api/v1/comment'
+const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws'
 
-const customWebsocket = Stomp.over(new WebSocket('ws://9e12-2a02-810d-4b3f-cfe8-15a7-c810-4e3a-50d2.ngrok.io/ws'));
 
+let customWebsocket : Client;
 
 const toast = useToast();
 
@@ -156,7 +157,23 @@ export const useCommentStore = defineStore('comments', {
             })
         },
 
-
+        deleteCommentById: async function(id : number) {
+            console.log("Delete comment by id");
+            await axios.delete(BASE_URL + '/' + id, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.getJwtFromUser(),
+                    'Content-Type': 'application/json'
+                }
+            }).then(() => {
+                console.log("Send event to everyone");
+                this.$state.commentsDto.forEach((element, index) => {
+                    if (element.id === id) {
+                        this.$state.commentsDto.splice(index, 1);
+                    }
+                })
+                this.sendMessage('COMMENT_DELETED', '', this.$state.commentsDto)
+            })
+        },
         resetState: function () {
             this.$reset();
         },
@@ -177,23 +194,54 @@ export const useCommentStore = defineStore('comments', {
         },
         openWebsocketConnection: function () {
 
+            customWebsocket = new Client({
+                brokerURL: ws,
+                    connectHeaders: {},
+                    debug: function (str) {
+                        console.log(str)
+                    },
+                    reconnectDelay: 5000,
+                    heartbeatIncoming: 4000,
+                    heartbeatOutgoing: 4000,
+                    onConnect: () => {
+                        console.log("Subscribe to comment when connected");
+                        customWebsocket.subscribe('/topic/comment', (msg) => {
+                            console.log("Message body ", JSON.parse(msg.body));
+                            this.$state.commentsDto = JSON.parse(msg.body);
+                        })
+                    },
+                
+                    
+            });
+            
+            customWebsocket.activate();
 
-            if (!customWebsocket.connected) {
-                customWebsocket.connect({}, (frame) => {
-                    // subscribe
-                    customWebsocket.subscribe('/topic/comment', (msg) => {
-                        console.log("Subscribed to comments", JSON.parse(msg.body));
-                        this.$state.commentsDto = JSON.parse(msg.body);
-                    })
-                })
-            }
         },
-        sendMessage: function (object: CommentDto[] | string, path: string) {
-            customWebsocket.send('/app/comment' + path, JSON.stringify(object));
+        sendMessage: function (object: CommentDto[] | string, path: string, commentsState? : CommentDto[]) {
+
+            let msgEvent: string;
+
+         
+            if (typeof object === 'string') {
+               console.log("String");
+               msgEvent = object;
+               console.log("msgEvent", msgEvent)
+               customWebsocket.publish({
+                  destination:'/app/comment/delete',
+                  body: JSON.stringify(commentsState)
+               });
+               return;
+            }
+
+            customWebsocket.publish({
+                destination: '/app/comment' + path,
+                body: JSON.stringify(object)
+            })
+
         },
         disconnectFromWs: function () {
             console.log("Disconnect from ws");
-            customWebsocket.disconnect();
+            customWebsocket.forceDisconnect();
         }
 
     }

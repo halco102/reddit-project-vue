@@ -13,10 +13,11 @@ import { Client, Frame, IFrame, Stomp } from "@stomp/stompjs";
 
 // Deployed url
 
-const BASE_URL = 'http://172.18.0.4:8082' + '/api/v1/user'
+const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' + '/api/v1/user'
 
 //const customWebsocket = Stomp.over(new WebSocket('ws://9e12-2a02-810d-4b3f-cfe8-15a7-c810-4e3a-50d2.ngrok.io/ws'));
 let customWebsocket: Client;
+const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws';
 
 
 
@@ -226,9 +227,10 @@ export const useUserStore = defineStore('userStore', {
                 })
         },
         openUserWebsocket: function (): void {
+
             
             customWebsocket = new Client({
-                brokerURL: 'ws://172.18.0.4/ws',
+                brokerURL: ws,
                     connectHeaders: {},
                     debug: function (str) {
                         console.log(str)
@@ -248,28 +250,10 @@ export const useUserStore = defineStore('userStore', {
             });
             
             customWebsocket.activate();
-            /*
-            if (!customWebsocket.connected) {
-                customWebsocket.connect({}, () => {
-                    console.log("On connect subscribe to User endpoint");
-                    customWebsocket.subscribe('/topic/user', (msg) => {
-                        console.log("Message body ", JSON.parse(msg.body));
-                        this.$state.userProfile = JSON.parse(msg.body);
-                    })
-                })
-            }*/
-
         },
         //stomp
         sendUserMessage: function (object: UserProfile | string, path: string): void {
             let msgEvent: string;
-
-            if (typeof object === 'string') {
-                console.log("String");
-                msgEvent = object;
-                //customWebsocket.send('/app/user/update' + path, [], msgEvent);
-                return;
-            }
 
             console.log("Send object");
             customWebsocket.publish({

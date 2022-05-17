@@ -8,6 +8,7 @@ import Toast, { PluginOptions, POSITION } from 'vue-toastification'
 
 
 
+
 // Import Bootstrap an BootstrapVue CSS files (order is important)
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'
