@@ -1,12 +1,12 @@
 <template>
   <div class="main-div">
     <div class="wrapper-post">
-      <div class="signup" v-show="userLoginResponse.userProfileDto.id == 0">
-        <h3> New to app? </h3>
+      <div class="signup">
+        <h3> New to app? <br> Signup here<br></h3>
         <UserSignupModal />
-        <p style="color:beige;">Alredy have a account ?</p>
-        <UserLoginModal />
         </div>
+
+        
 
 <div class="test">
       <img
@@ -88,7 +88,6 @@ import {
   BIconChatFill,
 } from "bootstrap-icons-vue";
 import { useUserStore, PostedBy } from "../store/UserStore";
-import UserLoginModal from './modal/UserLoginModal.vue'
 import UserSignupModal from './modal/UserSignupModal.vue'
 
 
@@ -99,7 +98,6 @@ export default defineComponent({
     BIconHandThumbsUpFill,
     BIconHandThumbsDownFill,
     BIconChatFill,
-    UserLoginModal,
     UserSignupModal
   },
   methods: {

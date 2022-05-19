@@ -1,39 +1,14 @@
 <template>
+
   <div class="link-to-login">
-    <button
-      type="button"
-      class="btn btn-primary"
-      data-bs-toggle="modal"
-      data-bs-target="#loginModal"
-    >
-      Login
-    </button>
-    <div 
-      class="modal fade"
-      id="loginModal"
-      tabindex="-1"
-      aria-labelledby="loginModal2"
-      aria-hidden="true"
-      ref="loginModal"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Login</h5>
-            <button
-              id="closeModal"
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <UserLogin @close = "closeModal"/>
-          </div>
-        </div>
-      </div>
-    </div>
+
+    <vue-final-modal v-model="showModal"  classes="modal-container" content-class="modal-content">
+      <h3>Login</h3>
+      <UserLogin @close="closeModal"/>
+    </vue-final-modal>
+    <button class="btn btn-primary" @click="showModal = true">Login</button>
+
+
   </div>
 </template>
 
@@ -46,25 +21,49 @@ import { mapState } from "pinia";
 export default defineComponent({
   name: "UserLoginModal",
   components: {
-    UserLogin,
+    UserLogin
   },
   computed: {
     ...mapState(useUserStore, ["userLoginResponse"]),
   },
   methods: {
-    closeModal: function (value : boolean): void {
-      if (value) {
-        document.getElementById('closeModal')!.click();
-      }
-    },
+    closeModal : function(value : boolean) {
+      this.showModal = !value;
+      return this.showModal;
+    }
   },
-  data() {
-    return {
-      isClose: false,
-    };
+  data(){
+    return{
+      showModal:false
+    }
   },
 });
 </script>
 
 <style scoped>
+
+h3{
+  text-align:center;
+}
+
+::v-deep .modal-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+::v-deep .modal-content {
+  display: flex;
+  flex-direction: column;
+  margin: 0 1rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.25rem;
+  background: #fff;
+  margin-left:23%;
+  margin-right:24.2%
+}
+.modal__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
 </style>

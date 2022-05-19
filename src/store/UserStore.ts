@@ -5,19 +5,18 @@ import { UserPosts, FrontPagePost } from './PostStore'
 import { useToast } from "vue-toastification";
 //import * as Stomp from 'webstomp-client';
 import { Client, Frame, IFrame, Stomp } from "@stomp/stompjs";
+import { string } from "yup";
 
 
 //Base url localhost
-//const BASE_URL = 'http://localhost:8082/api/v1/user'
-//const customWebsocket = Stomp.over(new WebSocket('ws://127.0.0.1:80/ws'));
-
+const BASE_URL = 'http://127.0.0.1:81/api/v1/user'
+const ws = 'ws://127.0.0.1:80/ws'
 // Deployed url
 
-const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' + '/api/v1/user'
+//const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' + '/api/v1/user'
+//const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws';
 
-//const customWebsocket = Stomp.over(new WebSocket('ws://9e12-2a02-810d-4b3f-cfe8-15a7-c810-4e3a-50d2.ngrok.io/ws'));
 let customWebsocket: Client;
-const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws';
 
 
 
@@ -31,8 +30,8 @@ export interface signupRequest {
 }
 
 export interface signInRequest {
-    email: '',
-    password: ''
+    email: string,
+    password: string
 }
 
 export interface PostedBy {
@@ -76,6 +75,7 @@ export interface UserState {
     postForLikeDislike: FrontPagePost[],
     isSignupLoading: boolean,
     isLoginLoading: boolean,
+    successfullSignup: boolean
 }
 
 
@@ -114,6 +114,7 @@ export const useUserStore = defineStore('userStore', {
             postForLikeDislike: [],
             isSignupLoading: false,
             isLoginLoading: false,
+            successfullSignup: false,
         }
     },
     getters: {
@@ -137,6 +138,9 @@ export const useUserStore = defineStore('userStore', {
         },
         getUserId(state): number {
             return state.userLoginResponse.userProfileDto.id;
+        },
+        getSuccessfullSignup(state) : boolean {
+            return state.successfullSignup;
         }
     },
     actions: {
@@ -152,6 +156,10 @@ export const useUserStore = defineStore('userStore', {
             }).then(response => {
 
                 console.log("Signup user", response.data);
+                if (response.data != null) {
+                    console.log("Succ signup", response.data);
+                    this.successfullSignup = true;
+                }
                 toast.success("User signed up");
             }).catch(function (ex) {
                 if (ex.response.status === 409) {

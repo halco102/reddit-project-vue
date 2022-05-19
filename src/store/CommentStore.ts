@@ -10,12 +10,12 @@ import { Client } from "@stomp/stompjs";
 
 
 // base url when using localhost
-//const BASE_URL = 'http://localhost:8082/api/v1/comment'
-//const ws = 'ws://127.0.0.1/ws'
+const BASE_URL = 'http://127.0.0.1:81/api/v1/comment'
+const ws = 'ws://127.0.0.1:80/ws'
 
 //base url when deployed
-const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' +  '/api/v1/comment'
-const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws'
+//const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' +  '/api/v1/comment'
+//const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws'
 
 
 let customWebsocket : Client;

@@ -5,7 +5,7 @@ import { createPinia } from 'pinia'
 import router from './router'
 import 'vue-toastification'
 import Toast, { PluginOptions, POSITION } from 'vue-toastification'
-
+import VueFinalModal from 'vue-final-modal'
 
 
 
@@ -28,4 +28,5 @@ app.use(router)
 app.use(pinia)
 app.use(BootStrapVue3)
 app.use(Toast, options)
+app.use(VueFinalModal)
 app.mount('#app')

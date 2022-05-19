@@ -33,4 +33,13 @@ export default defineComponent({
   width:100%
 }
 
+.modal {
+  width: 300px;
+  padding: 30px;
+  box-sizing: border-box;
+  background-color: #fff;
+  font-size: 20px;
+  text-align: center;
+}
+
 </style>

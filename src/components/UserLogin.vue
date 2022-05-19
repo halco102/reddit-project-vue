@@ -1,41 +1,38 @@
 <template>
-  <div class="main-user-div">
-    <form>
+  <div>
+    <Form @submit="onSubmit" :validation-schema="schema" v-slot="{  submitCount }">
       <div class="mb-3">
-        <label :for="this.id" class="form-label">Email address</label>
+        <Field name="email" v-slot="{ field, meta }" >
+        <label for="inserEmail" class="form-label">Email</label>
         <input
-          type="email"
-          class="form-control"
-          :id="this.id"
-          aria-describedby="emailHelp"
-          v-model="email1"
+          v-bind="field"
+          :class="
+            !meta.touched || meta.valid
+              ? 'form-control'
+              : 'form-control form-color-error'
+          "
         />
-        <div id="loginemailHelp" class="form-text">
-          We'll never share your email with anyone else.
-        </div>
+        </Field>
+        <ErrorMessage name="email"/>
       </div>
       <div class="mb-3">
-        <label :for="this.id" class="form-label">Password</label>
+        <Field name="password" v-slot="{ field, meta }" >
+        <label for="insertPassword" class="form-label">Password</label>
         <input
+          v-bind="field"
+          :class="
+            !meta.touched || meta.valid
+              ? 'form-control'
+              : 'form-control form-color-error'
+          "
           type="password"
-          class="form-control"
-          :id="this.id"
-          v-model="password1"
         />
+        </Field>
+        <ErrorMessage name="password"/>
       </div>
-      <button
-        type="submit"
-        class="btn btn-primary"
-        @click.prevent="
-          loginUserMethod({
-            email: email1,
-            password: password1,
-          })
-        "
-      >
-        Submit
-      </button>
-    </form>
+
+      <button :class="submitCount > 0 ? 'btn btn-primary disabled':'btn btn-primary'">Submit</button>
+    </Form>
     <div class="clearfix" v-show="getIsLoginLoading">
       <div class="spinner-border float-end text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
@@ -50,12 +47,18 @@ import { defineComponent } from "vue";
 import { useUserStore, signInRequest } from "../store/UserStore";
 import { mapActions, mapState } from "pinia";
 import { v4 as uuidv4 } from "uuid";
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
 
 let id = null;
 
 export default defineComponent({
   name: "UserLoginForm",
-  components: {},
+  components: {
+    Form,
+    Field,
+    ErrorMessage
+  },
   methods: {
     ...mapActions(useUserStore, ["loginUser", "stopLoadingAnimation"]),
     loginUserMethod: function (siginRequest: signInRequest) {
@@ -65,6 +68,9 @@ export default defineComponent({
     },
     closeEvent: function (val: boolean) {
       this.$emit("close", val);
+    },
+    onSubmit: function(value : signInRequest) {
+      this.loginUser(value);
     },
   },
   watch: {
@@ -78,11 +84,13 @@ export default defineComponent({
     ...mapState(useUserStore, ["getIsLoginLoading", "userLoginResponse"]),
   },
   data() {
+    const schema = yup.object({
+      email: yup.string().required(),
+      password: yup.string().min(8).required(),
+    });
+
     return {
-      email1: "",
-      password1: "",
-      id: null,
-      temp: false,
+      schema
     };
   },
   beforeMount() {
@@ -92,4 +100,12 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.form-color-error {
+  background-color: #fddfe2;
+  color: #f23648;
+}
+
+span {
+  color: #f23648;
+}
 </style>

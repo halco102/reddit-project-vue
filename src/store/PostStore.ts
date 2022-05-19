@@ -3,20 +3,19 @@ import axios from "axios";
 import { PostedBy, UserState, useUserStore as user, useUserStore } from "./UserStore";
 import { CommentDto } from './CommentStore'
 import { useToast } from 'vue-toastification';
-import * as Stomp from 'webstomp-client';
 import { Client } from "@stomp/stompjs";
 
 
 
 // Base url on localhost and ws
-//const BASE_URL = 'http://localhost:8082/api/v1/post'
-//const customWebsocket = Stomp.over(new WebSocket('ws://127.0.0.1:80/ws'));
+const BASE_URL = 'http://127.0.0.1:81/api/v1/post'
+const ws = 'ws://127.0.0.1:80/ws'
+let customWebsocket : Client; 
 
 
 //when deployed
-const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' + '/api/v1/post'
-let customWebsocket : Client; 
-const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws'
+//const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' + '/api/v1/post'
+//const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws'
 
 const toast = useToast();
 
@@ -138,11 +137,13 @@ export const usePostStore = defineStore('postStore', {
 
       },
 
-      async savePost(request: PostRequest, location: string) {
+      async savePost(request: PostRequest, location: File | null) {
 
          const json = JSON.stringify(request);
          const temp = new FormData();
+         if ( location != null) {
          temp.append('file', location);
+      }
          temp.append('requestDto', json);
 
          await axios.post(BASE_URL + '/', temp, {
