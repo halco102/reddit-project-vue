@@ -1,83 +1,97 @@
 <template>
   <div class="main-signup-div">
-    <form>
+    <Form
+      @submit="onSubmit"
+      :validation-schema="schema"
+      v-slot="{ errorHandling }"
+      @invalid-submit="onInvalidSubmit"
+    >
       <div class="mb-3">
-        <label :for="id" class="form-label">Username</label>
-        <input
-          type="username"
-          class="form-control"
-          :id="id"
-          aria-describedby="signupUsernameHelp"
-          v-model="username"
-        />
-        <p v-if="!usernameLength(username)" style="margin-top: 2px">
-          Username has to be minimum 5 characters long
-        </p>
+        <Field name="username" v-slot="{ field, meta }">
+          <label :for="id" class="form-label">Username</label>
+          <input
+            type="username"
+            v-bind="field"
+            :class="
+              !meta.touched || meta.valid
+                ? 'form-control'
+                : 'form-control form-color-error'
+            "
+            :id="id"
+            aria-describedby="signupUsernameHelp"
+          />
+        </Field>
+        <ErrorMessage name="username" />
       </div>
       <div class="mb-3">
-        <label :for="id" class="form-label">Email address</label>
-        <input
-          type="email"
-          class="form-control"
-          :id="id + 'signupEmail'"
-          aria-describedby="signupEmailHelp"
-          v-model="email"
-        />
-        <div id="signupEmailHelp" class="form-text">
-          We'll never share your email with anyone else.
-        </div>
+        <Field name="email" v-slot="{ field, meta }">
+          <label :for="id" class="form-label">Email address</label>
+          <input
+            v-bind="field"
+            type="email"
+            :class="
+              !meta.touched || meta.valid
+                ? 'form-control'
+                : 'form-control form-color-error'
+            "
+            :id="id + 'signupEmail'"
+            aria-describedby="signupEmailHelp"
+          />
+        </Field>
+        <ErrorMessage name="email" />
       </div>
       <div class="mb-3">
-        <label :for="id" class="form-label">Repeat email address</label>
-        <input
-          type="email"
-          class="form-control"
-          :id="id + 'repeatEmail'"
-          aria-describedby="signupEmailHelp"
-          v-model="repeatEmail"
-        />
-        <p v-if="!emailMatch(email, repeatEmail)">Email does not match</p>
+        <Field name="repeatEmail" v-slot="{ field, meta }">
+          <label :for="id" class="form-label">Repeat email address</label>
+          <input
+            v-bind="field"
+            type="email"
+            :class="
+              !meta.touched || meta.valid
+                ? 'form-control'
+                : 'form-control form-color-error'
+            "
+            :id="id + 'repeatEmail'"
+            aria-describedby="signupEmailHelp"
+          />
+        </Field>
+        <ErrorMessage name="repeatEmail" />
       </div>
       <div class="mb-3">
-        <label :for="id" class="form-label">Password</label>
-        <input
-          type="password"
-          class="form-control"
-          :id="id + 'password'"
-          v-model="password"
-        />
-        <p v-if="!passwordLengthGreater(password)">
-          Password has to be atleast 8 characters long
-        </p>
+        <Field name="password" v-slot="{ field, meta }">
+          <label :for="id" class="form-label">Password</label>
+          <input
+            v-bind="field"
+            type="password"
+            :class="
+              !meta.touched || meta.valid
+                ? 'form-control'
+                : 'form-control form-color-error'
+            "
+            :id="id + 'password'"
+          />
+        </Field>
+        <ErrorMessage name="password" />
       </div>
       <div class="mb-3">
-        <label :for="id" class="form-label">Repeat password</label>
-        <input
-          type="password"
-          class="form-control"
-          :id="id + 'repeatPassword'"
-          v-model="repeatPassword"
-        />
-        <p v-if="!passwordMatch(password, repeatPassword)">
-          Password does not match
-        </p>
+        <Field name="repeatPassword" v-slot="{ field, meta }">
+          <label :for="id" class="form-label">Repeat password</label>
+          <input
+            v-bind="field"
+            type="password"
+            :class="
+              !meta.touched || meta.valid
+                ? 'form-control'
+                : 'form-control form-color-error'
+            "
+            :id="id + 'repeatPassword'"
+          />
+        </Field>
+        <ErrorMessage name="repeatPassword" />
       </div>
-      <button
-        type="submit"
-        :class="[
-          submitFormCheck() ? 'btn btn-primary' : 'btn btn-primary disabled',
-        ]"
-        @click.prevent="
-          signupUser({
-            username: this.username,
-            email: email,
-            password: password,
-          })
-        "
-      >
-        Submit
-      </button>
-    </form>
+      <button class="btn btn-primary">Submit</button>
+      <p>{{ errorHandling }}</p>
+    </Form>
     <div class="clearfix" v-show="getIsSignupLoading">
       <div class="spinner-border float-end text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
@@ -88,88 +102,59 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useUserStore } from "../store/UserStore";
+import { useUserStore, signupRequest } from "../store/UserStore";
 import { mapActions, mapState } from "pinia";
 import { v4 as uuidv4 } from "uuid";
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
 
 export default defineComponent({
   name: "UserSignupForm",
-  components: {},
+  components: {
+    Form,
+    Field,
+    ErrorMessage,
+  },
   expose: ["closePopUp"],
   methods: {
     ...mapActions(useUserStore, ["signupUser"]),
-    checkRepeatedEmailAndPassword: function (
-      password: string,
-      repeatPassword: string,
-      email: string,
-      repeatEmail: string
-    ): void {
-      console.log(password);
-      if (password === repeatPassword && email === repeatEmail) {
-        this.signupUser({
-          username: this.username,
-          email: email,
-          password: password,
-        });
-      }
-      return;
+    onSubmit: function (value: signupRequest) {
+      this.signupUser(value);
     },
-    passwordMatch: function (
-      password: string,
-      repeatPassword: string
-    ): boolean {
-      if (password === repeatPassword) {
-        return (this.isPasswordMatch = true);
-      }
-      return (this.isPasswordMatch = false);
+    onInvalidSubmit: function (value: any) {
+      console.log(value);
     },
-    passwordLengthGreater: function (password: string): boolean {
-      if (password.length >= 8) {
-        return (this.isPasswordLengthGreater = true);
-      }
-      return (this.isPasswordLengthGreater = false);
-    },
-    emailMatch: function (email: string, repeatEmail: string): boolean {
-      if (email === repeatEmail) {
-        return (this.isEmailMatch = true);
-      }
-      return (this.isEmailMatch = false);
-    },
-    usernameLength: function (username: string): boolean {
-      if (username.length >= 5) {
-        return (this.isUsernameLengthGreater = true);
-      }
-      return (this.isUsernameLengthGreater = false);
-    },
-    submitFormCheck: function (): boolean {
-      if (
-        this.isEmailMatch &&
-        this.isPasswordMatch &&
-        this.isPasswordLengthGreater &&
-        this.isUsernameLengthGreater
-      ) {
-        return true;
-      }
-      return false;
-    },
+    isSuccessfullSignup: function() {
+      console.log("check is signed", this.getSuccessfullSignup)
+      this.$emit('signedUp', this.getSuccessfullSignup)
+    }
+  },
+  watch: {
+    getSuccessfullSignup: function() : void {
+      console.log("Watch signup process");
+      this.isSuccessfullSignup();
+    }
   },
   computed: {
-    ...mapState(useUserStore, ["user", "getIsSignupLoading"]),
+    ...mapState(useUserStore, ["user", "getIsSignupLoading",'getSuccessfullSignup']),
   },
   data() {
+    const schema = yup.object({
+      username: yup.string().min(8).required('Username has to be 8 characters long'),
+      email: yup.string().email('Not a email').required('Email is a required field'),
+      repeatEmail: yup
+        .string()
+        .email()
+        .oneOf([yup.ref("email"), null], "Repeated email does not match")
+        .required('Repeat email is a required field'),
+      password: yup.string().min(8).required('Password is a required field'),
+      repeatPassword: yup
+        .string()
+        .oneOf([yup.ref("password"), null], "passwords do not match").required('Repeat password is a required field'),
+    });
+
     return {
-      username: "",
-      email: "",
-      repeatEmail: "",
-      password: "",
-      repeatPassword: "",
-      closePopUp: false,
-
-      isEmailMatch: false,
-      isPasswordMatch: false,
-      isPasswordLengthGreater: false,
-      isUsernameLengthGreater: false,
-
+      schema,
       id: "",
     };
   },
@@ -180,4 +165,12 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.form-color-error {
+  background-color: #fddfe2;
+  color: #f23648;
+}
+
+span {
+  color: #f23648;
+}
 </style>

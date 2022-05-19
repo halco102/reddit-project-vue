@@ -5,90 +5,59 @@
       <h3>Upload a post</h3>
       <div class="card" style="width: 35rem">
         <div class="card-body">
-          <form
-            v-on:submit.prevent="
-              savePostMethod(
-                {
-                  title: titleData,
-                  text: textData,
-                  imageUrl: imageUrlData,
-                  allowComments: allowCommentsData,
-                },
-                locationOfFile
-              )
-            "
-          >
+          <Form @submit="onSubmit" :validation-schema="schema">
             <div class="mb-3">
-              <label for="insertTitle" class="form-label">Title</label>
-              <input
-                type="text"
-                class="form-control"
-                v-model="titleData"
-                placeholder="255 characters"
-              />
+              <Field name="title"  v-slot="{ field, meta }">
+                <label for="insertText" class="form-label">Title</label>
+                <input
+                  v-bind="field"
+                  :class="
+                    !meta.touched || meta.valid
+                      ? 'form-control'
+                      : 'form-control form-color-error'
+                  "
+                />
+              </Field>
+              <ErrorMessage name="title" />
             </div>
-
             <div class="mb-3">
-              <label for="insertText" class="form-label">Text</label>
-              <input
-                type="text"
-                class="form-control"
-                v-model="textData"
-                placeholder="255 characters"
-              />
+              <Field name="text" v-slot="{ field, meta }">
+                <label for="insertText" class="form-label">Description</label>
+                <input
+                  v-bind="field"
+                  :class="
+                    !meta.touched || meta.valid
+                      ? 'form-control'
+                      : 'form-control form-color-error'
+                  "
+                />
+              </Field>
+              <ErrorMessage name="text" />
             </div>
 
             <div class="mb-3">
-              <label for="formFile" class="form-label"
-                >Upload image</label
-              >
-              <input
-                class="form-control"
-                type="file"
-                id="formFile"
-                ref="fileUpload"
-                @change="onChangeInput"
-              />
+              <Field name="upload">
+                <label for="formFile" class="form-label">Upload image</label>
+                <input
+                  class="form-control"
+                  type="file"
+                  id="formFile"
+                  ref="fileUpload"
+                  @change="onChangeInput"
+                />
+              </Field>
+              <ErrorMessage name="upload" />
             </div>
 
             <div class="mb-3">
-
-              <label for="insertImage" class="form-label">Image url</label>
-              <input
-                type="text"
-                class="form-control"
-                v-model="imageUrlData"
-                :placeholder="isDisabled ? 'Disabled' : '255 characters'"
-                :disabled="isDisabled"
-              />
-              <p v-show="!isImage(imageUrlData) && imageUrlData.length > 0">Url does not show a image </p>
-
+              <fieldset :disabled="isDisabled">
+                <label for="imageUrl" class="form-label">Image url</label>
+                <Field name="imageUrl" class="form-control" />
+                <ErrorMessage name="imageUrl" />
+              </fieldset>
             </div>
-
-            <div class="comment-checkbox-button">
-              <div class="mb-3">
-                <div class="form-check allign">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="allowCommentsCheck"
-                    v-model="allowCommentsData"
-                  />
-                </div>
-                <label class="form-check-label" for="allowCommentsCheck">
-                  Allow comments
-                </label>
-              </div>
-
-              <button type="submit" class="btn btn-primary">Post</button>
-            </div>
-          </form>
-
-          <div class="clearfix" v-show="isLoading">
-            <div class="spinner-border float-end text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-          </div>
+            <button class="btn btn-primary">Submit</button>
+          </Form>
         </div>
       </div>
     </div>
@@ -98,68 +67,93 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useUserStore } from "../store/UserStore";
-import { usePostStore , PostRequest} from "../store/PostStore";
+import { usePostStore , PostRequest } from "../store/PostStore";
 import { mapState, mapActions } from "pinia";
 import NavigationBar from "./NavigationBar.vue";
-import { useToast } from 'vue-toastification'
-
+import { useToast } from "vue-toastification";
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
 
 export default defineComponent({
   name: "PostRequest",
   components: {
     NavigationBar,
+    Field,
+    Form,
+    ErrorMessage,
+  },
+  data() {
+    
+
+    const schema = yup.object({
+      title: yup.string().required("Title is required"),
+      text: yup.string().notRequired(),
+      imageUrl: yup
+        .string()
+        .notRequired()
+        .matches(
+          /^$|\s+|(?:([^:/?#]+):)?(?:([^/?#]*))?([^?#]*\.(?:jpg|gif|png|wpeg|jpeg))(?:\?([^#]*))?(?:#(.*))?/,
+          "url does not end with jpg,gif,png,wpeg or jpeg"
+        ),
+      upload: yup
+        .mixed()
+        .test("is-correnct-file", "The file is too big", () => {
+          let temp = this.locationOfFile as unknown as HTMLInputElement;
+
+          if (temp != null) {
+            if (temp.size > 5097152) {
+              return false;
+            }
+          }
+
+          return true;
+        })
+        .optional()
+        .when("imageUrl", {
+          is: (value: string) => {
+            if (value?.length === 0 || value == "undefined") {
+              return true;
+            }
+            return false;
+          },
+          then: (rule: any) =>
+            rule.required("Image url is empty, upload image insted.")
+        }),
+    });
+
+    return {
+      schema,
+      locationOfFile: null as File | null,
+      isDisabled: false,
+      imageUrl: '',
+    };
   },
   computed: {
     ...mapState(useUserStore, ["user"]),
     ...mapState(usePostStore, ["isLoading"]),
   },
-    setup() {
+  setup() {
     const toast = useToast();
-    return { toast }
+
+    return { toast };
   },
   methods: {
-    ...mapActions(usePostStore, ["savePost", 'getEvent', 'openWebsocket','closeWebSocket']),
+    ...mapActions(usePostStore, ["savePost"]),
+    isRequired: function (value: string): boolean | string {
+      return value ? true : "This field is required";
+    },
+    onSubmit(values: PostRequest) {
+      console.log("scheme", this.schema)
+      //this.savePost(values, this.locationOfFile);
+      
+    },
     onChangeInput: function (event: any): void {
-      this.locationOfFile = event.target.files[0];
+      let temp: HTMLInputElement = event.target;
+      this.locationOfFile = temp.files![0];
+      console.log('file', this.locationOfFile);
       this.isDisabled = true;
     },
-    savePostMethod: function(request: PostRequest, location: string) {
-        if(request.imageUrl.length > 0) {
-          if (!this.isImage(request.imageUrl)) {
-            this.toast.warning("Not a valid image url");
-            return;
-          }
-        }
-        this.savePost(request, location);
-    },
-    isImage: function(url : string) : boolean {
-      return /\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(url);
-    }
   },
-  data() {
-    return {
-      titleData: "",
-      textData: "",
-      imageUrlData: "",
-      allowCommentsData: true,
-      locationOfFile: null,
-      isDisabled: false
-    };
-  },
-  created() {
-    console.log("Open ws on post request");
-    this.openWebsocket();
-  },
-  unmounted() {
-    console.log("Destroy")
-  },
-  watch: {
-    isLoading: function() {
-      if (!this.isLoading) {
-        this.$router.push('/');
-      }
-    }
-  }
 });
 </script>
 
@@ -199,5 +193,14 @@ export default defineComponent({
 .comment-checkbox-button {
   display: grid;
   justify-content: center;
+}
+
+.form-color-error {
+  background-color: #fddfe2;
+  color: #f23648;
+}
+
+span {
+  color: #f23648;
 }
 </style>

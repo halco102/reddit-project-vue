@@ -3,15 +3,23 @@ import { defineStore } from "pinia";
 import { PostLikeOrDislikeResponse } from "./CommentStore";
 import { UserPosts, FrontPagePost } from './PostStore'
 import { useToast } from "vue-toastification";
+//import * as Stomp from 'webstomp-client';
+import { Client, Frame, IFrame, Stomp } from "@stomp/stompjs";
+import { string } from "yup";
+
 
 //Base url localhost
-const BASE_URL = 'http://localhost:8082/api/v1/user'
-
+const BASE_URL = 'http://127.0.0.1:81/api/v1/user'
+const ws = 'ws://127.0.0.1:80/ws'
 // Deployed url
-/*
-const ngrok = 'http://2434-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.ngrok.io';
-const BASE_URL = ngrok +  '/api/v1/user'
-*/
+
+//const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' + '/api/v1/user'
+//const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws';
+
+let customWebsocket: Client;
+
+
+
 
 const toast = useToast();
 
@@ -22,8 +30,8 @@ export interface signupRequest {
 }
 
 export interface signInRequest {
-    email: '',
-    password: ''
+    email: string,
+    password: string
 }
 
 export interface PostedBy {
@@ -67,6 +75,7 @@ export interface UserState {
     postForLikeDislike: FrontPagePost[],
     isSignupLoading: boolean,
     isLoginLoading: boolean,
+    successfullSignup: boolean
 }
 
 
@@ -105,6 +114,7 @@ export const useUserStore = defineStore('userStore', {
             postForLikeDislike: [],
             isSignupLoading: false,
             isLoginLoading: false,
+            successfullSignup: false,
         }
     },
     getters: {
@@ -126,6 +136,12 @@ export const useUserStore = defineStore('userStore', {
         getIsLoginLoading(state): boolean {
             return state.isLoginLoading;
         },
+        getUserId(state): number {
+            return state.userLoginResponse.userProfileDto.id;
+        },
+        getSuccessfullSignup(state) : boolean {
+            return state.successfullSignup;
+        }
     },
     actions: {
 
@@ -140,6 +156,10 @@ export const useUserStore = defineStore('userStore', {
             }).then(response => {
 
                 console.log("Signup user", response.data);
+                if (response.data != null) {
+                    console.log("Succ signup", response.data);
+                    this.successfullSignup = true;
+                }
                 toast.success("User signed up");
             }).catch(function (ex) {
                 if (ex.response.status === 409) {
@@ -164,13 +184,14 @@ export const useUserStore = defineStore('userStore', {
                 },
                 onUploadProgress: (() => { this.isLoginLoading = true })
             }).then(response => {
+
                 this.userLoginResponse = response.data;
                 toast.success("Logged in");
             }).catch(function (ex) {
                 if (ex.response.status === 404) {
-                    toast.error("User does not exist");
+                    toast.error("Wrong email or/and password");
                 } else {
-                    toast.error("Something went wrong");
+                    toast.error(ex.response.data.message);
                 }
             }).finally(() => {
                 this.isLoginLoading = false;
@@ -206,12 +227,52 @@ export const useUserStore = defineStore('userStore', {
         },
         getAllPostsFromUserByUserId: async function (userId: number) {
 
-            await axios.get(BASE_URL + '/' + 'user/' + userId + '/post')
+            await axios.get(BASE_URL + '/' + userId + '/posts')
                 .then(response => {
                     console.log("Response of get", response.data);
                     this.postForLikeDislike = response.data;
+
                 })
-        }
+        },
+        openUserWebsocket: function (): void {
+
+            
+            customWebsocket = new Client({
+                brokerURL: ws,
+                    connectHeaders: {},
+                    debug: function (str) {
+                        console.log(str)
+                    },
+                    reconnectDelay: 5000,
+                    heartbeatIncoming: 4000,
+                    heartbeatOutgoing: 4000,
+                    onConnect: () => {
+                        console.log("Subscribe when connected");
+                        customWebsocket.subscribe('/topic/user', (msg) => {
+                            console.log("Message body ", JSON.parse(msg.body));
+                            this.$state.userProfile = JSON.parse(msg.body);
+                        })
+                    },
+                
+                    
+            });
+            
+            customWebsocket.activate();
+        },
+        //stomp
+        sendUserMessage: function (object: UserProfile | string, path: string): void {
+            let msgEvent: string;
+
+            console.log("Send object");
+            customWebsocket.publish({
+                destination: '/app/user/update',
+                body: JSON.stringify(object)
+            });
+        },
+        disconnectFromWs: function (): void {
+            console.log("Disconnecting post ws");
+            //customWebsocket.disconnect(() => { console.log("Disconnected") });
+        },
 
     }
 })

@@ -1,25 +1,24 @@
 import { defineStore } from "pinia";
 import axios from "axios";
-import { PostedBy, useUserStore as user } from "./UserStore";
+import { PostedBy, UserState, useUserStore as user, useUserStore } from "./UserStore";
 import { CommentDto } from './CommentStore'
 import { useToast } from 'vue-toastification';
-
-let ws = {} as WebSocket;
+import { Client } from "@stomp/stompjs";
 
 
 
 // Base url on localhost and ws
-const BASE_URL = 'http://localhost:8082/api/v1/post'
-const wsUrl = 'ws://127.0.0.1:80/ws/post'
+const BASE_URL = 'http://127.0.0.1:81/api/v1/post'
+const ws = 'ws://127.0.0.1:80/ws'
+let customWebsocket : Client; 
+
 
 //when deployed
-/*
-const ngrok = 'http://2434-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.ngrok.io';
-const BASE_URL = ngrok +  '/api/v1/post'
-const wsUrl = 'ws://b6b4-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.jp.ngrok.io/ws/post'
-*/
+//const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' + '/api/v1/post'
+//const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws'
 
 const toast = useToast();
+
 
 export interface UserPosts {
    id: number,
@@ -35,7 +34,7 @@ export interface postLikeOrDislikeRequest {
 }
 
 export interface PostLikeOrDislike {
-   likeOrDislike: boolean;
+   likeOrDislike: boolean | null;
 }
 
 export interface FrontPagePost {
@@ -61,7 +60,8 @@ export interface PostInterface {
    post: FrontPagePost,
    request: PostRequest,
    isLoading: boolean,
-   isDeleted: boolean
+   isDeleted: boolean,
+   isSameLikeOrDislikeButton: boolean
 }
 
 export const usePostStore = defineStore('postStore', {
@@ -89,7 +89,8 @@ export const usePostStore = defineStore('postStore', {
             allowComments: true,
          },
          isLoading: false,
-         isDeleted: false
+         isDeleted: false,
+         isSameLikeOrDislikeButton: false
       }
    },
    getters: {
@@ -117,7 +118,6 @@ export const usePostStore = defineStore('postStore', {
 
       async fetchAllPostToShow() {
          await axios.get(BASE_URL).then(response => {
-            console.log("Fetch data", response.data)
             this.posts = response.data;
          }).catch(function (ex) {
             if (ex.response.status === 500) {
@@ -128,7 +128,6 @@ export const usePostStore = defineStore('postStore', {
 
       async fetchPostById(id: number) {
          await axios.get(BASE_URL + '/' + id).then(response => {
-            console.log("Single data fetch ", response.data)
             this.post = response.data;
          }).catch(function (ex) {
             if (ex.response.state === 500) {
@@ -138,11 +137,13 @@ export const usePostStore = defineStore('postStore', {
 
       },
 
-      async savePost(request: PostRequest, location: string) {
+      async savePost(request: PostRequest, location: File | null) {
 
          const json = JSON.stringify(request);
          const temp = new FormData();
+         if ( location != null) {
          temp.append('file', location);
+      }
          temp.append('requestDto', json);
 
          await axios.post(BASE_URL + '/', temp, {
@@ -156,7 +157,9 @@ export const usePostStore = defineStore('postStore', {
             //this.request = response.data;
             //this.posts.push(response.data);
             toast.success("Successfuly posted");
-            this.sendEvent('ADD_POST');
+            this.$state.posts.push(response.data);
+            this.sendMessage(this.$state.posts, '');
+
          }).catch(function (ex) {
             console.log("ex", ex.response);
             if (ex.response.status === 400) {
@@ -185,7 +188,6 @@ export const usePostStore = defineStore('postStore', {
                'Content-Type': 'application/json'
             }
          }).then(response => {
-
             /*
             this.post = response.data;
             const temp = this.$state.posts.map((i) => i.id).indexOf(this.post.id);
@@ -197,8 +199,8 @@ export const usePostStore = defineStore('postStore', {
                state.posts[temp] = this.post;
             })
 
+
             this.post = response.data;
-            this.sendEvent('LIKE_DISLIKE_POST');
          }).catch(function (ex) {
             if (ex.response.status === 400) {
                toast.error("Bad request");
@@ -227,20 +229,26 @@ export const usePostStore = defineStore('postStore', {
       },
 
       deletePostById: async function (id: number) {
-         console.log("Delete action", id)
 
+
+         
          await axios.delete(BASE_URL + '/' + id, {
             headers: {
                'Authorization': 'Bearer ' + this.getJwtFromUser(),
             }
          }).then(() => {
-            const index = this.posts.findIndex(object => {
-               return object.id === id;
+         
+            this.$state.posts.forEach((element, index) => {
+               if (element.id === id) {
+                  this.$state.posts.splice(index, 1);
+               }
             })
-            this.posts.splice(index);
-            console.log("After delte", this.posts)
-            toast.success("Post deleted");
+
+
+            this.sendMessage('POST_DELETED', '/delete');
             this.isDeleted = true;
+            
+
          }).catch(function (ex) {
             if (ex.response.status === 404) {
                toast.error(ex.response.statusText);
@@ -249,46 +257,61 @@ export const usePostStore = defineStore('postStore', {
             } else {
                toast.error("Something went wrong while saving post");
             }
+         }).finally(() => {
+            this.isDeleted = false;
          })
       },
-      openWebsocket: function () : void{
+      openWebsocket: function (): void {
 
-         console.log("WS", ws.readyState);
-         
-         if (ws.readyState === undefined){
-            console.log("Open connection");
-            ws = new WebSocket(wsUrl);
-         }
-
-         if (ws.readyState === 3) {
-            console.log("Connection was closed, create new connection!");
-            ws = new WebSocket(wsUrl);
-         }
-      
-      },
-      sendEvent: function (message: string) {
-         ws.send(message);
-      },
-      getEvent: function (): void {
-         ws.onmessage = event => {
-            console.log("event triggered", event.data);
-            if (event.data === 'ADD_POST') {
-               console.log("Add post event");
-               this.fetchAllPostToShow();
-            }
-            if (event.data === 'LIKE_DISLIKE_POST') {
-               console.log("Like or dislike post event");
-               // get new state ? 
-               
-            }
-
+         customWebsocket = new Client({
+            brokerURL: ws,
+                connectHeaders: {},
+                debug: function (str) {
+                    console.log(str)
+                },
+                reconnectDelay: 5000,
+                heartbeatIncoming: 4000,
+                heartbeatOutgoing: 4000,
+                onConnect: () => {
+                    console.log("Subscribe when connected");
+                    customWebsocket.subscribe('/topic/post', (msg) => {
+                        console.log("Message body ", JSON.parse(msg.body));
+                        this.$state.posts = JSON.parse(msg.body);
+                    })
+                },
             
+                
+        });
+        
+        customWebsocket.activate();
 
-         }
       },
-      closeWebSocket: function () {
-         console.log("Close post websocket");
-         ws.close();
-      }
+      //stomp
+      sendMessage: function (object: FrontPagePost[] | string, path: string): void {
+         let msgEvent: string;
+
+         
+         if (typeof object === 'string') {
+            console.log("String");
+            msgEvent = object;
+            console.log("msgEvent", msgEvent)
+            customWebsocket.publish({
+               destination:'/app/post/delete',
+               body: "POST_DELETED"
+            });
+            return;
+         }
+
+         console.log("Send object");
+         customWebsocket.publish({
+            destination : '/app/post' + path,
+            body: JSON.stringify(object)
+         });
+      },
+      disconnectFromWs: function (): void {
+         console.log("Disconnecting post ws");
+         customWebsocket.deactivate();
+      },
+
    },
 })

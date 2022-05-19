@@ -11,9 +11,8 @@ import NavigationBar from "./NavigationBar.vue";
 import PostsGallery from "./PostsGallery.vue";
 import { usePostStore } from "../store/PostStore";
 import { mapActions, mapState } from "pinia";
-
-
-//var ws = new WebSocket('ws://127.0.0.1:80/ws');
+import { useUserStore } from "../store/UserStore";
+import { _RouteLocationBase } from "vue-router";
 
 export default defineComponent({
   name: "MainApp",
@@ -22,46 +21,47 @@ export default defineComponent({
     PostsGallery,
   },
   methods: {
-    ...mapActions(usePostStore, ["fetchAllPostToShow", 'getEvent', 'openWebsocket', 'closeWebSocket']),
-    stompConnection: function() {
-      this.openWebsocket();
-      /*
-        ws.onopen = function() {
-          console.log("Open ws");
-        }; 
-        */     
-
-    },
-
-
-  },
-  beforeUnmount(){
-    console.log("Close Mainapp websocket");
-    //this.closeWebSocket();
+    ...mapActions(usePostStore, [
+      "fetchAllPostToShow",
+      "openWebsocket",
+      'disconnectFromWs'
+    ]),
   },
   computed: {
     ...mapState(usePostStore, ["getAllPosts"]),
+    ...mapState(useUserStore, ["getUserId"]),
+  },
+  beforeMount() {
+    this.fetchAllPostToShow();
+  },
+  data() {
+    return {
+      isUpdate: false,
+    };
   },
   created() {
     this.openWebsocket();
   },
-  beforeMount(){
-    console.log("before mount");
-    this.fetchAllPostToShow();
-  },
-  updated(){
-    console.log('update');
-    this.getEvent();
-  },
-  data() {
-    return{
-      isUpdate : false
+  watch: {
+    $route(to: _RouteLocationBase) {
+      if (this.getUserId != 0) {
+        if (
+          to.fullPath != "/user/" + this.getUserId &&
+          to.fullPath != "/post"
+        ) {
+          console.log("Disconnect", to.fullPath)
+          this.disconnectFromWs();
+        }
+      }else{
+        if (to.fullPath == '/post') {
+          console.log("No logged user, do nothing")
+          //this.disconnectFromWs();
+        }
+      }
     }
-  }
-
+  },
 });
 </script>
 
 <style scoped>
-
 </style>

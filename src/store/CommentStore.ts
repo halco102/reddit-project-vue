@@ -3,26 +3,27 @@ import axios from "axios";
 import { PostedBy } from "./UserStore";
 import { useToast } from 'vue-toastification';
 import { useUserStore as user } from "./UserStore";
+import * as Stomp from 'webstomp-client';
+import { Client } from "@stomp/stompjs";
 
 
 
-let ws = {} as WebSocket;
 
 // base url when using localhost
-const BASE_URL = 'http://localhost:8082/api/v1/comment'
-const wsUrl = 'ws://127.0.0.1:80/ws/comment'
+const BASE_URL = 'http://127.0.0.1:81/api/v1/comment'
+const ws = 'ws://127.0.0.1:80/ws'
 
 //base url when deployed
-/*
-const ngrok = 'http://2434-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.ngrok.io';
-const BASE_URL = ngrok +  '/api/v1/comment'
-const wsUrl = 'ws://b6b4-2a02-810d-4b3f-cfe8-4bc5-7cfc-593-172d.jp.ngrok.io/ws/comment'
-*/
+//const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' +  '/api/v1/comment'
+//const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws'
+
+
+let customWebsocket : Client;
 
 const toast = useToast();
 
-export interface LikesDislikesComment{
-    likedOrDisliked : boolean;
+export interface LikesDislikesComment {
+    likedOrDisliked: boolean;
 }
 
 export interface CommentDto {
@@ -49,12 +50,12 @@ export interface Comment {
 
 export interface PostLikeOrDislikeRequest {
     commentId: number,
-    likeOrDislike: boolean | null
+    likeOrDislike: boolean
 }
 
 export interface PostLikeOrDislikeResponse {
     commentDto: CommentDto,
-    likeOrDislike: boolean | null,
+    likeOrDislike: boolean,
 }
 
 export const useCommentStore = defineStore('comments', {
@@ -86,7 +87,7 @@ export const useCommentStore = defineStore('comments', {
 
     },
     actions: {
-        getJwtFromUser : function() : string{
+        getJwtFromUser: function (): string {
             return user().$state.userLoginResponse.jwt;
         },
 
@@ -106,14 +107,14 @@ export const useCommentStore = defineStore('comments', {
                 console.log("Post comment", this.commentsDto, 'Current comment posted', response.data);
                 this.commentsDto.push(response.data);
                 toast.success("Comment posted");
-                this.sendEvent('ADD_COMMENT', postAComment.postId);
-                
+
+                this.sendMessage(this.commentsDto, '');
             }).catch(function (ex) {
-                if(ex.response.status === 401) {
+                if (ex.response.status === 401) {
                     toast.warning("Unaothorized")
-                }else if (ex.response.status === 400) {
+                } else if (ex.response.status === 400) {
                     toast.warning("Bad request");
-                }else{
+                } else {
                     toast.warning("Something went wrong");
                 }
             })
@@ -124,24 +125,24 @@ export const useCommentStore = defineStore('comments', {
         postLikeOrDislike: async function (request: PostLikeOrDislikeRequest) {
             const json = JSON.stringify(request);
             console.log("Post like or dislike", json);
-            console.log("JWT", this.getJwtFromUser())
 
             await axios.post(BASE_URL + '/like-dislike', json, {
                 headers: {
-                    'Authorization' : 'Bearer ' + this.getJwtFromUser(),
+                    'Authorization': 'Bearer ' + this.getJwtFromUser(),
                     'Content-Type': 'application/json'
                 }
             }).then(response => {
-
+                console.log("Response", response);
                 //this.$patch((state) => {
-                    this.commentDto = response.data;
-                    const temp = this.$state.commentsDto.map(i => i.id).indexOf(this.commentDto.id);
-                    this.$state.commentsDto[temp] = this.commentDto;
+                this.commentDto = response.data;
+                const temp = this.$state.commentsDto.map(i => i.id).indexOf(this.commentDto.id);
+                this.$state.commentsDto[temp] = this.commentDto;
                 //})
+
             }).catch(function (ex) {
                 if (ex.response.status === 401) {
                     toast.warning("You have to login to like or dislike a comment");
-                }else{
+                } else {
                     toast.warning("Something went wrong");
                 }
             })
@@ -151,58 +152,97 @@ export const useCommentStore = defineStore('comments', {
             await axios.get(BASE_URL + '/post/' + id).then(response => {
                 console.log("All comments from post", response.data)
                 this.commentsDto = response.data;
-            }).catch(function (){
+            }).catch(function () {
                 toast.warning("Something went wrong");
             })
         },
 
-
+        deleteCommentById: async function(id : number) {
+            console.log("Delete comment by id");
+            await axios.delete(BASE_URL + '/' + id, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.getJwtFromUser(),
+                    'Content-Type': 'application/json'
+                }
+            }).then(() => {
+                console.log("Send event to everyone");
+                this.$state.commentsDto.forEach((element, index) => {
+                    if (element.id === id) {
+                        this.$state.commentsDto.splice(index, 1);
+                    }
+                })
+                this.sendMessage('COMMENT_DELETED', '', this.$state.commentsDto)
+            })
+        },
         resetState: function () {
             this.$reset();
         },
 
-        patchComments: function(comments: CommentDto[]) {
+        patchComments: function (comments: CommentDto[]) {
             this.commentsDto = comments;
         },
 
-        getNumberOfLikes: function(comment: CommentDto) : number{
+        getNumberOfLikes: function (comment: CommentDto): number {
             let number = 0;
             comment.likedOrDislikedComments.filter((x) => x.likedOrDisliked === true).map(() => number++);
             return number;
         },
-        getNumberOfDislikes: function(comment : CommentDto) : number{
+        getNumberOfDislikes: function (comment: CommentDto): number {
             let number = 0;
             comment.likedOrDislikedComments.filter((x) => x.likedOrDisliked === false).map(() => number++);
             return number;
         },
-        openWebsocket: function(){
+        openWebsocketConnection: function () {
 
-            console.log("WS", ws.readyState);
-         
-            if (ws.readyState === undefined){
-               console.log("Open connection");
-               ws = new WebSocket(wsUrl);
-            }
-   
-            if (ws.readyState === 3) {
-               console.log("Connection was closed, create new connection!");
-               ws = new WebSocket(wsUrl);
-            }
+            customWebsocket = new Client({
+                brokerURL: ws,
+                    connectHeaders: {},
+                    debug: function (str) {
+                        console.log(str)
+                    },
+                    reconnectDelay: 5000,
+                    heartbeatIncoming: 4000,
+                    heartbeatOutgoing: 4000,
+                    onConnect: () => {
+                        console.log("Subscribe to comment when connected");
+                        customWebsocket.subscribe('/topic/comment', (msg) => {
+                            console.log("Message body ", JSON.parse(msg.body));
+                            this.$state.commentsDto = JSON.parse(msg.body);
+                        })
+                    },
+                
+                    
+            });
+            
+            customWebsocket.activate();
 
         },
-         sendEvent: function(message : string, postId: number) {
-            ws.send(message + ' ' + postId);
-         },
-         getEvent: function(): void{
-            ws.onmessage = event => {
-               console.log("event triggered in comments", event.data);
-               console.log('SKrati', event.data.substring(11, event.data.length));
-               this.fetchAllCommentsFromPostById(event.data.substring(11, event.data.length));
+        sendMessage: function (object: CommentDto[] | string, path: string, commentsState? : CommentDto[]) {
+
+            let msgEvent: string;
+
+         
+            if (typeof object === 'string') {
+               console.log("String");
+               msgEvent = object;
+               console.log("msgEvent", msgEvent)
+               customWebsocket.publish({
+                  destination:'/app/comment/delete',
+                  body: JSON.stringify(commentsState)
+               });
+               return;
             }
-         },
-         closeWebSocket: function() {
-            ws.close();
-         }
+
+            customWebsocket.publish({
+                destination: '/app/comment' + path,
+                body: JSON.stringify(object)
+            })
+
+        },
+        disconnectFromWs: function () {
+            console.log("Disconnect from ws");
+            customWebsocket.forceDisconnect();
+        }
 
     }
 })
