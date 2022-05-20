@@ -3,7 +3,6 @@
     <Form
       @submit="onSubmit"
       :validation-schema="schema"
-      v-slot="{ errorHandling }"
       @invalid-submit="onInvalidSubmit"
     >
       <div class="mb-3">
@@ -89,8 +88,7 @@
         </Field>
         <ErrorMessage name="repeatPassword" />
       </div>
-      <button class="btn btn-primary">Submit</button>
-      <p>{{ errorHandling }}</p>
+      <button :class="!getIsSignupLoading ? 'btn btn-primary' : 'btn btn-primary disabled'" >Submit</button>
     </Form>
     <div class="clearfix" v-show="getIsSignupLoading">
       <div class="spinner-border float-end text-primary" role="status">

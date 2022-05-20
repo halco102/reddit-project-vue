@@ -196,9 +196,12 @@ h4 {
 
 
 
-@media only screen and (max-width: 992px){
+@media only screen and (max-width: 1700px){
  .signup{
-   background-color:white;
+   display:none;
  } 
 }
+
+
+
 </style>

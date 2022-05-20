@@ -44,6 +44,7 @@ export default defineComponent({
   },
   watch: {
     $route(to: _RouteLocationBase) {
+      console.log(this.getUserId)
       if (this.getUserId != 0) {
         if (
           to.fullPath != "/user/" + this.getUserId &&
@@ -54,8 +55,8 @@ export default defineComponent({
         }
       }else{
         if (to.fullPath == '/post') {
-          console.log("No logged user, do nothing")
-          //this.disconnectFromWs();
+          console.log("User not logged in")
+          this.$router.push('/')
         }
       }
     }

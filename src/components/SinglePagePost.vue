@@ -48,8 +48,10 @@ export default defineComponent({
 
 <style scoped>
 img {
-  width: 638px;
-  height: 677px;
+  /*width: 638px;
+  height: 677px;*/
+  max-width: 80%;
+  height: auto;
 }
 
 .single-post-div {

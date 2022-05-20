@@ -297,6 +297,11 @@ export default defineComponent({
         return;
       }
 
+      if (text === '') {
+        this.toast.warning("Comment is empty");
+        return;
+      }
+
       this.postCommentAction({
         text: text,
         postId: idOfPost,
