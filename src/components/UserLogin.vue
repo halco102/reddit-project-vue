@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Form @submit="onSubmit" :validation-schema="schema" v-slot="{  submitCount }">
+    <Form @submit="onSubmit" :validation-schema="schema">
       <div class="mb-3">
         <Field name="email" v-slot="{ field, meta }" >
         <label for="inserEmail" class="form-label">Email</label>
@@ -31,7 +31,7 @@
         <ErrorMessage name="password"/>
       </div>
 
-      <button :class="submitCount > 0 ? 'btn btn-primary disabled':'btn btn-primary'">Submit</button>
+      <button :class="disableButton ? 'btn btn-primary disabled':'btn btn-primary'">Submit</button>
     </Form>
     <div class="clearfix" v-show="getIsLoginLoading">
       <div class="spinner-border float-end text-primary" role="status">
@@ -44,7 +44,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useUserStore, signInRequest } from "../store/UserStore";
+import { useUserStore, signInRequest, UserLoginResponse } from "../store/UserStore";
 import { mapActions, mapState } from "pinia";
 import { v4 as uuidv4 } from "uuid";
 import { Form, Field, ErrorMessage } from "vee-validate";
@@ -60,14 +60,13 @@ export default defineComponent({
     ErrorMessage
   },
   methods: {
-    ...mapActions(useUserStore, ["loginUser", "stopLoadingAnimation"]),
+    ...mapActions(useUserStore, ["loginUser", "stopLoadingAnimation",]),
     loginUserMethod: function (siginRequest: signInRequest) {
       console.log("Login user to app", siginRequest);
       this.loginUser(siginRequest);
-      this.closeEvent(this.getIsLoginLoading);
     },
-    closeEvent: function (val: boolean) {
-      this.$emit("close", val);
+    closeEvent: function () {
+      this.$emit("close", this.getSuccessfullLogin);
     },
     onSubmit: function(value : signInRequest) {
       this.loginUser(value);
@@ -75,13 +74,16 @@ export default defineComponent({
   },
   watch: {
     getIsLoginLoading: function (value: boolean) {
-      if (!value) {
-        this.closeEvent(!value);
-      }
+      this.disableButton = value;
     },
+    getSuccessfullLogin: function(value : boolean) {
+      if (value) {
+        this.closeEvent();
+      }
+    }
   },
   computed: {
-    ...mapState(useUserStore, ["getIsLoginLoading", "userLoginResponse"]),
+    ...mapState(useUserStore, ["getIsLoginLoading", "getUserLogin", 'getSuccessfullLogin']),
   },
   data() {
     const schema = yup.object({
@@ -90,7 +92,8 @@ export default defineComponent({
     });
 
     return {
-      schema
+      schema,
+      disableButton: false
     };
   },
   beforeMount() {

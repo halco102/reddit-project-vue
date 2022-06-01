@@ -3,7 +3,6 @@
     <Form
       @submit="onSubmit"
       :validation-schema="schema"
-      v-slot="{ errorHandling }"
       @invalid-submit="onInvalidSubmit"
     >
       <div class="mb-3">
@@ -70,6 +69,7 @@
             "
             :id="id + 'password'"
           />
+          <password-meter :password="field.value" />
         </Field>
         <ErrorMessage name="password" />
       </div>
@@ -89,8 +89,7 @@
         </Field>
         <ErrorMessage name="repeatPassword" />
       </div>
-      <button class="btn btn-primary">Submit</button>
-      <p>{{ errorHandling }}</p>
+      <button :class="!getIsSignupLoading ? 'btn btn-primary' : 'btn btn-primary disabled'" >Submit</button>
     </Form>
     <div class="clearfix" v-show="getIsSignupLoading">
       <div class="spinner-border float-end text-primary" role="status">
@@ -107,6 +106,7 @@ import { mapActions, mapState } from "pinia";
 import { v4 as uuidv4 } from "uuid";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
+import PasswordMeter from 'vue-simple-password-meter';
 
 export default defineComponent({
   name: "UserSignupForm",
@@ -114,6 +114,7 @@ export default defineComponent({
     Form,
     Field,
     ErrorMessage,
+    PasswordMeter
   },
   expose: ["closePopUp"],
   methods: {

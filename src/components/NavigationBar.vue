@@ -32,9 +32,9 @@
 
         <div
           class="second-type-login-signup"
-          v-show="!exit()"
+          v-if="!exit()"
         > 
-          <UserLoginModal ref="temp" @close="hideModal" />
+          <UserLoginModal />
           <UserSignupModal />
         </div>
 
@@ -85,20 +85,12 @@ export default defineComponent({
       console.log("Refresh page");
       this.$router.go(0);
     },
-    hideModal: function() : void{
-      console.log("CLOSE");
-      this.isClose = true;
-      console.log('ISCLOSE', this.isClose)
-    },
-    exit: function() {
-      if (this.getUserLogin.userProfileDto.id != 0) {
-        return true;
-      }
-      return false;
+    exit: function() : boolean{
+      return this.getSuccessfullLogin;
     }
   },
   computed: {
-    ...mapState(useUserStore, ["getUserLogin"]),
+    ...mapState(useUserStore, ["getUserLogin", 'getSuccessfullLogin']),
   },
   data(){
     return {

@@ -7,7 +7,7 @@
         <div class="card-body">
           <Form @submit="onSubmit" :validation-schema="schema">
             <div class="mb-3">
-              <Field name="title"  v-slot="{ field, meta }">
+              <Field name="title" v-slot="{ field, meta }">
                 <label for="insertText" class="form-label">Title</label>
                 <input
                   v-bind="field"
@@ -56,6 +56,23 @@
                 <ErrorMessage name="imageUrl" />
               </fieldset>
             </div>
+
+            <div class="comment-checkbox-button">
+              <div class="mb-3">
+                <div class="form-check allign">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="allowCommentsCheck"
+                    v-model="isAllowedComment"
+                  />
+                </div>
+                <label class="form-check-label" for="allowCommentsCheck">
+                  Allow comments
+                </label>
+              </div>
+            </div>
+
             <button class="btn btn-primary">Submit</button>
           </Form>
         </div>
@@ -67,7 +84,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useUserStore } from "../store/UserStore";
-import { usePostStore , PostRequest } from "../store/PostStore";
+import { usePostStore, PostRequest } from "../store/PostStore";
 import { mapState, mapActions } from "pinia";
 import NavigationBar from "./NavigationBar.vue";
 import { useToast } from "vue-toastification";
@@ -83,11 +100,9 @@ export default defineComponent({
     ErrorMessage,
   },
   data() {
-    
-
-    const schema = yup.object({
+    const schema = yup.object().shape({
       title: yup.string().required("Title is required"),
-      text: yup.string().notRequired(),
+      text: yup.string().optional().default(""),
       imageUrl: yup
         .string()
         .notRequired()
@@ -117,7 +132,7 @@ export default defineComponent({
             return false;
           },
           then: (rule: any) =>
-            rule.required("Image url is empty, upload image insted.")
+            rule.required("Image url is empty, upload image insted."),
         }),
     });
 
@@ -125,11 +140,12 @@ export default defineComponent({
       schema,
       locationOfFile: null as File | null,
       isDisabled: false,
-      imageUrl: '',
+      imageUrl: "",
+      isAllowedComment: false,
     };
   },
   computed: {
-    ...mapState(useUserStore, ["user"]),
+    ...mapState(useUserStore, ["getUserLogin"]),
     ...mapState(usePostStore, ["isLoading"]),
   },
   setup() {
@@ -143,14 +159,19 @@ export default defineComponent({
       return value ? true : "This field is required";
     },
     onSubmit(values: PostRequest) {
-      console.log("scheme", this.schema)
-      //this.savePost(values, this.locationOfFile);
-      
+      values.allowComments = this.isAllowedComment;
+
+      if (this.getUserLogin.userProfileDto.id !== 0) {
+        this.savePost(values, this.locationOfFile);
+      } else {
+        this.toast.warning("Sign in to post");
+        return;
+      }
     },
     onChangeInput: function (event: any): void {
       let temp: HTMLInputElement = event.target;
       this.locationOfFile = temp.files![0];
-      console.log('file', this.locationOfFile);
+      console.log("file", this.locationOfFile);
       this.isDisabled = true;
     },
   },

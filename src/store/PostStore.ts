@@ -8,14 +8,14 @@ import { Client } from "@stomp/stompjs";
 
 
 // Base url on localhost and ws
-const BASE_URL = 'http://127.0.0.1:81/api/v1/post'
-const ws = 'ws://127.0.0.1:80/ws'
+const BASE_URL = 'http://127.0.0.1:8082/api/v1/post'
+const ws = 'ws://127.0.0.1:8082/ws'
 let customWebsocket : Client; 
 
 
 //when deployed
-//const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' + '/api/v1/post'
-//const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws'
+//const BASE_URL = 'https://demo-reddit-project.herokuapp.com' + '/api/v1/post'
+//const ws = 'wss://demo-reddit-project.herokuapp.com/ws'
 
 const toast = useToast();
 
@@ -128,6 +128,7 @@ export const usePostStore = defineStore('postStore', {
 
       async fetchPostById(id: number) {
          await axios.get(BASE_URL + '/' + id).then(response => {
+            console.log(response.data, " response")
             this.post = response.data;
          }).catch(function (ex) {
             if (ex.response.state === 500) {
@@ -157,7 +158,7 @@ export const usePostStore = defineStore('postStore', {
             //this.request = response.data;
             //this.posts.push(response.data);
             toast.success("Successfuly posted");
-            this.$state.posts.push(response.data);
+            this.$state.posts.unshift(response.data);
             this.sendMessage(this.$state.posts, '');
 
          }).catch(function (ex) {
@@ -245,17 +246,18 @@ export const usePostStore = defineStore('postStore', {
             })
 
 
-            this.sendMessage('POST_DELETED', '/delete');
+            //this.sendMessage('POST_DELETED', '/delete');
             this.isDeleted = true;
             
 
          }).catch(function (ex) {
+            console.log("EXCEPTION ON DELETE")
             if (ex.response.status === 404) {
-               toast.error(ex.response.statusText);
+               toast.error('2');
             } else if (ex.response.status === 401) {
                toast.error("Unathorized");
             } else {
-               toast.error("Something went wrong while saving post");
+               toast.error("Something went wrong while deleting post");
             }
          }).finally(() => {
             this.isDeleted = false;
@@ -269,7 +271,7 @@ export const usePostStore = defineStore('postStore', {
                 debug: function (str) {
                     console.log(str)
                 },
-                reconnectDelay: 5000,
+                reconnectDelay: 30000,
                 heartbeatIncoming: 4000,
                 heartbeatOutgoing: 4000,
                 onConnect: () => {

@@ -1,4 +1,5 @@
 <template>
+
   <div class="main-div">
     <div class="wrapper-post">
       <div class="signup">
@@ -8,7 +9,7 @@
 
         
 
-<div class="test">
+
       <img
         style="display: grid"
         v-if="posts.length === 0"
@@ -66,7 +67,7 @@
                 </button>
                 <span>{{ getNumberOfDislikes(post) }}</span>
               </div>
-              <a href="#chat" class="btn btn-primary"
+              <a v-if="post.allowComments" href="#chat" class="btn btn-primary"
                 ><BIconChatFill /> {{ post.commentsDto.length }}</a
               >
             </div>
@@ -74,7 +75,7 @@
         </div>
       </router-link>
       </div>
-    </div>
+    
   </div>
 </template>
 
@@ -174,8 +175,6 @@ export default defineComponent({
 .signup {
   position: absolute;
   width: 225px;
-  height: 275px;
-  margin-left: 15px;
   border-style: solid;
   border-color: beige;
   border-width: 1px;
@@ -196,9 +195,13 @@ h4 {
 
 
 
-@media only screen and (max-width: 992px){
+@media only screen and (max-width: 1642px){
  .signup{
-   background-color:white;
+   display:none;
  } 
 }
+
+
+
+
 </style>

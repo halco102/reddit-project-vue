@@ -27,14 +27,13 @@ export default defineComponent({
     ...mapState(useUserStore, ["userLoginResponse"]),
   },
   methods: {
-    closeModal : function(value : boolean) {
+    closeModal : function(value : boolean) : void{
       this.showModal = !value;
-      return this.showModal;
     }
   },
   data(){
-    return{
-      showModal:false
+    return {
+      showModal: false
     }
   },
 });

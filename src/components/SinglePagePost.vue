@@ -2,12 +2,17 @@
   <div class="main">
     <NavigationBar />
     <div class="single-post-div">
-      <div class="post-div">
-        <h1>{{ post.title }}</h1>
-        <p>{{ post.text }}</p>
-        <img :src="post.imageUrl" />
+      
+      <div class="card post-div">
+        <img :src="post.imageUrl" class="card-img-top" alt="..." />
+        <div class="card-body">
+          <h5 class="card-title">{{ post.title }}</h5>
+          <p class="card-text">{{ post.text }}</p>
+        </div>
       </div>
-      <CommentSection :post="post" />
+
+        <CommentSection :post="post" />
+      
     </div>
   </div>
 </template>
@@ -20,7 +25,6 @@ import { mapActions, mapState } from "pinia";
 import NavigationBar from "./NavigationBar.vue";
 import CommentSection from "./Comment.vue";
 import { useUserStore } from "../store/UserStore";
-
 
 export default defineComponent({
   name: "App",
@@ -48,8 +52,10 @@ export default defineComponent({
 
 <style scoped>
 img {
-  width: 638px;
-  height: 677px;
+  /*width: 638px;
+  height: 677px;*/
+  max-width: 100%;
+  height: auto;
 }
 
 .single-post-div {
@@ -64,4 +70,8 @@ h1 {
   color: white;
 }
 
+.post-div{
+  margin:2vh 5% 1vh 5%;
+  padding: 1rem;
+}
 </style>
