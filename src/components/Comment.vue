@@ -1,9 +1,9 @@
-<template>
+<template v-if="getAllCommentsByPostId.length != 0">
   <div class="main-comment-div">
     <div class="comments" v-if="post.allowComments === true">
       <div class="number-of-comments">
         <p style="color: white; margin-top: 1rem">
-          Number of comments : {{ getNumberOfComments(dataComments) }}
+          Number of comments : {{ getNumberOfComments(getAllCommentsByPostId) }}
         </p>
       </div>
 
@@ -20,7 +20,7 @@
       >
         <div class="mb-3">
           <label
-            style="color: white"
+            style="color:white;"
             for="exampleFormControlTextarea1"
             class="form-label"
             >Comment</label
@@ -29,6 +29,7 @@
             v-model="writingComment"
             class="form-control"
             id="exampleFormControlTextarea1"
+            style="border-color:black;"
             rows="3"
           ></textarea>
         </div>
@@ -39,7 +40,7 @@
 
       <!-- Comments !-->
       <div
-        v-for="com in sortCommentsByParentId(dataComments)"
+        v-for="com in getAllCommentsByPostId"
         :key="com.id"
         class="card border-0"
         :class="
@@ -96,7 +97,7 @@
               <div class="delete-icon">
                 <button style="border: none; background: none">
                   <BIconTrash
-                    @click.prevent="deleteCommentById(com.id)"
+                    @click.prevent="deleteCommentById(com.id, post.id)"
                     color="#0d6efd"
                     width="25px"
                     height="25px"
@@ -221,11 +222,12 @@
             </div>
           </div>
         </div>
-        <p style="color: yellow" v-if="com === null">V-for</p>
       </div>
     </div>
     <div class="comments" v-else>
       <p>Comments are disabled</p>
+    </div>
+    <div>
     </div>
   </div>
 </template>
@@ -257,7 +259,7 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useUserStore, ["getUserLogin", "userProfile"]),
-    ...mapState(useCommentStore, ["getAllCommentsByPostId"]),
+    ...mapState(useCommentStore, ["getAllCommentsByPostId", 'getIsPostingComment']),
   },
   setup() {
     const toast = useToast();
@@ -266,18 +268,20 @@ export default defineComponent({
   created() {
     console.log("Open Stomp connection in Comments.vue");
     this.openWebsocketConnection();
+    
   },
   methods: {
     ...mapActions(useCommentStore, [
       "postCommentAction",
       "postLikeOrDislike",
-      "fetchAllCommentsFromPostById",
       "resetState",
       "patchComments",
       "getNumberOfLikes",
       "getNumberOfDislikes",
       "openWebsocketConnection",
       "deleteCommentById",
+      'fetchAllCommentsByPostId',
+      'setCommentsFromPost'
     ]),
     ...mapActions(useUserStore, ["getUserByIdOrUsername"]),
     getNumberOfComments: function (comments: CommentDto[]): number {
@@ -309,7 +313,9 @@ export default defineComponent({
         parentId: parentId,
       });
 
-      this.writingComment = "";
+      this.writingComment = '';
+      this.writingReplyComment = '';
+
     },
     toggle: function (item: number) {
       this.selectedItem = item;
@@ -321,6 +327,7 @@ export default defineComponent({
       return false;
     },
     isReply: function (comment: FrontPagePost): boolean {
+
       if (comment.commentsDto.filter((x) => x.parentId !== null)) {
         console.log("ParentId not null ");
         this.isReplyComment = true;
@@ -329,24 +336,6 @@ export default defineComponent({
 
       this.isReplyComment = false;
       return false;
-    },
-    sortCommentsByParentId: function (
-      commentArray: CommentDto[]
-    ): CommentDto[] {
-      var filteredArray: CommentDto[] = [];
-
-      commentArray.forEach((e) => {
-        if (e.parentId === null) {
-          filteredArray.push(e);
-        }
-        commentArray
-          .filter((x) => x.parentId === e.id)
-          .map((k) => filteredArray.push(k));
-      });
-
-      console.log("Filter", filteredArray);
-
-      return filteredArray;
     },
     updateValue(value: string) {
       this.writingComment = value;
@@ -357,6 +346,17 @@ export default defineComponent({
       }
       return false;
     },
+  },watch :{
+    post: function() {
+      console.log("POST")
+      this.setCommentsFromPost(this.post!.commentsDto);
+    },
+    getIsPostingComment: function(val : boolean) {
+      if (val === false) {
+        console.log("VALUE", val);
+        this.fetchAllCommentsByPostId(this.post!.id);
+      }
+    }
   },
   data() {
     return {
@@ -368,18 +368,7 @@ export default defineComponent({
       selectedItem: 0 as number,
       currentCommentId: 0 as number,
       isReplyComment: false as boolean,
-      dataComments: [] as CommentDto[],
     };
-  },
-  watch: {
-    post: function (newVal: FrontPagePost) {
-      this.resetState();
-      this.fetchAllCommentsFromPostById(newVal.id);
-    },
-    getAllCommentsByPostId: function () {
-      console.log("FETCH DATA WATCH");
-      this.dataComments = this.getAllCommentsByPostId;
-    },
   },
 });
 </script>

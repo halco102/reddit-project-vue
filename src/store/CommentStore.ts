@@ -3,19 +3,18 @@ import axios from "axios";
 import { PostedBy } from "./UserStore";
 import { useToast } from 'vue-toastification';
 import { useUserStore as user } from "./UserStore";
-import * as Stomp from 'webstomp-client';
 import { Client } from "@stomp/stompjs";
 
 
 
 
 // base url when using localhost
-const BASE_URL = 'http://127.0.0.1:81/api/v1/comment'
-const ws = 'ws://127.0.0.1:80/ws'
+const BASE_URL = 'http://127.0.0.1:8082/api/v1/comment'
+const ws = 'ws://127.0.0.1:8082/ws'
 
 //base url when deployed
-//const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' +  '/api/v1/comment'
-//const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws'
+//const BASE_URL = 'https://demo-reddit-project.herokuapp.com' +  '/api/v1/comment'
+//const ws = 'wss://demo-reddit-project.herokuapp.com/ws'
 
 
 let customWebsocket : Client;
@@ -45,7 +44,8 @@ export interface PostComment {
 export interface Comment {
     postLikeOrDislike: PostLikeOrDislikeResponse[],
     commentsDto: CommentDto[],
-    commentDto: CommentDto;
+    commentDto: CommentDto,
+    isPostingComment: boolean
 }
 
 export interface PostLikeOrDislikeRequest {
@@ -73,7 +73,8 @@ export const useCommentStore = defineStore('comments', {
                     imageUrl: ''
                 },
                 likedOrDislikedComments: []
-            }
+            },
+            isPostingComment: false
         }
     },
     getters: {
@@ -84,6 +85,9 @@ export const useCommentStore = defineStore('comments', {
             console.log("get state");
             return state.commentsDto;
         },
+        getIsPostingComment(state) : boolean {
+            return state.isPostingComment;
+        }
 
     },
     actions: {
@@ -101,14 +105,12 @@ export const useCommentStore = defineStore('comments', {
                 headers: {
                     'Authorization': 'Bearer ' + this.getJwtFromUser(),
                     'Content-Type': 'application/json'
-                }
+                },
+                onUploadProgress: (() => {this.isPostingComment = true})
             }).then(response => {
-
-                console.log("Post comment", this.commentsDto, 'Current comment posted', response.data);
                 this.commentsDto.push(response.data);
-                toast.success("Comment posted");
-
                 this.sendMessage(this.commentsDto, '');
+                this.isPostingComment = false;
             }).catch(function (ex) {
                 if (ex.response.status === 401) {
                     toast.warning("Unaothorized")
@@ -119,9 +121,18 @@ export const useCommentStore = defineStore('comments', {
                 }
             })
 
+        },
 
+        fetchAllCommentsByPostId: async function (postId : number) {
+            
+            await axios.get(BASE_URL + '/post/' + postId)
+            .then(response => {
+                this.commentsDto = response.data;
+                console.log("Get com from post by post id", response.data);
+            })
 
         },
+
         postLikeOrDislike: async function (request: PostLikeOrDislikeRequest) {
             const json = JSON.stringify(request);
             console.log("Post like or dislike", json);
@@ -148,16 +159,7 @@ export const useCommentStore = defineStore('comments', {
             })
         },
 
-        fetchAllCommentsFromPostById: async function (id: number) {
-            await axios.get(BASE_URL + '/post/' + id).then(response => {
-                console.log("All comments from post", response.data)
-                this.commentsDto = response.data;
-            }).catch(function () {
-                toast.warning("Something went wrong");
-            })
-        },
-
-        deleteCommentById: async function(id : number) {
+        deleteCommentById: async function(id : number, postId? : number) {
             console.log("Delete comment by id");
             await axios.delete(BASE_URL + '/' + id, {
                 headers: {
@@ -165,13 +167,20 @@ export const useCommentStore = defineStore('comments', {
                     'Content-Type': 'application/json'
                 }
             }).then(() => {
-                console.log("Send event to everyone");
+                console.log("Send event to everyone", this.$state.commentsDto);
                 this.$state.commentsDto.forEach((element, index) => {
+                    console.log('Element', element, ' posalni id', id);
                     if (element.id === id) {
+                        console.log("Izbrisi ", element.id)
+                        this.$state.commentsDto.splice(index, 1);
+                    }
+
+                    if (element.parentId === id) {
+                        console.log("Child izbrisi", element.parentId)
                         this.$state.commentsDto.splice(index, 1);
                     }
                 })
-                this.sendMessage('COMMENT_DELETED', '', this.$state.commentsDto)
+                this.sendMessage('COMMENT_DELETED', '', postId)
             })
         },
         resetState: function () {
@@ -200,7 +209,7 @@ export const useCommentStore = defineStore('comments', {
                     debug: function (str) {
                         console.log(str)
                     },
-                    reconnectDelay: 5000,
+                    reconnectDelay: 30000,
                     heartbeatIncoming: 4000,
                     heartbeatOutgoing: 4000,
                     onConnect: () => {
@@ -217,12 +226,13 @@ export const useCommentStore = defineStore('comments', {
             customWebsocket.activate();
 
         },
-        sendMessage: function (object: CommentDto[] | string, path: string, commentsState? : CommentDto[]) {
+        sendMessage: function (object: CommentDto[] | string, path: string, commentsState? : CommentDto[] | number) {
 
             let msgEvent: string;
 
          
             if (typeof object === 'string') {
+                console.log("SEIGJAEIOGJAEGIOJAEOGIJAEGIO")
                console.log("String");
                msgEvent = object;
                console.log("msgEvent", msgEvent)
@@ -242,6 +252,10 @@ export const useCommentStore = defineStore('comments', {
         disconnectFromWs: function () {
             console.log("Disconnect from ws");
             customWebsocket.forceDisconnect();
+        },
+
+        setCommentsFromPost : function(comments : CommentDto[]) : void {
+            this.$state.commentsDto = comments;
         }
 
     }

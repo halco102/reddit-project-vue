@@ -4,17 +4,17 @@ import { PostLikeOrDislikeResponse } from "./CommentStore";
 import { UserPosts, FrontPagePost } from './PostStore'
 import { useToast } from "vue-toastification";
 //import * as Stomp from 'webstomp-client';
-import { Client, Frame, IFrame, Stomp } from "@stomp/stompjs";
-import { string } from "yup";
+import { Client } from "@stomp/stompjs";
+import { boolean } from "yup";
 
 
 //Base url localhost
-const BASE_URL = 'http://127.0.0.1:81/api/v1/user'
-const ws = 'ws://127.0.0.1:80/ws'
+const BASE_URL = 'http://127.0.0.1:8082/api/v1/user'
+const ws = 'ws://127.0.0.1:8082/ws'
 // Deployed url
 
-//const BASE_URL = 'http://9ca3-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.jp.ngrok.io' + '/api/v1/user'
-//const ws = 'ws://220d-2a02-810d-4b3f-cfe8-b2cb-c585-b205-5836.ngrok.io/ws';
+//const BASE_URL = 'https://demo-reddit-project.herokuapp.com' + '/api/v1/user'
+//const ws = 'wss://demo-reddit-project.herokuapp.com/ws';
 
 let customWebsocket: Client;
 
@@ -75,7 +75,8 @@ export interface UserState {
     postForLikeDislike: FrontPagePost[],
     isSignupLoading: boolean,
     isLoginLoading: boolean,
-    successfullSignup: boolean
+    successfullSignup: boolean,
+    succesfullLogin: boolean
 }
 
 
@@ -115,6 +116,7 @@ export const useUserStore = defineStore('userStore', {
             isSignupLoading: false,
             isLoginLoading: false,
             successfullSignup: false,
+            succesfullLogin: false
         }
     },
     getters: {
@@ -141,6 +143,9 @@ export const useUserStore = defineStore('userStore', {
         },
         getSuccessfullSignup(state) : boolean {
             return state.successfullSignup;
+        },
+        getSuccessfullLogin(state) : boolean {
+            return state.succesfullLogin;
         }
     },
     actions: {
@@ -187,6 +192,7 @@ export const useUserStore = defineStore('userStore', {
 
                 this.userLoginResponse = response.data;
                 toast.success("Logged in");
+                this.succesfullLogin = true;
             }).catch(function (ex) {
                 if (ex.response.status === 404) {
                     toast.error("Wrong email or/and password");
@@ -243,7 +249,7 @@ export const useUserStore = defineStore('userStore', {
                     debug: function (str) {
                         console.log(str)
                     },
-                    reconnectDelay: 5000,
+                    reconnectDelay: 30000,
                     heartbeatIncoming: 4000,
                     heartbeatOutgoing: 4000,
                     onConnect: () => {

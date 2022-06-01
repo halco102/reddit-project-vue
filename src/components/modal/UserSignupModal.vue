@@ -28,7 +28,6 @@ export default defineComponent({
   },
   methods: {
     isUserSignedUp: function(value : boolean) : void {
-      console.log("is user signed", value)
       this.showModal = !value;
     }
   }

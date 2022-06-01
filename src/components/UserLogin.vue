@@ -60,13 +60,13 @@ export default defineComponent({
     ErrorMessage
   },
   methods: {
-    ...mapActions(useUserStore, ["loginUser", "stopLoadingAnimation"]),
+    ...mapActions(useUserStore, ["loginUser", "stopLoadingAnimation",]),
     loginUserMethod: function (siginRequest: signInRequest) {
       console.log("Login user to app", siginRequest);
       this.loginUser(siginRequest);
     },
-    closeEvent: function (val: boolean) {
-      this.$emit("close", val);
+    closeEvent: function () {
+      this.$emit("close", this.getSuccessfullLogin);
     },
     onSubmit: function(value : signInRequest) {
       this.loginUser(value);
@@ -76,15 +76,14 @@ export default defineComponent({
     getIsLoginLoading: function (value: boolean) {
       this.disableButton = value;
     },
-    userLoginResponse: function(value : UserLoginResponse) : void{
-      console.log("login", value);
-      if (value.userProfileDto.id !== 0) {
-        this.closeEvent(true);
+    getSuccessfullLogin: function(value : boolean) {
+      if (value) {
+        this.closeEvent();
       }
     }
   },
   computed: {
-    ...mapState(useUserStore, ["getIsLoginLoading", "getUserLogin"]),
+    ...mapState(useUserStore, ["getIsLoginLoading", "getUserLogin", 'getSuccessfullLogin']),
   },
   data() {
     const schema = yup.object({

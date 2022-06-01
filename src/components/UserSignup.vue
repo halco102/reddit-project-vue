@@ -69,6 +69,7 @@
             "
             :id="id + 'password'"
           />
+          <password-meter :password="field.value" />
         </Field>
         <ErrorMessage name="password" />
       </div>
@@ -105,6 +106,7 @@ import { mapActions, mapState } from "pinia";
 import { v4 as uuidv4 } from "uuid";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
+import PasswordMeter from 'vue-simple-password-meter';
 
 export default defineComponent({
   name: "UserSignupForm",
@@ -112,6 +114,7 @@ export default defineComponent({
     Form,
     Field,
     ErrorMessage,
+    PasswordMeter
   },
   expose: ["closePopUp"],
   methods: {
