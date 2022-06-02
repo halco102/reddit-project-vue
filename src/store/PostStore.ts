@@ -155,14 +155,12 @@ export const usePostStore = defineStore('postStore', {
             },
             onUploadProgress: (() => { this.isLoading = true })
          }).then(response => {
-            //this.request = response.data;
-            //this.posts.push(response.data);
-            toast.success("Successfuly posted");
+            
             this.$state.posts.unshift(response.data);
             this.sendMessage(this.$state.posts, '');
-
+            
          }).catch(function (ex) {
-            console.log("ex", ex.response);
+
             if (ex.response.status === 400) {
                toast.error("Bad request");
                return;
@@ -173,8 +171,11 @@ export const usePostStore = defineStore('postStore', {
                toast.error("Something went wrong while saving post");
                return;
             }
-         }).finally(() => {
+         }).finally(()=> {
+            console.log("Before isLoading", this.isLoading);
             this.isLoading = false;
+
+            console.log("Check if this executes before time");
          })
       },
 
@@ -262,6 +263,28 @@ export const usePostStore = defineStore('postStore', {
          }).finally(() => {
             this.isDeleted = false;
          })
+      },
+      sortPostsByNumberOfLikesOrDislikes: async function(condition : boolean){
+         let url = '';
+         if (condition) {
+            url = 'likes';
+         }else{
+            url = 'dislikes';
+         }
+
+         await axios.get(BASE_URL + '/sort/' + url)
+         .then(response => {
+            this.posts = response.data;
+            console.log("Sorted", url, response.data);
+            
+         }).catch(function(ex) {
+            if (ex.response.status === 404) {
+               toast.error("Whoops not found");
+            }else {
+               toast.error(ex.statusText);
+            }
+         })
+
       },
       openWebsocket: function (): void {
 

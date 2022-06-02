@@ -72,9 +72,14 @@
                 </label>
               </div>
             </div>
-
-            <button class="btn btn-primary">Submit</button>
+            <button :class="getIsLoading ? 'btn btn-primary disabled':'btn btn-primary'">Submit</button>
           </Form>
+
+          <div class="clearfix" v-show="getIsLoading">
+            <div class="spinner-border float-end text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -142,11 +147,12 @@ export default defineComponent({
       isDisabled: false,
       imageUrl: "",
       isAllowedComment: false,
+      disableButton: false
     };
   },
   computed: {
     ...mapState(useUserStore, ["getUserLogin"]),
-    ...mapState(usePostStore, ["isLoading"]),
+    ...mapState(usePostStore, ["getIsLoading"]),
   },
   setup() {
     const toast = useToast();
@@ -175,6 +181,13 @@ export default defineComponent({
       this.isDisabled = true;
     },
   },
+  watch: {
+    getIsLoading : function(val : boolean) : void {
+      if (!val) {
+        this.$router.push('/');
+      }
+    }
+  }
 });
 </script>
 
