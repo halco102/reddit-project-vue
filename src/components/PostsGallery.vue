@@ -1,20 +1,35 @@
 <template>
-
   <div class="main-div">
     <div class="wrapper-post">
       <div class="signup">
-        <h3> New to app? <br> Signup here<br></h3>
+        <h3>
+          New to app? <br />
+          Signup here<br />
+        </h3>
         <UserSignupModal />
-        </div>
-
-        
-
+      </div>
 
       <img
         style="display: grid"
         v-if="posts.length === 0"
         src="https://res.cloudinary.com/dzatojfyn/image/upload/v1651749462/output-onlinepngtools_pi0ngz.png"
       />
+
+      <div class="dropdown">
+        <button
+          class="btn btn-secondary dropdown-toggle"
+          type="button"
+          id="dropdownMenuButton1"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <BIconFilter />
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+          <li><a class="dropdown-item" @click="sort(true)">Hot</a></li>
+          <li><a class="dropdown-item" @click="sort(false)">Disliked</a></li>
+        </ul>
+      </div>
 
       <router-link
         :to="{ name: 'SinglePage', params: { id: post.id } }"
@@ -74,8 +89,7 @@
           </div>
         </div>
       </router-link>
-      </div>
-    
+    </div>
   </div>
 </template>
 
@@ -87,11 +101,10 @@ import {
   BIconHandThumbsUpFill,
   BIconHandThumbsDownFill,
   BIconChatFill,
+  BIconFilter,
 } from "bootstrap-icons-vue";
 import { useUserStore, PostedBy } from "../store/UserStore";
-import UserSignupModal from './modal/UserSignupModal.vue'
-
-
+import UserSignupModal from "./modal/UserSignupModal.vue";
 
 export default defineComponent({
   name: "PostsGallery",
@@ -99,13 +112,15 @@ export default defineComponent({
     BIconHandThumbsUpFill,
     BIconHandThumbsDownFill,
     BIconChatFill,
-    UserSignupModal
+    UserSignupModal,
+    BIconFilter,
   },
   methods: {
     ...mapActions(usePostStore, [
       "postLikeOrDislikeForPost",
       "getNumberOfLikes",
-      "getNumberOfDislikes"
+      "getNumberOfDislikes",
+      'sortPostsByNumberOfLikesOrDislikes'
     ]),
     getPostId: function (id: number) {
       return id;
@@ -116,7 +131,9 @@ export default defineComponent({
         this.isClose = true;
       }
     },
-
+    sort: function(condition : boolean) : void {
+      this.sortPostsByNumberOfLikesOrDislikes(condition);
+    }
   },
   computed: {
     ...mapState(useUserStore, ["userLoginResponse"]),
@@ -138,16 +155,15 @@ export default defineComponent({
       this.isClose = true;
     }
   },
-  updated(){
-    console.log("Post component updated")
-  }
+  updated() {
+    console.log("Post component updated");
+  },
 });
 </script>
 
 <style scoped>
-
-.signup-modal{
-  margin-left:0px;
+.signup-modal {
+  margin-left: 0px;
 }
 
 .user-avatar {
@@ -166,13 +182,13 @@ export default defineComponent({
   margin: 2% 16%;
 }
 
-.modal{
-  position:absolute;
-  display:grid;
+.modal {
+  position: absolute;
+  display: grid;
 }
 
-
 .signup {
+  margin-top:9vh;
   position: absolute;
   width: 225px;
   border-style: solid;
@@ -193,15 +209,14 @@ h4 {
   margin: 10px 4px 10px 4px;
 }
 
-
-
-@media only screen and (max-width: 1642px){
- .signup{
-   display:none;
- } 
+.dropdown {
+  margin-bottom: 10px;
+  text-align: end;
 }
 
-
-
-
+@media only screen and (max-width: 1642px) {
+  .signup {
+    display: none;
+  }
+}
 </style>
