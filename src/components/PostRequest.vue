@@ -88,13 +88,25 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+
+//pinia
 import { useUserStore } from "../store/UserStore";
-import { usePostStore, PostRequest } from "../store/PostStore";
+import { usePostStore } from "../store/PostStore";
 import { mapState, mapActions } from "pinia";
+
+//custom components
 import NavigationBar from "./NavigationBar.vue";
+
+//toast
 import { useToast } from "vue-toastification";
+
+//vee validate
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
+
+
+// types
+import {PostRequest} from '../types/PostType';
 
 export default defineComponent({
   name: "PostRequest",

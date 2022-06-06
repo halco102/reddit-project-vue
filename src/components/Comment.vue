@@ -234,17 +234,24 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
+import { useToast } from "vue-toastification";
+
+//components
 import {
   BIconHandThumbsUpFill,
   BIconHandThumbsDownFill,
   BIconReply,
   BIconTrash,
 } from "bootstrap-icons-vue";
-import { FrontPagePost } from "../store/PostStore";
-import { useCommentStore, CommentDto } from "../store/CommentStore";
+
+//pinia
+import { useCommentStore } from "../store/CommentStore";
 import { mapActions, mapState } from "pinia";
 import { useUserStore } from "../store/UserStore";
-import { useToast } from "vue-toastification";
+
+//types
+import { FrontPagePost } from "../types/PostType";
+import {CommentDto} from '../types/CommentType';
 
 export default defineComponent({
   name: "CommentSection",

@@ -15,7 +15,7 @@
         src="https://res.cloudinary.com/dzatojfyn/image/upload/v1651749462/output-onlinepngtools_pi0ngz.png"
       />
 
-      <div class="dropdown">
+      <div class="dropdown" v-if="posts.length != 0">
         <button
           class="btn btn-secondary dropdown-toggle"
           type="button"
@@ -90,21 +90,31 @@
         </div>
       </router-link>
     </div>
+
+    <p  @click="nekaMetoda">CLick me</p>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { FrontPagePost, usePostStore } from "../store/PostStore";
+
+//pinia
+import { usePostStore } from "../store/PostStore";
 import { mapState, mapActions } from "pinia";
+import { useUserStore } from "../store/UserStore";
+
+//components
 import {
   BIconHandThumbsUpFill,
   BIconHandThumbsDownFill,
   BIconChatFill,
   BIconFilter,
 } from "bootstrap-icons-vue";
-import { useUserStore, PostedBy } from "../store/UserStore";
 import UserSignupModal from "./modal/UserSignupModal.vue";
+
+//types
+import { FrontPagePost } from '../types/PostType';
+import { PostedBy } from '../types/UserType';
 
 export default defineComponent({
   name: "PostsGallery",
@@ -133,6 +143,10 @@ export default defineComponent({
     },
     sort: function(condition : boolean) : void {
       this.sortPostsByNumberOfLikesOrDislikes(condition);
+    },
+    nekaMetoda : function() : void {
+      const local = localStorage.getItem('userLogin');
+      console.log("Local storage", local);
     }
   },
   computed: {

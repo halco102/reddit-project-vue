@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "axios";
-import { PostedBy } from "./UserStore";
+import * as CommentType from '@/types/CommentType'
 import { useToast } from 'vue-toastification';
 import { useUserStore as user } from "./UserStore";
 import { Client } from "@stomp/stompjs";
@@ -21,45 +21,9 @@ let customWebsocket : Client;
 
 const toast = useToast();
 
-export interface LikesDislikesComment {
-    likedOrDisliked: boolean;
-}
-
-export interface CommentDto {
-    id: number;
-    text: string;
-    parentId: number;
-    userInfo: PostedBy
-    likedOrDislikedComments: LikesDislikesComment[]
-}
-
-
-export interface PostComment {
-    text: string,
-    postId: number,
-    userId: number
-    parentId: number | null
-}
-
-export interface Comment {
-    postLikeOrDislike: PostLikeOrDislikeResponse[],
-    commentsDto: CommentDto[],
-    commentDto: CommentDto,
-    isPostingComment: boolean
-}
-
-export interface PostLikeOrDislikeRequest {
-    commentId: number,
-    likeOrDislike: boolean
-}
-
-export interface PostLikeOrDislikeResponse {
-    commentDto: CommentDto,
-    likeOrDislike: boolean,
-}
 
 export const useCommentStore = defineStore('comments', {
-    state: (): Comment => {
+    state: (): CommentType.Comment => {
         return {
             postLikeOrDislike: [],
             commentsDto: [],
@@ -78,11 +42,10 @@ export const useCommentStore = defineStore('comments', {
         }
     },
     getters: {
-        getPostLikeOrDislike(state): PostLikeOrDislikeResponse[] {
+        getPostLikeOrDislike(state): CommentType.PostLikeOrDislikeResponse[] {
             return state.postLikeOrDislike;
         },
-        getAllCommentsByPostId(state): CommentDto[] {
-            console.log("get state");
+        getAllCommentsByPostId(state): CommentType.CommentDto[] {
             return state.commentsDto;
         },
         getIsPostingComment(state) : boolean {
@@ -95,7 +58,7 @@ export const useCommentStore = defineStore('comments', {
             return user().$state.userLoginResponse.jwt;
         },
 
-        async postCommentAction(postAComment: PostComment) {
+        async postCommentAction(postAComment: CommentType.PostComment) {
             const json = JSON.stringify(postAComment);
 
             console.log("Start comment action")
@@ -133,7 +96,7 @@ export const useCommentStore = defineStore('comments', {
 
         },
 
-        postLikeOrDislike: async function (request: PostLikeOrDislikeRequest) {
+        postLikeOrDislike: async function (request: CommentType.PostLikeOrDislikeRequest) {
             const json = JSON.stringify(request);
             console.log("Post like or dislike", json);
 
@@ -187,16 +150,16 @@ export const useCommentStore = defineStore('comments', {
             this.$reset();
         },
 
-        patchComments: function (comments: CommentDto[]) {
+        patchComments: function (comments: CommentType.CommentDto[]) {
             this.commentsDto = comments;
         },
 
-        getNumberOfLikes: function (comment: CommentDto): number {
+        getNumberOfLikes: function (comment: CommentType.CommentDto): number {
             let number = 0;
             comment.likedOrDislikedComments.filter((x) => x.likedOrDisliked === true).map(() => number++);
             return number;
         },
-        getNumberOfDislikes: function (comment: CommentDto): number {
+        getNumberOfDislikes: function (comment: CommentType.CommentDto): number {
             let number = 0;
             comment.likedOrDislikedComments.filter((x) => x.likedOrDisliked === false).map(() => number++);
             return number;
@@ -226,7 +189,7 @@ export const useCommentStore = defineStore('comments', {
             customWebsocket.activate();
 
         },
-        sendMessage: function (object: CommentDto[] | string, path: string, commentsState? : CommentDto[] | number) {
+        sendMessage: function (object: CommentType.CommentDto[] | string, path: string, commentsState? : CommentType.CommentDto[] | number) {
 
             let msgEvent: string;
 
@@ -254,7 +217,7 @@ export const useCommentStore = defineStore('comments', {
             customWebsocket.forceDisconnect();
         },
 
-        setCommentsFromPost : function(comments : CommentDto[]) : void {
+        setCommentsFromPost : function(comments : CommentType.CommentDto[]) : void {
             this.$state.commentsDto = comments;
         }
 

@@ -60,12 +60,19 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+
+//components
 import NavigationBar from "./NavigationBar.vue";
-import { useUserStore, PostedBy } from "../store/UserStore";
-import { usePostStore } from "../store/PostStore";
-import { mapActions, mapState } from "pinia";
 import UserProfileBar from "./UserProfileBar.vue";
 import { BIconTrash } from "bootstrap-icons-vue";
+
+//pinia
+import { useUserStore } from "../store/UserStore";
+import { usePostStore } from "../store/PostStore";
+import { mapActions, mapState } from "pinia";
+
+//types
+import { PostedBy } from '../types/UserType';
 
 export default defineComponent({
   name: "UserProfile",
