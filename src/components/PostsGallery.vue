@@ -9,20 +9,12 @@
         <UserSignupModal />
       </div>
 
-      <img
-        style="display: grid"
-        v-if="posts.length === 0"
-        src="https://res.cloudinary.com/dzatojfyn/image/upload/v1651749462/output-onlinepngtools_pi0ngz.png"
-      />
+      <img style="display: grid" v-if="posts.length === 0"
+        src="https://res.cloudinary.com/dzatojfyn/image/upload/v1651749462/output-onlinepngtools_pi0ngz.png" />
 
       <div class="dropdown" v-if="posts.length != 0">
-        <button
-          class="btn btn-secondary dropdown-toggle"
-          type="button"
-          id="dropdownMenuButton1"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
+          data-bs-toggle="dropdown" aria-expanded="false">
           <BIconFilter />
         </button>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
@@ -31,67 +23,77 @@
         </ul>
       </div>
 
-      <router-link
-        :to="{ name: 'SinglePage', params: { id: post.id } }"
-        v-for="post in posts"
-        :key="post.id"
-      >
+      <router-link class="router-link" :to="{ name: 'SinglePage', params: { id: post.id } }" v-for="post in posts" :key="post.id">
         <div class="card" style="width: 40rem; margin-bottom: 20px">
+
+          <!-- show first posted by clickable image (route them to user profile)-->
+          <div class="user-avatar">
+            <router-link :to="{ path: '/user/' + post.postedBy.id }">
+              <a class="btn btn-light non-decorative-link" style="margin: 0px 10px 0 10px">
+                <img class="rounded-circle border-image" :src="post.postedBy.imageUrl" alt="" />
+                {{ post.postedBy.username }}
+              </a>
+            </router-link>
+          </div>
+
+          <!-- show image of the post-->
           <img v-bind:src="post.imageUrl" class="card-img-top" alt="" />
+
           <div class="card-body">
-            <h5 class="card-title">{{ post.title }}</h5>
-            <p class="card-text">{{ post.text }}</p>
+
             <div class="buttons">
-              <div class="user-avatar">
-                <router-link :to="{ path: '/user/' + post.postedBy.id }">
-                  <a class="btn btn-primary" style="margin: 0px 10px 0 10px">
-                    <img
-                      :src="post.postedBy.imageUrl"
-                      alt=""
-                      style="withd: 25px; height: 25px"
-                    />
-                    Posted by: {{ post.postedBy.username }}
-                  </a>
-                </router-link>
-              </div>
               <div class="like-dislike">
-                <button
-                  @click.prevent="
+                <!-- like button -->
+                <div class="like-button">
+                  <button @click.prevent="
                     postLikeOrDislikeForPost({
                       postId: post.id,
                       likeOrDislike: true,
                     })
-                  "
-                  class="btn btn-primary bicon-reply-button"
-                  style="margin: 0px 10px 0 10px"
-                >
-                  <BIconHandThumbsUpFill />
-                </button>
-                <span>{{ getNumberOfLikes(post) }}</span>
-                <button
-                  @click.prevent="
+                  " class="btn btn-primary bicon-reply-button" style="margin: 0px 10px 0 10px">
+                    <BIconHandThumbsUpFill />
+                  </button>
+                  <span>{{ getNumberOfLikes(post) }}</span>
+                </div>
+
+                <!-- dislike button -->
+                <div class="dislike-button">
+                  <button @click.prevent="
                     postLikeOrDislikeForPost({
                       postId: post.id,
                       likeOrDislike: false,
                     })
-                  "
-                  class="btn btn-primary bicon-reply-button"
-                  style="margin: 0px 10px 0 10px"
-                >
-                  <BIconHandThumbsDownFill />
-                </button>
-                <span>{{ getNumberOfDislikes(post) }}</span>
+                  " class="btn btn-primary bicon-reply-button" style="margin: 0px 10px 0 10px">
+                    <BIconHandThumbsDownFill />
+                  </button>
+                  <span>{{ getNumberOfDislikes(post) }}</span>
+                </div>
+
+                <!-- share button -->
+                <div class="share-button">
+                  <button class="btn btn-primary bicon-reply-button" style="margin: 0px 10px 0 10px">
+                    <BIconShareFill />
+                  </button>
+                </div>
+
+                <!--Chat button-->
+                <div class="chat-button">
+                  <a v-if="post.allowComments" class="btn btn-primary">
+                    <BIconChatFill /> {{ post.commentsDto.length }}
+                  </a>
+                </div>
+
               </div>
-              <a v-if="post.allowComments" href="#chat" class="btn btn-primary"
-                ><BIconChatFill /> {{ post.commentsDto.length }}</a
-              >
+
             </div>
+
+            <h5 class="card-title" style="text-align:center;">{{ post.title }}</h5>
+            <p class="card-text">{{ post.text }}</p>
           </div>
         </div>
       </router-link>
     </div>
 
-    <p  @click="nekaMetoda">CLick me</p>
   </div>
 </template>
 
@@ -109,6 +111,7 @@ import {
   BIconHandThumbsDownFill,
   BIconChatFill,
   BIconFilter,
+  BIconShareFill,
 } from "bootstrap-icons-vue";
 import UserSignupModal from "./modal/UserSignupModal.vue";
 
@@ -124,6 +127,7 @@ export default defineComponent({
     BIconChatFill,
     UserSignupModal,
     BIconFilter,
+    BIconShareFill,
   },
   methods: {
     ...mapActions(usePostStore, [
@@ -141,13 +145,9 @@ export default defineComponent({
         this.isClose = true;
       }
     },
-    sort: function(condition : boolean) : void {
+    sort: function (condition: boolean): void {
       this.sortPostsByNumberOfLikesOrDislikes(condition);
     },
-    nekaMetoda : function() : void {
-      const local = localStorage.getItem('userLogin');
-      console.log("Local storage", local);
-    }
   },
   computed: {
     ...mapState(useUserStore, ["userLoginResponse"]),
@@ -182,11 +182,33 @@ export default defineComponent({
 
 .user-avatar {
   display: inline-block;
-  float: left;
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+}
+
+.non-decorative-link a {
+  text-decoration: none;
+}
+
+.non-decorative-link:hover{
+  text-decoration: none;
+  border-radius: 20px;
+  border-style: solid;
+  border-color: black;
+  background-color: rgb(100, 100, 100);
+}
+
+
+.border-image {
+  width: 50px;
+  height: 50px;
+  border-style: solid;
+  border-color: black;
 }
 
 .like-dislike {
-  float: right;
+  display: flex;
+  justify-content: space-evenly;
 }
 
 .wrapper-post {
@@ -196,13 +218,17 @@ export default defineComponent({
   margin: 2% 16%;
 }
 
+.buttons{
+  margin-bottom: 2vh;
+}
+
 .modal {
   position: absolute;
   display: grid;
 }
 
 .signup {
-  margin-top:9vh;
+  margin-top: 5vh;
   position: absolute;
   width: 225px;
   border-style: solid;
@@ -233,4 +259,11 @@ h4 {
     display: none;
   }
 }
+
+
+.router-link{
+  text-decoration: none;
+  color: black;
+}
+
 </style>

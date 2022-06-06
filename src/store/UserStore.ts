@@ -136,7 +136,7 @@ export const useUserStore = defineStore('userStore', {
 
 
                 //save to localstorage
-                localStorage.setItem('userLogin', response.data.userProfileDto.email);
+                localStorage.setItem('userJwt', response.data.jwt);
                 
 
             }).catch(function (ex) {
