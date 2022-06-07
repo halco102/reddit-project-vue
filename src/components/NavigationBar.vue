@@ -69,8 +69,12 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+
+//pinia
 import { useUserStore } from "../store/UserStore";
 import { mapState } from "pinia";
+
+//components
 import UserLoginModal from "./modal/UserLoginModal.vue";
 import UserSignupModal from "./modal/UserSignupModal.vue";
 

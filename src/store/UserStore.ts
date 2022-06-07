@@ -1,87 +1,27 @@
 import axios from "axios";
 import { defineStore } from "pinia";
-import { PostLikeOrDislikeResponse } from "./CommentStore";
-import { UserPosts, FrontPagePost } from './PostStore'
+import * as UserType from "@/types/UserType";
+import { FrontPagePost } from "@/types/PostType";
 import { useToast } from "vue-toastification";
-//import * as Stomp from 'webstomp-client';
 import { Client } from "@stomp/stompjs";
-import { boolean } from "yup";
 
 
 //Base url localhost
 const BASE_URL = 'http://127.0.0.1:8082/api/v1/user'
 const ws = 'ws://127.0.0.1:8082/ws'
-// Deployed url
 
+// Deployed url
 //const BASE_URL = 'https://demo-reddit-project.herokuapp.com' + '/api/v1/user'
 //const ws = 'wss://demo-reddit-project.herokuapp.com/ws';
 
 let customWebsocket: Client;
 
-
-
-
 const toast = useToast();
 
-export interface signupRequest {
-    username: string,
-    email: string,
-    password: string,
-}
-
-export interface signInRequest {
-    email: string,
-    password: string
-}
-
-export interface PostedBy {
-    id: number;
-    username: string;
-    imageUrl: string
-}
-
-export interface User {
-    id: number,
-    username: string,
-    email: string,
-    imageUrl: string,
-    createdAt: Date,
-    posts: UserPosts[],
-    likedOrDislikedComments: PostLikeOrDislikeResponse[]
-}
-
-export interface UserLoginResponse {
-    jwt: string,
-    userProfileDto: User
-}
-
-export interface UserProfile {
-    id: number,
-    username: string,
-    imageUrl: string,
-    emai?: string,
-    createdAt: Date,
-    posts: UserPosts[],
-}
-
-
-
-
-
-export interface UserState {
-    user: User,
-    userProfile: UserProfile,
-    userLoginResponse: UserLoginResponse,
-    postForLikeDislike: FrontPagePost[],
-    isSignupLoading: boolean,
-    isLoginLoading: boolean,
-    successfullSignup: boolean,
-    succesfullLogin: boolean
-}
 
 
 export const useUserStore = defineStore('userStore', {
-    state: (): UserState => {
+    state: (): UserType.UserState => {
         return {
             user: {
                 id: 0,
@@ -120,13 +60,13 @@ export const useUserStore = defineStore('userStore', {
         }
     },
     getters: {
-        getFullUserInfo(state): User {
+        getFullUserInfo(state): UserType.User {
             return state.user;
         },
-        getUserProfile(state): UserProfile {
+        getUserProfile(state): UserType.UserProfile {
             return state.userProfile;
         },
-        getUserLogin(state): UserLoginResponse {
+        getUserLogin(state): UserType.UserLoginResponse {
             return state.userLoginResponse;
         },
         getLikesDislikesFromPost(state): FrontPagePost[] {
@@ -150,7 +90,7 @@ export const useUserStore = defineStore('userStore', {
     },
     actions: {
 
-        signupUser: async function (signupRequest: signupRequest) {
+        signupUser: async function (signupRequest: UserType.SignupRequest) {
             const json = JSON.stringify(signupRequest);
             console.log("Start signupRequest", json);
             await axios.post(BASE_URL, json, {
@@ -179,11 +119,11 @@ export const useUserStore = defineStore('userStore', {
 
         },
 
-        loginUser: async function (signInRequest: signInRequest) {
+        loginUser: async function (signInRequest: UserType.SignInRequest) {
             const json = JSON.stringify(signInRequest);
             console.log("Start signin", json);
 
-            await axios.post(BASE_URL + '/login', json, {
+            await axios.post<UserType.UserLoginResponse>(BASE_URL + '/login', json, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -193,6 +133,12 @@ export const useUserStore = defineStore('userStore', {
                 this.userLoginResponse = response.data;
                 toast.success("Logged in");
                 this.succesfullLogin = true;
+
+
+                //save to localstorage
+                localStorage.setItem('userJwt', response.data.jwt);
+                
+
             }).catch(function (ex) {
                 if (ex.response.status === 404) {
                     toast.error("Wrong email or/and password");
@@ -266,7 +212,7 @@ export const useUserStore = defineStore('userStore', {
             customWebsocket.activate();
         },
         //stomp
-        sendUserMessage: function (object: UserProfile | string, path: string): void {
+        sendUserMessage: function (object: UserType.UserProfile | string, path: string): void {
             let msgEvent: string;
 
             console.log("Send object");

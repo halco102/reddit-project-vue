@@ -44,11 +44,18 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useUserStore, signInRequest, UserLoginResponse } from "../store/UserStore";
-import { mapActions, mapState } from "pinia";
 import { v4 as uuidv4 } from "uuid";
+
+//pinia
+import { useUserStore } from "../store/UserStore";
+import { mapActions, mapState } from "pinia";
+
+//validate
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
+
+//types
+import { SignInRequest, UserLoginResponse } from '../types/UserType';
 
 let id = null;
 
@@ -61,14 +68,14 @@ export default defineComponent({
   },
   methods: {
     ...mapActions(useUserStore, ["loginUser", "stopLoadingAnimation",]),
-    loginUserMethod: function (siginRequest: signInRequest) {
+    loginUserMethod: function (siginRequest: SignInRequest) {
       console.log("Login user to app", siginRequest);
       this.loginUser(siginRequest);
     },
     closeEvent: function () {
       this.$emit("close", this.getSuccessfullLogin);
     },
-    onSubmit: function(value : signInRequest) {
+    onSubmit: function(value : SignInRequest) {
       this.loginUser(value);
     },
   },

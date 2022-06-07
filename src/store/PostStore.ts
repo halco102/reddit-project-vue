@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import axios from "axios";
-import { PostedBy, UserState, useUserStore as user, useUserStore } from "./UserStore";
-import { CommentDto } from './CommentStore'
+import * as PostType from "@/types/PostType";
+import { useUserStore as user } from "./UserStore";
 import { useToast } from 'vue-toastification';
 import { Client } from "@stomp/stompjs";
 
@@ -20,52 +20,8 @@ let customWebsocket : Client;
 const toast = useToast();
 
 
-export interface UserPosts {
-   id: number,
-   title: string,
-   text: string,
-   imageUrl: string,
-   postLikeOrDislikeDtos: PostLikeOrDislike[]
-}
-
-export interface postLikeOrDislikeRequest {
-   postId: number,
-   likeOrDislike: boolean
-}
-
-export interface PostLikeOrDislike {
-   likeOrDislike: boolean | null;
-}
-
-export interface FrontPagePost {
-   id: number;
-   title: string;
-   text: string,
-   imageUrl: string;
-   postedBy: PostedBy;
-   allowComments: boolean
-   commentsDto: CommentDto[]
-   postLikeOrDislikeDtos: PostLikeOrDislike[]
-}
-
-export interface PostRequest {
-   title: string,
-   text: string,
-   imageUrl: string,
-   allowComments: boolean,
-}
-
-export interface PostInterface {
-   posts: FrontPagePost[],
-   post: FrontPagePost,
-   request: PostRequest,
-   isLoading: boolean,
-   isDeleted: boolean,
-   isSameLikeOrDislikeButton: boolean
-}
-
 export const usePostStore = defineStore('postStore', {
-   state: (): PostInterface => {
+   state: (): PostType.PostInterface => {
       return {
          posts: [],
          post: {
@@ -97,10 +53,10 @@ export const usePostStore = defineStore('postStore', {
       getAllPosts(state) {
          return state.posts
       },
-      getPostById(state): FrontPagePost | null {
+      getPostById(state): PostType.FrontPagePost | null {
          return state.post;
       },
-      getPostRequest(state): PostRequest {
+      getPostRequest(state): PostType.PostRequest {
          return state.request;
       },
       getIsLoading(state): boolean {
@@ -138,7 +94,7 @@ export const usePostStore = defineStore('postStore', {
 
       },
 
-      async savePost(request: PostRequest, location: File | null) {
+      async savePost(request: PostType.PostRequest, location: File | null) {
 
          const json = JSON.stringify(request);
          const temp = new FormData();
@@ -179,7 +135,7 @@ export const usePostStore = defineStore('postStore', {
          })
       },
 
-      async postLikeOrDislikeForPost(request: postLikeOrDislikeRequest) {
+      async postLikeOrDislikeForPost(request: PostType.PostLikeOrDislikeRequest) {
          const json = JSON.stringify(request);
 
          console.log("LIkepost", json)
@@ -214,7 +170,7 @@ export const usePostStore = defineStore('postStore', {
          });
       },
 
-      getNumberOfLikes: function (post: FrontPagePost): number {
+      getNumberOfLikes: function (post: PostType.FrontPagePost): number {
          let likes = 0;
          if (post.postLikeOrDislikeDtos.length !== 0) {
             post.postLikeOrDislikeDtos.filter((x) => x.likeOrDislike === true).map(() => likes++);
@@ -222,7 +178,7 @@ export const usePostStore = defineStore('postStore', {
          return likes;
       },
 
-      getNumberOfDislikes: function (post: FrontPagePost): number {
+      getNumberOfDislikes: function (post: PostType.FrontPagePost): number {
          let dislikes = 0;
          if (post.postLikeOrDislikeDtos.length !== 0) {
             post.postLikeOrDislikeDtos.filter((x) => x.likeOrDislike === false).map(() => dislikes++);
@@ -312,7 +268,7 @@ export const usePostStore = defineStore('postStore', {
 
       },
       //stomp
-      sendMessage: function (object: FrontPagePost[] | string, path: string): void {
+      sendMessage: function (object: PostType.FrontPagePost[] | string, path: string): void {
          let msgEvent: string;
 
          

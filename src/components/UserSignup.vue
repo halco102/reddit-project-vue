@@ -69,7 +69,7 @@
             "
             :id="id + 'password'"
           />
-          <password-meter :password="field.value" />
+          <password-meter :password="field.value" @score="isPasswordWeak"/>
         </Field>
         <ErrorMessage name="password" />
       </div>
@@ -89,7 +89,7 @@
         </Field>
         <ErrorMessage name="repeatPassword" />
       </div>
-      <button :class="!getIsSignupLoading ? 'btn btn-primary' : 'btn btn-primary disabled'" >Submit</button>
+      <button :class="!getIsSignupLoading && isPasswordWeak ? 'btn btn-primary' : 'btn btn-primary disabled'" >Submit</button>
     </Form>
     <div class="clearfix" v-show="getIsSignupLoading">
       <div class="spinner-border float-end text-primary" role="status">
@@ -101,12 +101,22 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useUserStore, signupRequest } from "../store/UserStore";
-import { mapActions, mapState } from "pinia";
 import { v4 as uuidv4 } from "uuid";
+
+//components
+import PasswordMeter from 'vue-simple-password-meter';
+
+//validate
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
-import PasswordMeter from 'vue-simple-password-meter';
+
+//pinia
+import { useUserStore } from "../store/UserStore";
+import { mapActions, mapState } from "pinia";
+
+//types
+import { SignupRequest } from '../types/UserType'
+
 
 export default defineComponent({
   name: "UserSignupForm",
@@ -119,7 +129,7 @@ export default defineComponent({
   expose: ["closePopUp"],
   methods: {
     ...mapActions(useUserStore, ["signupUser"]),
-    onSubmit: function (value: signupRequest) {
+    onSubmit: function (value: SignupRequest) {
       this.signupUser(value);
     },
     onInvalidSubmit: function (value: any) {
@@ -128,6 +138,14 @@ export default defineComponent({
     isSuccessfullSignup: function() {
       console.log("check is signed", this.getSuccessfullSignup)
       this.$emit('signedUp', this.getSuccessfullSignup)
+    },
+    isPasswordWeak: function(value : number) : boolean {
+      console.log("PASSWORD", value);
+      if (value <= 2) {
+        console.log("Weak password")
+        return true;
+      }
+      return false;
     }
   },
   watch: {
@@ -151,7 +169,7 @@ export default defineComponent({
       password: yup.string().min(8).required('Password is a required field'),
       repeatPassword: yup
         .string()
-        .oneOf([yup.ref("password"), null], "passwords do not match").required('Repeat password is a required field'),
+        .oneOf([yup.ref("password"), null], "passwords do not match").required('Repeat password is a required field'), 
     });
 
     return {
