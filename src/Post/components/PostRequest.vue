@@ -90,12 +90,12 @@
 import { defineComponent } from "vue";
 
 //pinia
-import { useUserStore } from "../store/UserStore";
-import { usePostStore } from "../store/PostStore";
+import { useUserStore } from "@/User/store/store";
+import { usePostStore } from "@/Post/store/store";
 import { mapState, mapActions } from "pinia";
 
 //custom components
-import NavigationBar from "./NavigationBar.vue";
+import NavigationBar from "@/components/NavigationBar.vue";
 
 //toast
 import { useToast } from "vue-toastification";
@@ -106,7 +106,7 @@ import * as yup from "yup";
 
 
 // types
-import {PostRequest} from '../types/PostType';
+
 
 export default defineComponent({
   name: "PostRequest",
@@ -119,7 +119,7 @@ export default defineComponent({
   data() {
     const schema = yup.object().shape({
       title: yup.string().required("Title is required"),
-      text: yup.string().optional().default(""),
+      text: yup.string().optional().default("").max(255),
       imageUrl: yup
         .string()
         .notRequired()
@@ -176,7 +176,7 @@ export default defineComponent({
     isRequired: function (value: string): boolean | string {
       return value ? true : "This field is required";
     },
-    onSubmit(values: PostRequest) {
+    onSubmit(values: any) {
       values.allowComments = this.isAllowedComment;
 
       if (this.getUserLogin.userProfileDto.id !== 0) {

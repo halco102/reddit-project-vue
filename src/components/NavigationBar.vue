@@ -71,12 +71,12 @@
 import { defineComponent } from "vue";
 
 //pinia
-import { useUserStore } from "../store/UserStore";
+import { useUserStore } from "@/User/store/store";
 import { mapState } from "pinia";
 
 //components
-import UserLoginModal from "./modal/UserLoginModal.vue";
-import UserSignupModal from "./modal/UserSignupModal.vue";
+import UserLoginModal from "@/User/components/modal/UserLoginModal.vue";
+import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
 
 export default defineComponent({
   name: "NavigationBar",
@@ -116,7 +116,7 @@ export default defineComponent({
   margin-right: 10px;
 }
 
-..second-type-login-signup UserLoginModal {
+.second-type-login-signup UserLoginModal {
   margin: 10px;
 }
 

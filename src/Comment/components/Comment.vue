@@ -245,13 +245,13 @@ import {
 } from "bootstrap-icons-vue";
 
 //pinia
-import { useCommentStore } from "../store/CommentStore";
+import { useCommentStore } from "@/Comment/store/store";
 import { mapActions, mapState } from "pinia";
-import { useUserStore } from "../store/UserStore";
+import { useUserStore } from "@/User/store/store";
 
 //types
-import { FrontPagePost } from "../types/PostType";
-import {CommentDto} from '../types/CommentType';
+import { FrontPagePost } from "@/Post/types";
+import {CommentDto} from '@/Comment/types';
 
 export default defineComponent({
   name: "CommentSection",

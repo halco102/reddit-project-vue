@@ -111,11 +111,11 @@ import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
 
 //pinia
-import { useUserStore } from "../store/UserStore";
+import { useUserStore } from "@/User/store/store";
 import { mapActions, mapState } from "pinia";
 
 //types
-import { SignupRequest } from '../types/UserType'
+import { SignupRequest } from '@/User/types'
 
 
 export default defineComponent({

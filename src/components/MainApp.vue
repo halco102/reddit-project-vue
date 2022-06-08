@@ -10,13 +10,13 @@ import { defineComponent } from "vue";
 import { _RouteLocationBase } from "vue-router";
 
 //components
-import NavigationBar from "./NavigationBar.vue";
-import PostsGallery from "./PostsGallery.vue";
+import NavigationBar from "@/components/NavigationBar.vue";
+import PostsGallery from "@/Post/components/PostsGallery.vue";
 
 //pinia
-import { usePostStore } from "../store/PostStore";
+import { usePostStore } from "@/Post/store/store";
 import { mapActions, mapState } from "pinia";
-import { useUserStore } from "../store/UserStore";
+import { useUserStore } from "@/User/store/store";
 
 export default defineComponent({
   name: "MainApp",

@@ -7,7 +7,7 @@
         <img :src="post.imageUrl" class="card-img-top" alt="..." />
         <div class="card-body">
           <h5 class="card-title">{{ post.title }}</h5>
-          <p class="card-text">{{ post.text }}</p>
+          <p class="card-text" style="color:black;">{{ post.text }}</p>
         </div>
       </div>
 
@@ -20,11 +20,16 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { usePostStore } from "../store/PostStore";
+
+//pinia
+import { usePostStore } from "@/Post/store/store";
+import { useUserStore } from "@/User/store/store";
 import { mapActions, mapState } from "pinia";
-import NavigationBar from "./NavigationBar.vue";
-import CommentSection from "./Comment.vue";
-import { useUserStore } from "../store/UserStore";
+
+//components
+import NavigationBar from "@/components/NavigationBar.vue";
+import CommentSection from "@/Comment/components/Comment.vue";
+
 
 export default defineComponent({
   name: "App",

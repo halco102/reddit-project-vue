@@ -1,8 +1,17 @@
+//pinia
 import { defineStore } from "pinia";
+import { useUserStore as user } from "../../User/store/store";
+
+//axios
 import axios from "axios";
-import * as PostType from "@/types/PostType";
-import { useUserStore as user } from "./UserStore";
+
+//types
+import * as PostType from "@/Post/types";
+
+//toast
 import { useToast } from 'vue-toastification';
+
+//stomp
 import { Client } from "@stomp/stompjs";
 
 

@@ -47,7 +47,7 @@ import { defineComponent } from "vue";
 import { v4 as uuidv4 } from "uuid";
 
 //pinia
-import { useUserStore } from "../store/UserStore";
+import { useUserStore } from "@/User/store/store";
 import { mapActions, mapState } from "pinia";
 
 //validate
@@ -55,7 +55,7 @@ import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
 
 //types
-import { SignInRequest, UserLoginResponse } from '../types/UserType';
+import { SignInRequest } from '@/User/types';
 
 let id = null;
 
@@ -75,7 +75,7 @@ export default defineComponent({
     closeEvent: function () {
       this.$emit("close", this.getSuccessfullLogin);
     },
-    onSubmit: function(value : SignInRequest) {
+    onSubmit: function(value : SignInRequest | any) {
       this.loginUser(value);
     },
   },

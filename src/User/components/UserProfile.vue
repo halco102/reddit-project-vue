@@ -62,17 +62,17 @@
 import { defineComponent } from "vue";
 
 //components
-import NavigationBar from "./NavigationBar.vue";
-import UserProfileBar from "./UserProfileBar.vue";
+import NavigationBar from "@/components/NavigationBar.vue";
+import UserProfileBar from "@/User/components/UserProfileBar.vue";
 import { BIconTrash } from "bootstrap-icons-vue";
 
 //pinia
-import { useUserStore } from "../store/UserStore";
-import { usePostStore } from "../store/PostStore";
+import { useUserStore } from "@/User/store/store";
+import { usePostStore } from "@/Post/store/store";
 import { mapActions, mapState } from "pinia";
 
 //types
-import { PostedBy } from '../types/UserType';
+import { PostedBy } from '@/User/types';
 
 export default defineComponent({
   name: "UserProfile",
@@ -130,9 +130,9 @@ export default defineComponent({
   watch: {
     getUserProfile: function () {
 
-      this.getUserProfile.posts.filter((x) =>
+      this.getUserProfile.posts.filter((x : any) =>
         x.postLikeOrDislikeDtos
-          .filter((y) => y.likeOrDislike === true)
+          .filter((y : any) => y.likeOrDislike === true)
           .map(() => this.likes++)
       );
 

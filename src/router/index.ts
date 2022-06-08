@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
-import UserProfile from '../components/UserProfile.vue'
-import SinglePagePost from '../components/SinglePagePost.vue'
-import PostRequest from '../components/PostRequest.vue'
+import UserProfile from '../User/components/UserProfile.vue'
+import SinglePagePost from '../Post/components/SinglePagePost.vue'
+import PostRequest from '../Post/components/PostRequest.vue'
 import MainApp from '../components/MainApp.vue'
 
 
