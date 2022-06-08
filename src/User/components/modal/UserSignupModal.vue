@@ -14,7 +14,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import UserSignup from "../UserSignup.vue";
+import UserSignup from "@/User/components/UserSignup.vue";
 
 export default defineComponent({
   name: "UserSignupModal",

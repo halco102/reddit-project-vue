@@ -14,8 +14,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import UserLogin from "../UserLogin.vue";
-import { useUserStore } from "../../store/UserStore";
+import UserLogin from "@/User/components/UserLogin.vue";
+import { useUserStore } from "@/User/store/store";
 import { mapState } from "pinia";
 
 export default defineComponent({

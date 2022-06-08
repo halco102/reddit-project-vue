@@ -1,5 +1,5 @@
-import { UserPosts, FrontPagePost } from "./PostType";
-import {PostLikeOrDislikeResponse} from './CommentType'
+import { UserPosts, FrontPagePost } from "../Post/types";
+import {PostLikeOrDislikeResponse} from '../Comment/types'
 
 
 export interface SignupRequest {

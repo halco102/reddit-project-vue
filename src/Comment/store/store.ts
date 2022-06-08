@@ -1,11 +1,18 @@
+//pinia
 import { defineStore } from "pinia";
+import { useUserStore as user } from "@/User/store/store";
+
+//axios
 import axios from "axios";
-import * as CommentType from '@/types/CommentType'
+
+//types
+import * as CommentType from '@/Comment/types'
+
+//toast
 import { useToast } from 'vue-toastification';
-import { useUserStore as user } from "./UserStore";
+
+//stomp
 import { Client } from "@stomp/stompjs";
-
-
 
 
 // base url when using localhost

@@ -101,9 +101,9 @@
 import { defineComponent, PropType } from "vue";
 
 //pinia
-import { usePostStore } from "../store/PostStore";
+import { usePostStore } from "@/Post/store/store";
 import { mapState, mapActions } from "pinia";
-import { useUserStore } from "../store/UserStore";
+import { useUserStore } from "@/User/store/store";
 
 //components
 import {
@@ -113,11 +113,11 @@ import {
   BIconFilter,
   BIconShareFill,
 } from "bootstrap-icons-vue";
-import UserSignupModal from "./modal/UserSignupModal.vue";
+import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
 
 //types
-import { FrontPagePost } from '../types/PostType';
-import { PostedBy } from '../types/UserType';
+import { FrontPagePost } from '@/Post/types';
+import { PostedBy } from '@/User/types';
 
 export default defineComponent({
   name: "PostsGallery",
@@ -181,7 +181,7 @@ export default defineComponent({
 }
 
 .user-avatar {
-  display: inline-block;
+  display: flex;
   margin-top: 1vh;
   margin-bottom: 1vh;
 }

@@ -1,5 +1,5 @@
-import { PostedBy } from "./UserType";
-import { CommentDto } from "./CommentType";
+import { PostedBy } from "../User/types";
+import { CommentDto } from "../Comment/types";
 
 export interface UserPosts {
     id: number,

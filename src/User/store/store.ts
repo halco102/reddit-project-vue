@@ -1,8 +1,17 @@
-import axios from "axios";
+//pinia
 import { defineStore } from "pinia";
-import * as UserType from "@/types/UserType";
-import { FrontPagePost } from "@/types/PostType";
+
+//axios
+import axios from "axios";
+
+//types
+import * as UserType from "@/User/types";
+import { FrontPagePost } from "@/Post/types";
+
+//toast
 import { useToast } from "vue-toastification";
+
+//stomp
 import { Client } from "@stomp/stompjs";
 
 
@@ -123,7 +132,7 @@ export const useUserStore = defineStore('userStore', {
             const json = JSON.stringify(signInRequest);
             console.log("Start signin", json);
 
-            await axios.post<UserType.UserLoginResponse>(BASE_URL + '/login', json, {
+            await axios.post(BASE_URL + '/login', json, {
                 headers: {
                     'Content-Type': 'application/json'
                 },

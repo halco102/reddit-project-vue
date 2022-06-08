@@ -1,4 +1,4 @@
-import { PostedBy } from "./UserType";
+import { PostedBy } from "../User/types";
 
 
 export interface LikesDislikesComment {
