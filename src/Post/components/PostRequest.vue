@@ -90,7 +90,7 @@
 import { defineComponent } from "vue";
 
 //pinia
-import { useUserStore } from "@/User/store/store";
+import { useAuthenticationStore } from "@/User/store/authentication_store";
 import { usePostStore } from "@/Post/store/store";
 import { mapState, mapActions } from "pinia";
 
@@ -163,7 +163,7 @@ export default defineComponent({
     };
   },
   computed: {
-    ...mapState(useUserStore, ["getUserLogin"]),
+    ...mapState(useAuthenticationStore, ["getCurrentlyLoggedUserProfile"]),
     ...mapState(usePostStore, ["getIsLoading"]),
   },
   setup() {
@@ -179,7 +179,7 @@ export default defineComponent({
     onSubmit(values: any) {
       values.allowComments = this.isAllowedComment;
 
-      if (this.getUserLogin.userProfileDto.id !== 0) {
+      if (this.getCurrentlyLoggedUserProfile.id !== 0) {
         this.savePost(values, this.locationOfFile);
       } else {
         this.toast.warning("Sign in to post");

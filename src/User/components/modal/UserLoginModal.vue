@@ -15,7 +15,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import UserLogin from "@/User/components/UserLogin.vue";
-import { useUserStore } from "@/User/store/store";
+import { useAuthenticationStore } from "@/User/store/authentication_store";
 import { mapState } from "pinia";
 
 export default defineComponent({
@@ -24,7 +24,7 @@ export default defineComponent({
     UserLogin
   },
   computed: {
-    ...mapState(useUserStore, ["userLoginResponse"]),
+    ...mapState(useAuthenticationStore, ["userLoginResponse"]),
   },
   methods: {
     closeModal : function(value : boolean) : void{

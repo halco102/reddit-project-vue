@@ -9,10 +9,10 @@
         <UserSignupModal />
       </div>
 
-      <img style="display: grid" v-if="posts.length === 0"
+      <img style="display: grid" v-if="posts!.length === 0"
         src="https://res.cloudinary.com/dzatojfyn/image/upload/v1651749462/output-onlinepngtools_pi0ngz.png" />
 
-      <div class="dropdown" v-if="posts.length != 0">
+      <div class="dropdown" v-if="posts!.length != 0">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
           data-bs-toggle="dropdown" aria-expanded="false">
           <BIconFilter />
@@ -103,7 +103,7 @@ import { defineComponent, PropType } from "vue";
 //pinia
 import { usePostStore } from "@/Post/store/store";
 import { mapState, mapActions } from "pinia";
-import { useUserStore } from "@/User/store/store";
+import { useAuthenticationStore } from "@/User/store/authentication_store";
 
 //components
 import {
@@ -140,7 +140,7 @@ export default defineComponent({
       return id;
     },
     exitedModal: function () {
-      if (this.userLoginResponse.userProfileDto.id != 0) {
+      if (this.getCurrentlyLoggedUserProfile.id != 0) {
         console.log("Hide modal");
         this.isClose = true;
       }
@@ -150,7 +150,7 @@ export default defineComponent({
     },
   },
   computed: {
-    ...mapState(useUserStore, ["userLoginResponse"]),
+    ...mapState(useAuthenticationStore, ["getCurrentlyLoggedUserProfile"]),
   },
   props: {
     posts: Object as PropType<FrontPagePost[]>,
@@ -165,7 +165,7 @@ export default defineComponent({
     };
   },
   mounted() {
-    if (this.userLoginResponse.userProfileDto.id != 0) {
+    if (this.getCurrentlyLoggedUserProfile.id != 0) {
       this.isClose = true;
     }
   },

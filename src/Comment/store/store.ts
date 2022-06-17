@@ -1,7 +1,5 @@
 //pinia
 import { defineStore } from "pinia";
-import { useUserStore as user } from "@/User/store/store";
-
 //axios
 import axios from "axios";
 
@@ -61,9 +59,6 @@ export const useCommentStore = defineStore('comments', {
 
     },
     actions: {
-        getJwtFromUser: function (): string {
-            return user().$state.userLoginResponse.jwt;
-        },
 
         async postCommentAction(postAComment: CommentType.PostComment) {
             const json = JSON.stringify(postAComment);
@@ -73,7 +68,7 @@ export const useCommentStore = defineStore('comments', {
 
             await axios.post(BASE_URL, json, {
                 headers: {
-                    'Authorization': 'Bearer ' + this.getJwtFromUser(),
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
                     'Content-Type': 'application/json'
                 },
                 onUploadProgress: (() => {this.isPostingComment = true})
@@ -109,7 +104,7 @@ export const useCommentStore = defineStore('comments', {
 
             await axios.post(BASE_URL + '/like-dislike', json, {
                 headers: {
-                    'Authorization': 'Bearer ' + this.getJwtFromUser(),
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
                     'Content-Type': 'application/json'
                 }
             }).then(response => {
@@ -133,7 +128,7 @@ export const useCommentStore = defineStore('comments', {
             console.log("Delete comment by id");
             await axios.delete(BASE_URL + '/' + id, {
                 headers: {
-                    'Authorization': 'Bearer ' + this.getJwtFromUser(),
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
                     'Content-Type': 'application/json'
                 }
             }).then(() => {

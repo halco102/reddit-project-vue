@@ -30,8 +30,7 @@ export interface User {
 }
 
 export interface UserLoginResponse {
-    jwt: string,
-    userProfileDto: User
+    jwt: string
 }
 
 export interface UserProfile {
@@ -50,10 +49,7 @@ export interface UserProfile {
 export interface UserState {
     user: User,
     userProfile: UserProfile,
-    userLoginResponse: UserLoginResponse,
     postForLikeDislike: FrontPagePost[],
-    isSignupLoading: boolean,
-    isLoginLoading: boolean,
-    successfullSignup: boolean,
-    succesfullLogin: boolean
 }
+
+

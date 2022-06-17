@@ -1,6 +1,6 @@
 <template v-if="getAllCommentsByPostId.length != 0">
   <div class="main-comment-div">
-    <div class="comments" v-if="post.allowComments === true">
+    <div class="comments" v-if="post!.allowComments === true">
       <div class="number-of-comments">
         <p style="color: white; margin-top: 1rem">
           Number of comments : {{ getNumberOfComments(getAllCommentsByPostId) }}
@@ -11,8 +11,8 @@
         v-on:submit.prevent="
           postCommentThenReturnData(
             writingComment,
-            post.id,
-            getUserLogin.userProfileDto.id,
+            post!.id,
+            getCurrentlyLoggedUserProfile.id,
             null
           )
         "
@@ -97,7 +97,7 @@
               <div class="delete-icon">
                 <button style="border: none; background: none">
                   <BIconTrash
-                    @click.prevent="deleteCommentById(com.id, post.id)"
+                    @click.prevent="deleteCommentById(com.id, post!.id)"
                     color="#0d6efd"
                     width="25px"
                     height="25px"
@@ -112,8 +112,8 @@
               v-on:submit.prevent="
                 postCommentThenReturnData(
                   writingReplyComment,
-                  post.id,
-                  getUserLogin.userProfileDto.id,
+                  post!.id,
+                  getCurrentlyLoggedUserProfile.id,
                   com.id
                 )
               "
@@ -192,8 +192,8 @@
                 v-on:submit.prevent="
                   postCommentThenReturnData(
                     writingReplyComment,
-                    post.id,
-                    getUserLogin.userProfileDto.id,
+                    post!.id,
+                    getCurrentlyLoggedUserProfile.id,
                     com.id
                   )
                 "
@@ -248,6 +248,7 @@ import {
 import { useCommentStore } from "@/Comment/store/store";
 import { mapActions, mapState } from "pinia";
 import { useUserStore } from "@/User/store/store";
+import { useAuthenticationStore } from '@/User/store/authentication_store'
 
 //types
 import { FrontPagePost } from "@/Post/types";
@@ -265,8 +266,9 @@ export default defineComponent({
     post: Object as PropType<FrontPagePost>,
   },
   computed: {
-    ...mapState(useUserStore, ["getUserLogin", "userProfile"]),
+    ...mapState(useUserStore, ["userProfile"]),
     ...mapState(useCommentStore, ["getAllCommentsByPostId", 'getIsPostingComment']),
+    ...mapState(useAuthenticationStore, ['getCurrentlyLoggedUserProfile'])
   },
   setup() {
     const toast = useToast();
@@ -290,7 +292,6 @@ export default defineComponent({
       'fetchAllCommentsByPostId',
       'setCommentsFromPost'
     ]),
-    ...mapActions(useUserStore, ["getUserByIdOrUsername"]),
     getNumberOfComments: function (comments: CommentDto[]): number {
       return comments.length;
     },
@@ -328,7 +329,8 @@ export default defineComponent({
       this.selectedItem = item;
     },
     checkIfUserIsLogged: function (): boolean {
-      if (this.getUserLogin.userProfileDto.id != 0) {
+      console.log(this.getCurrentlyLoggedUserProfile);
+      if (this.getCurrentlyLoggedUserProfile.id != 0) {
         return true;
       }
       return false;
@@ -348,7 +350,7 @@ export default defineComponent({
       this.writingComment = value;
     },
     isCommentHolder(commentUserId: number): boolean {
-      if (this.getUserLogin.userProfileDto.id === commentUserId) {
+      if (this.getCurrentlyLoggedUserProfile.id === commentUserId) {
         return true;
       }
       return false;

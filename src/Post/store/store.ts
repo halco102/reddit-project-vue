@@ -1,6 +1,5 @@
 //pinia
 import { defineStore } from "pinia";
-import { useUserStore as user } from "../../User/store/store";
 
 //axios
 import axios from "axios";
@@ -77,10 +76,6 @@ export const usePostStore = defineStore('postStore', {
    },
    actions: {
 
-      getJwtFromUser(): string {
-         return user().$state.userLoginResponse.jwt;
-      },
-
       async fetchAllPostToShow() {
          await axios.get(BASE_URL).then(response => {
             this.posts = response.data;
@@ -114,7 +109,7 @@ export const usePostStore = defineStore('postStore', {
 
          await axios.post(BASE_URL + '/', temp, {
             headers: {
-               'Authorization': 'Bearer ' + this.getJwtFromUser(),
+               'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
                'Content-Type': 'multipart/form-data',
 
             },
@@ -151,7 +146,7 @@ export const usePostStore = defineStore('postStore', {
 
          await axios.post(BASE_URL + '/like-dislike', json, {
             headers: {
-               'Authorization': 'Bearer ' + this.getJwtFromUser(),
+               'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
                'Content-Type': 'application/json'
             }
          }).then(response => {
@@ -201,7 +196,7 @@ export const usePostStore = defineStore('postStore', {
          
          await axios.delete(BASE_URL + '/' + id, {
             headers: {
-               'Authorization': 'Bearer ' + this.getJwtFromUser(),
+               'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
             }
          }).then(() => {
          

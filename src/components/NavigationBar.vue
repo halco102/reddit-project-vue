@@ -38,18 +38,18 @@
           <UserSignupModal />
         </div>
 
-        <router-link :to="{ path: '/user/' + getUserLogin.userProfileDto.id }">
+        <router-link :to="{ path: '/user/' + getCurrentlyLoggedUserProfile.id }">
           <div
-            v-show="getUserLogin.userProfileDto.id != 0"
+            v-show="getCurrentlyLoggedUserProfile.id != 0"
             class="username-img"
           >
             <img
-              :src="getUserLogin.userProfileDto.imageUrl"
+              :src="getCurrentlyLoggedUserProfile.imageUrl"
               width="50"
               height="40"
             />
             <span class="navbar-text" style="margin-right: 5px">{{
-              getUserLogin.userProfileDto.username
+              getCurrentlyLoggedUserProfile.username
             }}</span>
           </div>
         </router-link>
@@ -71,8 +71,8 @@
 import { defineComponent } from "vue";
 
 //pinia
-import { useUserStore } from "@/User/store/store";
-import { mapState } from "pinia";
+import { useAuthenticationStore } from "@/User/store/authentication_store";
+import { mapActions, mapState } from "pinia";
 
 //components
 import UserLoginModal from "@/User/components/modal/UserLoginModal.vue";
@@ -88,19 +88,27 @@ export default defineComponent({
     refreshPage: function (): void {
       console.log("Refresh page");
       this.$router.go(0);
+
     },
     exit: function() : boolean{
-      return this.getSuccessfullLogin;
+
+      if (this.getCurrentlyLoggedUserProfile.id != 0) {
+        return true;
+      }
+      return false;
+      //return this.getSuccessfullLogin;
     }
   },
   computed: {
-    ...mapState(useUserStore, ["getUserLogin", 'getSuccessfullLogin']),
+    ...mapState(useAuthenticationStore, ['getSuccessfullLogin', 'getCurrentlyLoggedUserProfile']),
   },
   data(){
     return {
       isClose: false
     }
-  }
+  },
+
+
 });
 </script>
 

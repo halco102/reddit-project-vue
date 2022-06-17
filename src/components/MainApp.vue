@@ -17,6 +17,9 @@ import PostsGallery from "@/Post/components/PostsGallery.vue";
 import { usePostStore } from "@/Post/store/store";
 import { mapActions, mapState } from "pinia";
 import { useUserStore } from "@/User/store/store";
+import { useAuthenticationStore } from "@/User/store/authentication_store";
+
+
 
 export default defineComponent({
   name: "MainApp",
@@ -33,7 +36,7 @@ export default defineComponent({
   },
   computed: {
     ...mapState(usePostStore, ["getAllPosts"]),
-    ...mapState(useUserStore, ["getUserId"]),
+    ...mapState(useAuthenticationStore, ["getCurrentlyLoggedUserProfile"]),
   },
   beforeMount() {
     this.fetchAllPostToShow();
@@ -48,10 +51,10 @@ export default defineComponent({
   },
   watch: {
     $route(to: _RouteLocationBase) {
-      console.log(this.getUserId)
-      if (this.getUserId != 0) {
+      console.log(this.getCurrentlyLoggedUserProfile.id)
+      if (this.getCurrentlyLoggedUserProfile.id != 0) {
         if (
-          to.fullPath != "/user/" + this.getUserId &&
+          to.fullPath != "/user/" + this.getCurrentlyLoggedUserProfile.id &&
           to.fullPath != "/post"
         ) {
           console.log("Disconnect", to.fullPath)

@@ -70,6 +70,7 @@ import { BIconTrash } from "bootstrap-icons-vue";
 import { useUserStore } from "@/User/store/store";
 import { usePostStore } from "@/Post/store/store";
 import { mapActions, mapState } from "pinia";
+import { useAuthenticationStore } from "../store/authentication_store";
 
 //types
 import { PostedBy } from '@/User/types';
@@ -87,7 +88,9 @@ export default defineComponent({
       "getAllPostsFromUserByUserId",
       "openUserWebsocket",
       'sendUserMessage',
+      
     ]),
+    ...mapActions(useAuthenticationStore, []),
     ...mapActions(usePostStore, ["deletePostById"]),
     getPostedBy: function (): PostedBy {
       console.log("GetPostedBy", this.getUserProfile);
@@ -105,11 +108,31 @@ export default defineComponent({
     deletePost: function (id: number) : void{
       this.deletePostById(id);
     },
+
     isCurrentUser: function() : boolean {
+      // get the id from url
       let convert : number = + this.$route.params.userId;
-      if (convert === this.getUserLogin.userProfileDto.id) {
+
+      if (this.getCurrentlyLoggedUserProfile.id === convert) {
         return true;
       }
+
+      /*
+      let jwt : string = sessionStorage.getItem('jwt');
+
+      // check first if the state of userProfile is empty 
+      if (this.getCurrentlyLoggedUserProfile.id === 0) {
+        // it is in the default state get the jwt from storage and fetch data
+        if (jwt.length > 0) {
+          // now check the jwt and in that methods the userProfile method will be called
+          this.checkIfJwtIsValid(jwt);
+        }
+      }
+
+      //get the jwt from local storage, check if its ok and fetch userData
+      */
+
+
       return false;
     },
   },
@@ -119,8 +142,9 @@ export default defineComponent({
     };
   },
   computed: {
-    ...mapState(useUserStore, ["getUserProfile", "getLikesDislikesFromPost",'getUserLogin']),
+    ...mapState(useUserStore, ["getUserProfile", "getLikesDislikesFromPost", ]),
     ...mapState(usePostStore, ["getIsDeleted"]),
+    ...mapState(useAuthenticationStore, ['getCurrentlyLoggedUserProfile'])
   },
   created() {
     let convertStringToInt = +this.$route.params.userId;
@@ -139,7 +163,7 @@ export default defineComponent({
     },
     getIsDeleted: function(){
       console.log("Post is deleted");
-      this.sendUserMessage(this.getUserProfile, '');
+      this.sendUserMessage(this.getUserProfile);
     }
   },
 });
