@@ -16,7 +16,6 @@ import PostsGallery from "@/Post/components/PostsGallery.vue";
 //pinia
 import { usePostStore } from "@/Post/store/store";
 import { mapActions, mapState } from "pinia";
-import { useUserStore } from "@/User/store/store";
 import { useAuthenticationStore } from "@/User/store/authentication_store";
 
 

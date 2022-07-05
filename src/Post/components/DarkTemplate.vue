@@ -1,3 +1,4 @@
+
 <template>
   <div class="main-div">
     <div class="wrapper-post">
@@ -24,84 +25,73 @@
       </div>
 
       <!-- cards -->
-      <router-link class="router-link" :to="{ name: 'SinglePage', params: { id: post.id } }" v-for="post in posts"
-        :key="post.id">
+      <router-link class="router-link" :to="{ name: 'SinglePage', params: { id: post.id } }" v-for="post in posts" :key="post.id">
         <div class="card" style="width: 50rem; margin-bottom: 20px">
 
-
-          <div class="divide-img-likes-dislikes">
-            <div class="like-dislike">
-
-              <div class="buttons">
-
-                <div style="text-align: center;">
-                  <!-- like button -->
-                  <div class="like-button">
-                    <button @click.prevent="
-                      postLikeOrDislikeForPost({
-                        postId: post.id,
-                        likeOrDislike: true,
-                      })
-                    " class="btn btn-light bicon-reply-button" style="margin: 0px 10px 0 10px">
-                      <BIconArrowUp />
-                    </button>
-                  </div>
-
-                  <span style="text-align: center;">0</span>
-
-                  <!-- dislike button -->
-                  <div class="dislike-button">
-                    <button @click.prevent="
-                      postLikeOrDislikeForPost({
-                        postId: post.id,
-                        likeOrDislike: false,
-                      })
-                    " class="btn btn-light bicon-reply-button" style="margin: 0px 10px 0 10px">
-                      <BIconArrowDown />
-                    </button>
-                  </div>
-
-
-                </div>
-
-              </div>
-            </div>
-            <div class="image-div">
-              <!-- show image of the post-->
-              <img v-bind:src="post.imageUrl" class="card-img-top" alt="" />
-            </div>
-
+          <!-- show first posted by clickable image (route them to user profile)-->
+          <div class="user-avatar">
+            <router-link :to="{ path: '/user/' + post.postedBy.id }">
+              <a class="btn btn-light non-decorative-link" style="margin: 0px 10px 0 10px">
+                <img class="rounded-circle border-image" :src="post.postedBy.imageUrl" alt="" />
+                {{ post.postedBy.username }}
+              </a>
+            </router-link>
           </div>
 
+          <!-- show image of the post-->
+          <img v-bind:src="post.imageUrl" class="card-img-top" alt="" />
 
           <div class="card-body card-body-shaddow">
 
-            <h3 class="card-title" style="text-align:center;">{{ post.title }}</h3>
-            <p class="card-text">{{ post.text }}</p>
+            <div class="buttons">
+              <div class="like-dislike">
+                <!-- like button -->
+                <div class="like-button">
+                  <button @click.prevent="
+                    postLikeOrDislikeForPost({
+                      postId: post.id,
+                      likeOrDislike: true,
+                    })
+                  " class="btn btn-primary bicon-reply-button" style="margin: 0px 10px 0 10px">
+                    <BIconHandThumbsUpFill />
+                  </button>
+                  <span>{{ getNumberOfLikes(post) }}</span>
+                </div>
 
-            <hr css="line-divider">
+                <!-- dislike button -->
+                <div class="dislike-button">
+                  <button @click.prevent="
+                    postLikeOrDislikeForPost({
+                      postId: post.id,
+                      likeOrDislike: false,
+                    })
+                  " class="btn btn-primary bicon-reply-button" style="margin: 0px 10px 0 10px">
+                    <BIconHandThumbsDownFill />
+                  </button>
+                  <span>{{ getNumberOfDislikes(post) }}</span>
+                </div>
 
-            <!-- show first posted by clickable image (route them to user profile) -->
-            <div class="user-avatar">
-              <router-link :to="{ path: '/user/' + post.postedBy.id }">
-                <a class="btn btn-light non-decorative-link" style="margin: 0px 10px 0 10px">
-                  <img class="rounded-circle border-image" :src="post.postedBy.imageUrl" alt="" />
-                  {{ post.postedBy.username }}
-                </a>
-              </router-link>
-              <!--Chat button-->
-              <div class="chat-button">
-                <a v-if="post.allowComments" class="btn btn-light">
-                  <BIconChatFill /> {{ post.commentsDto.length }}
-                </a>
+                <!-- share button -->
+                <div class="share-button">
+                  <button class="btn btn-primary bicon-reply-button" style="margin: 0px 10px 0 10px">
+                    <BIconShareFill />
+                  </button>
+                </div>
+
+                <!--Chat button-->
+                <div class="chat-button">
+                  <a v-if="post.allowComments" class="btn btn-primary">
+                    <BIconChatFill /> {{ post.commentsDto.length }}
+                  </a>
+                </div>
+
               </div>
+
             </div>
+
+            <h5 class="card-title" style="text-align:center;">{{ post.title }}</h5>
+            <p class="card-text">{{ post.text }}</p>
           </div>
-
-
-
-
-
         </div>
       </router-link>
     </div>
@@ -119,10 +109,11 @@ import { useAuthenticationStore } from "@/User/store/authentication_store";
 
 //components
 import {
+  BIconHandThumbsUpFill,
+  BIconHandThumbsDownFill,
   BIconChatFill,
   BIconFilter,
-  BIconArrowUp,
-  BIconArrowDown
+  BIconShareFill,
 } from "bootstrap-icons-vue";
 import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
 
@@ -133,11 +124,12 @@ import { PostedBy } from '@/User/types';
 export default defineComponent({
   name: "PostsGallery",
   components: {
-    BIconArrowUp,
-    BIconArrowDown,
+    BIconHandThumbsUpFill,
+    BIconHandThumbsDownFill,
     BIconChatFill,
     UserSignupModal,
     BIconFilter,
+    BIconShareFill,
   },
   methods: {
     ...mapActions(usePostStore, [
@@ -194,14 +186,13 @@ export default defineComponent({
   display: flex;
   margin-top: 1vh;
   margin-bottom: 1vh;
-  justify-content: space-between;
 }
 
 .non-decorative-link a {
   text-decoration: none;
 }
 
-.non-decorative-link:hover {
+.non-decorative-link:hover{
   text-decoration: none;
   border-radius: 20px;
   border-style: solid;
@@ -218,7 +209,8 @@ export default defineComponent({
 }
 
 .like-dislike {
-  display: grid;
+  display: flex;
+  justify-content: space-evenly;
 }
 
 .wrapper-post {
@@ -228,9 +220,8 @@ export default defineComponent({
   margin: 2% 16%;
 }
 
-.buttons {
+.buttons{
   margin-bottom: 2vh;
-  padding-top: 15px;
 }
 
 .modal {
@@ -253,7 +244,7 @@ export default defineComponent({
 .signup p,
 h3,
 h4 {
-  color: black;
+  color: beige;
 }
 
 .bicon-reply-button {
@@ -272,26 +263,15 @@ h4 {
 }
 
 
-.router-link {
+.router-link{
   text-decoration: none;
   color: black;
 }
 
-.card-body-shaddow {
+.card-body-shaddow{
   /*box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;*/
   /*box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;*/
   box-shadow: rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;
 }
 
-.divide-img-likes-dislikes {
-  display: flex;
-}
-
-.chat-button {
-  margin-top: 10px;
-}
-
-.image-div {
-  margin: 1rem 1rem 0 0;
-}
 </style>

@@ -39,7 +39,7 @@ export const useUserStore = defineStore('userStore', {
                 id: 0,
                 username: '',
                 imageUrl: '',
-                emai: '',
+                email: '',
                 createdAt: new Date(),
                 posts: []
             },

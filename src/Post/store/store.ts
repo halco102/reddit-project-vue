@@ -72,6 +72,9 @@ export const usePostStore = defineStore('postStore', {
       },
       getIsDeleted(state): boolean {
          return state.isDeleted;
+      },
+      getPost(state) : PostType.FrontPagePost {
+         return state.post;
       }
    },
    actions: {
@@ -297,6 +300,15 @@ export const usePostStore = defineStore('postStore', {
          console.log("Disconnecting post ws");
          customWebsocket.deactivate();
       },
+
+      findPostByCommentId : async function(commentId : number) {
+
+         console.log("Find post by comment id");
+         await axios.get(BASE_URL + "/comment/" + commentId)
+         .then(response => {
+            this.$state.post = response.data;
+         })
+      }
 
    },
 })

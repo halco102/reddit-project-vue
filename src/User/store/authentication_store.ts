@@ -28,7 +28,7 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
                 id: 0,
                 username: '',
                 imageUrl: '',
-                emai: '',
+                email: '',
                 createdAt: new Date(),
                 posts: [],
             },
@@ -138,7 +138,7 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
             });
         },
 
-        logout: function () {
+        logout: function () : void {
             sessionStorage.removeItem('jwt');
         },
 
@@ -157,7 +157,7 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
             console.log("StorageItem", storageJwt);
 
             if (storageJwt === null) {
-                this.isUserLoggedIn(false);
+                this.isUserLoggedIn(this.isJwtValid);
             } else {
                 //if there is jwt in storage, check with bckd if its valid
                 await axios.get(BASE_URL + '/jwt/valid', {
@@ -167,7 +167,7 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
                 }).then(respones => {
                     this.isJwtValid = respones.data;
                     console.log("The jwt will be true");
-                    this.isUserLoggedIn(respones.data);
+                    this.isUserLoggedIn(this.isJwtValid);
                 })
 
             }

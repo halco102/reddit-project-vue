@@ -47,7 +47,6 @@ import { defineComponent } from "vue";
 import { v4 as uuidv4 } from "uuid";
 
 //pinia
-import { useUserStore } from "@/User/store/store";
 import { mapActions, mapState } from "pinia";
 
 //validate

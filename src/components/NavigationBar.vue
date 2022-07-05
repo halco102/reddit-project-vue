@@ -63,6 +63,8 @@
           <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
       </div>
+
+      <button class="btn btn-primary" @click="logoutAndRefreshSite">Logout</button>
     </div>
   </nav>
 </template>
@@ -72,7 +74,7 @@ import { defineComponent } from "vue";
 
 //pinia
 import { useAuthenticationStore } from "@/User/store/authentication_store";
-import { mapActions, mapState } from "pinia";
+import { mapState, mapActions } from "pinia";
 
 //components
 import UserLoginModal from "@/User/components/modal/UserLoginModal.vue";
@@ -85,22 +87,22 @@ export default defineComponent({
     UserSignupModal,
   },
   methods: {
-    refreshPage: function (): void {
-      console.log("Refresh page");
-      this.$router.go(0);
-
-    },
     exit: function() : boolean{
 
       if (this.getCurrentlyLoggedUserProfile.id != 0) {
         return true;
       }
       return false;
-      //return this.getSuccessfullLogin;
-    }
+    },
+    logoutAndRefreshSite: function() : void {
+      this.logout;
+      this.$router.go(0);
+    },
+
   },
   computed: {
     ...mapState(useAuthenticationStore, ['getSuccessfullLogin', 'getCurrentlyLoggedUserProfile']),
+    ...mapActions(useAuthenticationStore, ['logout'])
   },
   data(){
     return {

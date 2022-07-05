@@ -37,7 +37,7 @@ export interface UserProfile {
     id: number,
     username: string,
     imageUrl: string,
-    emai?: string,
+    email?: string,
     createdAt: Date,
     posts: UserPosts[],
 }
