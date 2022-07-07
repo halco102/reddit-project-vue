@@ -57,7 +57,7 @@
           <div class="card-body">
             <h5 class="card-title">{{ getUserProfile.username }}</h5>
             <div class="additional-information">
-              <p>Email: {{ getUserProfile.emai }}</p>
+              <p>Email: {{ getUserProfile.email }}</p>
               <p>Created at: {{ getUserProfile.createdAt }}</p>
               <p>Sum of post likes: {{ likes }}</p>
             </div>

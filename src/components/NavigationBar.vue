@@ -64,7 +64,7 @@
         </form>
       </div>
 
-      <button class="btn btn-primary" @click="logoutAndRefreshSite">Logout</button>
+      <button v-show="getCurrentlyLoggedUserProfile.id != 0" class="btn btn-primary" @click="logoutAndRefreshSite">Logout</button>
     </div>
   </nav>
 </template>

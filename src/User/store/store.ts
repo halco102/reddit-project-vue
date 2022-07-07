@@ -41,7 +41,10 @@ export const useUserStore = defineStore('userStore', {
                 imageUrl: '',
                 email: '',
                 createdAt: new Date(),
-                posts: []
+                posts: [],
+                commentsPosts: [],
+                likedOrDislikedComments: [],
+                postLikeOrDislikeDtos: []
             },
             postForLikeDislike: [],
         }

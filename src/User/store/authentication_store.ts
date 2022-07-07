@@ -10,7 +10,7 @@ import { useToast } from "vue-toastification";
 //types
 import * as UserType from "@/User/types";
 import * as authenticationTypes from "../authenticationTypes";
-import router from "@/router";
+
 
 //Base url localhost
 const BASE_URL = 'http://127.0.0.1:8082/api/v1/user'
@@ -31,6 +31,9 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
                 email: '',
                 createdAt: new Date(),
                 posts: [],
+                commentsPosts: [],
+                likedOrDislikedComments: [],
+                postLikeOrDislikeDtos: []
             },
             isSignupLoading: false,
             isLoginLoading: false,
@@ -65,7 +68,6 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
 
         loginUser: async function (signInRequest: UserType.SignInRequest) {
             const json = JSON.stringify(signInRequest);
-            console.log("Start signin", json);
 
             await axios.post(BASE_URL + '/login', json, {
                 headers: {
@@ -108,9 +110,7 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
                 onUploadProgress: (() => { this.isSignupLoading = true; })
             }).then(response => {
 
-                console.log("Signup user", response.data);
                 if (response.data != null) {
-                    console.log("Succ signup", response.data);
                     this.successfullSignup = true;
                 }
                 toast.success("User signed up");
@@ -121,7 +121,6 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
                     toast.error("Error on signup");
                 }
             }).finally(() => {
-                console.log("Signut loading")
                 this.isSignupLoading = false;
             })
 
@@ -138,7 +137,7 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
             });
         },
 
-        logout: function () : void {
+        logout: function (): void {
             sessionStorage.removeItem('jwt');
         },
 
@@ -150,11 +149,9 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
         */
         checkIfJwtIsValid: async function () {
 
-            console.log("Check if user is valid");
 
             const storageJwt: string | null = sessionStorage.getItem('jwt');
 
-            console.log("StorageItem", storageJwt);
 
             if (storageJwt === null) {
                 this.isUserLoggedIn(this.isJwtValid);
@@ -166,7 +163,6 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
                     }
                 }).then(respones => {
                     this.isJwtValid = respones.data;
-                    console.log("The jwt will be true");
                     this.isUserLoggedIn(this.isJwtValid);
                 })
 
@@ -180,13 +176,10 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
         */
         isUserLoggedIn: function (isValid: boolean): void {
 
-            console.log("Check is valid ", this.isJwtValid)
 
             if (isValid) {
-                console.log("Fetch user profile");
                 this.fetchCurrentlyLoggedUserProfile();
             } else {
-                console.log("Logout")
                 this.logout();
             }
 

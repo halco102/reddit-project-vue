@@ -1,5 +1,6 @@
-import { UserPosts, FrontPagePost } from "../Post/types";
-import {PostLikeOrDislikeResponse} from '../Comment/types'
+import { UserPosts, FrontPagePost, PostLikeOrDislike } from "../Post/types";
+import { CommentDto, CommentLikeOrDislikeResponse } from '../Comment/types';
+
 
 
 export interface SignupRequest {
@@ -26,7 +27,7 @@ export interface User {
     imageUrl: string,
     createdAt: Date,
     posts: UserPosts[],
-    likedOrDislikedComments: PostLikeOrDislikeResponse[]
+    likedOrDislikedComments: CommentLikeOrDislikeResponse[]
 }
 
 export interface UserLoginResponse {
@@ -40,10 +41,15 @@ export interface UserProfile {
     email?: string,
     createdAt: Date,
     posts: UserPosts[],
+    commentsPosts: CommentsPost[],
+    likedOrDislikedComments: CommentLikeOrDislikeResponse[],
+    postLikeOrDislikeDtos: PostLikeOrDislike[]
 }
 
-
-
+export interface CommentsPost {
+    postId: number,
+    commentDto: CommentDto[]
+}
 
 
 export interface UserState {

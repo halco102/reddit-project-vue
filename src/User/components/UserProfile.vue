@@ -21,9 +21,9 @@
 
       <div class="user-profile-stats">
        
-       <UserProfileStatsVue info="Number of posts" :number="0" />
+       <UserProfileStatsVue info="Number of posts" :number="getUserProfile.posts.length" />
 
-       <UserProfileStatsVue info="Number of comments" :number="0" />
+       <UserProfileStatsVue info="Number of comments" :number="numberOfComments()" />
 
        <UserProfileStatsVue info="Number of likes" :number="0" />
 
@@ -36,12 +36,9 @@
         <div class="profile-bar">
           <UserProfileBar @postOrComment="postOrComment" />
         </div>
-        <p>Content</p>
-
-        <p>USER PROFILE {{ events }}</p>
 
         <UserProfilePosts :posts="getUserProfile.posts" :isCurrentUser="isCurrentUser()" v-show="events.isPost" />
-        <UserProfileComments :userId="getUserProfile.id" :isCurrentUser="isCurrentUser()" v-show="events.isComment"
+        <UserProfileComments :user="getUserProfile" :isCurrentUser="isCurrentUser()" :isClicked="events.isComment" v-show="events.isComment"
           v-if="events.isComment" />
 
       </div>
@@ -125,6 +122,15 @@ export default defineComponent({
 
       return false;
     },
+    numberOfComments: function() : number {
+      let numberOfComments = 0;
+
+      this.getUserProfile.commentsPosts.forEach((item) => {
+        numberOfComments += item.commentDto.length;
+      })
+
+      return numberOfComments;
+    }
   },
   data() {
     return {
@@ -222,4 +228,5 @@ export default defineComponent({
   display:flex;
   margin:1rem;
 }
+
 </style>

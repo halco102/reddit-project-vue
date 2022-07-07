@@ -47,7 +47,7 @@ export const useCommentStore = defineStore('comments', {
         }
     },
     getters: {
-        getPostLikeOrDislike(state): CommentType.PostLikeOrDislikeResponse[] {
+        getPostLikeOrDislike(state): CommentType.CommentLikeOrDislikeResponse[] {
             return state.postLikeOrDislike;
         },
         getAllCommentsByPostId(state): CommentType.CommentDto[] {

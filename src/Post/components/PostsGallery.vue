@@ -43,11 +43,13 @@
                         likeOrDislike: true,
                       })
                     " class="btn btn-light bicon-reply-button" style="margin: 0px 10px 0 10px">
-                      <BIconArrowUp />
+                      <BIconArrowUp
+                        :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserUpvoted(post.id) : 'default-arrow'" />
                     </button>
                   </div>
 
-                  <span style="text-align: center;">0</span>
+                  <!-- sum likes or dislikes-->
+                  <span style="text-align: center;">{{ sumLikesOrDislikesOnPost(post) }}</span>
 
                   <!-- dislike button -->
                   <div class="dislike-button">
@@ -57,10 +59,13 @@
                         likeOrDislike: false,
                       })
                     " class="btn btn-light bicon-reply-button" style="margin: 0px 10px 0 10px">
-                      <BIconArrowDown />
+                      <BIconArrowDown
+                        :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'default-arrow'" />
+
                     </button>
                   </div>
 
+                  <!--:class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'default-arrow'" />-->
 
                 </div>
 
@@ -79,7 +84,7 @@
             <h3 class="card-title" style="text-align:center;">{{ post.title }}</h3>
             <p class="card-text">{{ post.text }}</p>
 
-            <hr css="line-divider">
+            <hr>
 
             <!-- show first posted by clickable image (route them to user profile) -->
             <div class="user-avatar">
@@ -97,11 +102,6 @@
               </div>
             </div>
           </div>
-
-
-
-
-
         </div>
       </router-link>
     </div>
@@ -127,7 +127,7 @@ import {
 import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
 
 //types
-import { FrontPagePost } from '@/Post/types';
+import { FrontPagePost, PostLikeOrDislike } from '@/Post/types';
 import { PostedBy } from '@/User/types';
 
 export default defineComponent({
@@ -144,7 +144,8 @@ export default defineComponent({
       "postLikeOrDislikeForPost",
       "getNumberOfLikes",
       "getNumberOfDislikes",
-      'sortPostsByNumberOfLikesOrDislikes'
+      'sortPostsByNumberOfLikesOrDislikes',
+      'sumLikesOrDislikesOnPost'
     ]),
     getPostId: function (id: number) {
       return id;
@@ -158,6 +159,44 @@ export default defineComponent({
     sort: function (condition: boolean): void {
       this.sortPostsByNumberOfLikesOrDislikes(condition);
     },
+    findLikeOrDislikedPost: function (postId: number): boolean | undefined {
+
+      let result = this.getCurrentlyLoggedUserProfile.postLikeOrDislikeDtos.find(find => find.postId === postId);
+
+      if (result === undefined) {
+        return undefined;
+      }
+
+      return result.likeOrDislike;
+
+    },
+    checkIfUserUpvoted: function (postId: number): string {
+
+      let find = this.findLikeOrDislikedPost(postId);
+      //console.log("Upvote")
+
+      if (find !== undefined && this.getCurrentlyLoggedUserProfile.id) {
+        if (find)
+          return 'up-vote-arrow';
+      }
+
+      return 'default-arrow';
+
+    },
+    checkIfUserDownVoted: function (postId: number): string {
+
+
+      let find = this.findLikeOrDislikedPost(postId);
+      //console.log("Downvote")
+
+
+      if (find !== undefined && this.getCurrentlyLoggedUserProfile.id !== 0) {
+        if (find === false)
+          return 'down-vote-arrow';
+      }
+      return 'default-arrow';
+
+    }
   },
   computed: {
     ...mapState(useAuthenticationStore, ["getCurrentlyLoggedUserProfile"]),
@@ -179,9 +218,12 @@ export default defineComponent({
       this.isClose = true;
     }
   },
-  updated() {
-    console.log("Post component updated");
-  },
+
+  watch: {
+    getCurrentlyLoggedUserProfile: function (newVal: any) {
+      console.log("New val", newVal);
+    }
+  }
 });
 </script>
 
@@ -278,8 +320,6 @@ h4 {
 }
 
 .card-body-shaddow {
-  /*box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;*/
-  /*box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;*/
   box-shadow: rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;
 }
 
@@ -293,5 +333,17 @@ h4 {
 
 .image-div {
   margin: 1rem 1rem 0 0;
+}
+
+.down-vote-arrow {
+  color: red;
+}
+
+.up-vote-arrow {
+  color: blue;
+}
+
+.default-arrow {
+  color: black;
 }
 </style>
