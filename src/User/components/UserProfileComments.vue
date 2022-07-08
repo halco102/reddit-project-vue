@@ -42,13 +42,8 @@ export default defineComponent({
     },
     methods: {
 
-        ...mapActions(usePostStore, ['findPostByCommentId']),
         ...mapActions(useCommentStore, ['fetchUserComments']),
 
-        findPostByCommentId: function (commentId: number): void {
-            console.log("find post by comment Id");
-            this.findPostByCommentId(commentId);
-        },
 
         findAllPostsThatUserLeftAComment: function (): Map<number, CommentDto[]> | null {
             let map = new Map<number, CommentDto[]>();
@@ -74,7 +69,7 @@ export default defineComponent({
 
 <style scoped>
 .card-body-shaddow {
-    box-shadow: rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;
-    margin-bottom: 1vh;
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 25px 20px -20px;
+    margin-bottom: 2vh;
 }
 </style>

@@ -183,7 +183,7 @@ export default defineComponent({
 .user-content {
   margin-right: 5vh;
   text-align: center;
-
+  min-width: 30%;
 }
 
 .content {

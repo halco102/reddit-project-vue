@@ -1,5 +1,5 @@
 <template>
-  <div class="main" ref="request">
+  <div class="main"  :class="enlargeImage ? 'enlarge-image' : ''" ref="request">
     <NavigationBar />
     <div class="post-card">
       <h3>Upload a post</h3>
@@ -38,7 +38,10 @@
             </div>
 
             <div class="preview" v-if="preview">
-              <img @click="enlargeImageFunction" :class="enlargeImage ? 'enlarge-image' : 'default-image'" :src="preview" />
+                <vue-final-modal v-model="enlargeImage"  classes="modal-container" content-class="modal-content">
+                <img @click="enlargeImageFunction" class="enlarge-image" :src="preview" />
+                </vue-final-modal>
+              <img @click="enlargeImageFunction" class="default-image" :src="preview" />
             </div>
 
             <div class="mb-3">
@@ -200,12 +203,11 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.enlarge-image {
-  max-width: 100%;
-  height: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
+.enlarge-image{
+
+  width:100%;
+  height:100%;
+  
 }
 
 .enlarge-image:hover{
@@ -213,8 +215,12 @@ export default defineComponent({
 }
 
 .default-image{
-  max-width: 100%;
+  max-width: 33rem;
   max-height: 100%;
+}
+
+.preview{
+  margin-bottom:1vh;
 }
 
 .default-image:hover{
@@ -267,5 +273,26 @@ export default defineComponent({
 
 span {
   color: #f23648;
+}
+
+::v-deep .modal-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+::v-deep .modal-content {
+  display: flex;
+  flex-direction: column;
+  margin: 0 1rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.25rem;
+  background: #fff;
+  margin-left:10%;
+  margin-right:10%
+}
+.modal__title {
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 </style>
