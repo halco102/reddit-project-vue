@@ -49,7 +49,7 @@
                   </div>
 
                   <!-- sum likes or dislikes-->
-                  <span style="text-align: center;">{{ sumLikesOrDislikesOnPost(post) }}</span>
+                  <span style="text-align: center;" :class="cssForNumberOfLikes(sumLikesOrDislikesOnPost(post))">{{ sumLikesOrDislikesOnPost(post) }}</span>
 
                   <!-- dislike button -->
                   <div class="dislike-button">
@@ -196,6 +196,17 @@ export default defineComponent({
       }
       return 'default-arrow';
 
+    },
+
+    cssForNumberOfLikes: function (numberOfLikesOrDislikes: number): string {
+      console.log("Number", numberOfLikesOrDislikes)
+      if (numberOfLikesOrDislikes > 0) {
+        return 'up-vote-arrow';
+      } else if (numberOfLikesOrDislikes < 0) {
+        return 'down-vote-arrow';
+      } else {
+        return 'default-arrow';
+      }
     }
   },
   computed: {
