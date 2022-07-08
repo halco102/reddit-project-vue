@@ -3,6 +3,8 @@ import UserProfile from '../User/components/UserProfile.vue'
 import SinglePagePost from '../Post/components/SinglePagePost.vue'
 import PostRequest from '../Post/components/PostRequest.vue'
 import MainApp from '../components/MainApp.vue'
+import { useAuthenticationStore } from "@/User/store/authentication_store";
+
 
 
 const routes = [
@@ -27,11 +29,23 @@ const routes = [
         name: "UserProfileById",
         component: UserProfile,
     }
+
 ]
+
+
 
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
     routes
+})
+
+router.beforeEach(() => {
+
+    const auth = useAuthenticationStore();
+    
+    // first check the jwt
+    auth.checkIfJwtIsValid();
+
 })
 
 export default router

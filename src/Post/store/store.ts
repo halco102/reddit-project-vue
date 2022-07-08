@@ -1,6 +1,6 @@
 //pinia
 import { defineStore } from "pinia";
-import { useUserStore as user } from "../../User/store/store";
+import { useAuthenticationStore } from "@/User/store/authentication_store";
 
 //axios
 import axios from "axios";
@@ -13,13 +13,14 @@ import { useToast } from 'vue-toastification';
 
 //stomp
 import { Client } from "@stomp/stompjs";
+import { UserProfile } from "@/User/types";
 
 
 
 // Base url on localhost and ws
 const BASE_URL = 'http://127.0.0.1:8082/api/v1/post'
 const ws = 'ws://127.0.0.1:8082/ws'
-let customWebsocket : Client; 
+let customWebsocket: Client;
 
 
 //when deployed
@@ -73,13 +74,12 @@ export const usePostStore = defineStore('postStore', {
       },
       getIsDeleted(state): boolean {
          return state.isDeleted;
+      },
+      getPost(state): PostType.FrontPagePost {
+         return state.post;
       }
    },
    actions: {
-
-      getJwtFromUser(): string {
-         return user().$state.userLoginResponse.jwt;
-      },
 
       async fetchAllPostToShow() {
          await axios.get(BASE_URL).then(response => {
@@ -107,23 +107,23 @@ export const usePostStore = defineStore('postStore', {
 
          const json = JSON.stringify(request);
          const temp = new FormData();
-         if ( location != null) {
-         temp.append('file', location);
-      }
+         if (location != null) {
+            temp.append('file', location);
+         }
          temp.append('requestDto', json);
 
          await axios.post(BASE_URL + '/', temp, {
             headers: {
-               'Authorization': 'Bearer ' + this.getJwtFromUser(),
+               'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
                'Content-Type': 'multipart/form-data',
 
             },
             onUploadProgress: (() => { this.isLoading = true })
          }).then(response => {
-            
+
             this.$state.posts.unshift(response.data);
             this.sendMessage(this.$state.posts, '');
-            
+
          }).catch(function (ex) {
 
             if (ex.response.status === 400) {
@@ -136,7 +136,7 @@ export const usePostStore = defineStore('postStore', {
                toast.error("Something went wrong while saving post");
                return;
             }
-         }).finally(()=> {
+         }).finally(() => {
             console.log("Before isLoading", this.isLoading);
             this.isLoading = false;
 
@@ -144,21 +144,23 @@ export const usePostStore = defineStore('postStore', {
          })
       },
 
-      async postLikeOrDislikeForPost(request: PostType.PostLikeOrDislikeRequest) {
-         const json = JSON.stringify(request);
 
-         console.log("LIkepost", json)
+      /*
+      This method is used for submiting like or dislike to the backend
+      User is get from jwt (only logged users can like posts)
+      */
+      async postLikeOrDislikeForPost(request: PostType.PostLikeOrDislike) {
+
+         const json = JSON.stringify(request);
 
          await axios.post(BASE_URL + '/like-dislike', json, {
             headers: {
-               'Authorization': 'Bearer ' + this.getJwtFromUser(),
+               'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
                'Content-Type': 'application/json'
             }
          }).then(response => {
-            /*
-            this.post = response.data;
-            const temp = this.$state.posts.map((i) => i.id).indexOf(this.post.id);
-            this.$state.posts[temp] = this.post;*/
+
+            const authStore = useAuthenticationStore();
 
             this.$patch((state) => {
                this.post = response.data;
@@ -166,6 +168,33 @@ export const usePostStore = defineStore('postStore', {
                state.posts[temp] = this.post;
             })
 
+
+            //get user state from jwt and patch user state
+            authStore.$patch((state) => {
+
+               const findIndex = state.userProfile.postLikeOrDislikeDtos.findIndex((f) => {
+                  return f.postId === request.postId;
+               });
+
+
+               //means its there is no recorded like/dislike in list, than add it
+               if (findIndex === -1) {
+                  console.log(request);
+                  state.userProfile.postLikeOrDislikeDtos.push(request);
+               }
+
+               // if its the same delete from array
+               else if (state.userProfile.postLikeOrDislikeDtos[findIndex].likeOrDislike === request.likeOrDislike) {
+                  console.log("Delete same object");
+                  state.userProfile.postLikeOrDislikeDtos.splice(findIndex, 1);
+               }else {
+                  console.log("Update");
+                  state.userProfile.postLikeOrDislikeDtos[findIndex] = request;
+               }
+
+
+
+            })
 
             this.post = response.data;
          }).catch(function (ex) {
@@ -198,13 +227,13 @@ export const usePostStore = defineStore('postStore', {
       deletePostById: async function (id: number) {
 
 
-         
+
          await axios.delete(BASE_URL + '/' + id, {
             headers: {
-               'Authorization': 'Bearer ' + this.getJwtFromUser(),
+               'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
             }
          }).then(() => {
-         
+
             this.$state.posts.forEach((element, index) => {
                if (element.id === id) {
                   this.$state.posts.splice(index, 1);
@@ -214,7 +243,7 @@ export const usePostStore = defineStore('postStore', {
 
             //this.sendMessage('POST_DELETED', '/delete');
             this.isDeleted = true;
-            
+
 
          }).catch(function (ex) {
             console.log("EXCEPTION ON DELETE")
@@ -229,64 +258,64 @@ export const usePostStore = defineStore('postStore', {
             this.isDeleted = false;
          })
       },
-      sortPostsByNumberOfLikesOrDislikes: async function(condition : boolean){
+      sortPostsByNumberOfLikesOrDislikes: async function (condition: boolean) {
          let url = '';
          if (condition) {
             url = 'likes';
-         }else{
+         } else {
             url = 'dislikes';
          }
 
          await axios.get(BASE_URL + '/sort/' + url)
-         .then(response => {
-            this.posts = response.data;
-            console.log("Sorted", url, response.data);
-            
-         }).catch(function(ex) {
-            if (ex.response.status === 404) {
-               toast.error("Whoops not found");
-            }else {
-               toast.error(ex.statusText);
-            }
-         })
+            .then(response => {
+               this.posts = response.data;
+               console.log("Sorted", url, response.data);
+
+            }).catch(function (ex) {
+               if (ex.response.status === 404) {
+                  toast.error("Whoops not found");
+               } else {
+                  toast.error(ex.statusText);
+               }
+            })
 
       },
       openWebsocket: function (): void {
 
          customWebsocket = new Client({
             brokerURL: ws,
-                connectHeaders: {},
-                debug: function (str) {
-                    console.log(str)
-                },
-                reconnectDelay: 30000,
-                heartbeatIncoming: 4000,
-                heartbeatOutgoing: 4000,
-                onConnect: () => {
-                    console.log("Subscribe when connected");
-                    customWebsocket.subscribe('/topic/post', (msg) => {
-                        console.log("Message body ", JSON.parse(msg.body));
-                        this.$state.posts = JSON.parse(msg.body);
-                    })
-                },
-            
-                
-        });
-        
-        customWebsocket.activate();
+            connectHeaders: {},
+            debug: function (str) {
+               console.log(str)
+            },
+            reconnectDelay: 30000,
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+            onConnect: () => {
+               console.log("Subscribe when connected");
+               customWebsocket.subscribe('/topic/post', (msg) => {
+                  console.log("Message body ", JSON.parse(msg.body));
+                  this.$state.posts = JSON.parse(msg.body);
+               })
+            },
+
+
+         });
+
+         customWebsocket.activate();
 
       },
       //stomp
       sendMessage: function (object: PostType.FrontPagePost[] | string, path: string): void {
          let msgEvent: string;
 
-         
+
          if (typeof object === 'string') {
             console.log("String");
             msgEvent = object;
             console.log("msgEvent", msgEvent)
             customWebsocket.publish({
-               destination:'/app/post/delete',
+               destination: '/app/post/delete',
                body: "POST_DELETED"
             });
             return;
@@ -294,13 +323,39 @@ export const usePostStore = defineStore('postStore', {
 
          console.log("Send object");
          customWebsocket.publish({
-            destination : '/app/post' + path,
+            destination: '/app/post' + path,
             body: JSON.stringify(object)
          });
       },
       disconnectFromWs: function (): void {
          console.log("Disconnecting post ws");
          customWebsocket.deactivate();
+      },
+
+      findPostByCommentId: async function (commentId: number) {
+
+         console.log("Find post by comment id");
+         await axios.get(BASE_URL + "/comment/" + commentId)
+            .then(response => {
+               this.$state.post = response.data;
+            })
+      },
+
+      sumLikesOrDislikesOnPost: function (post: PostType.FrontPagePost): number {
+         // find the post             post.postLikeOrDislikeDtos.filter((x) => x.likeOrDislike === true).map(() => likes++);
+         let result = 0;
+
+         post.postLikeOrDislikeDtos
+            .map((l) => {
+
+               if (l.likeOrDislike) {
+                  result++;
+               } else {
+                  result--;
+               }
+            })
+
+         return result;
       },
 
    },

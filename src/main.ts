@@ -17,15 +17,14 @@ import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'
 import "vue-toastification/dist/index.css";
 
 
-
 const pinia = createPinia();
 const options: PluginOptions = {
     position: POSITION.BOTTOM_RIGHT
 }
 
 const app = createApp(App);
-app.use(router)
 app.use(pinia)
+app.use(router)
 app.use(BootStrapVue3)
 app.use(Toast, options)
 app.use(VueFinalModal)

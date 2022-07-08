@@ -1,49 +1,69 @@
 <template>
   <div class="main">
     <NavigationBar />
-
-    <!-- first show the user profile in its own div -->
-
-    <!-- user profile -->
-    <div class="user-profile">
-      <div>
-        <h5 style="text-align:left;">{{ getUserProfile.username }} profile</h5>
-        <div class="profile-content">
-          <img :src="getUserProfile.imageUrl" />
-          <div class="card-body">
-            <div class="additional-information">
-              <p>Email: {{ getUserProfile.email }}</p>
-              <p>Created at: {{ getUserProfile.createdAt }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="user-profile-stats">
-       
-       <UserProfileStatsVue info="Number of posts" :number="getUserProfile.posts.length" />
-
-       <UserProfileStatsVue info="Number of comments" :number="numberOfComments()" />
-
-       <UserProfileStatsVue info="Number of likes" :number="0" />
-
-      </div>
-    </div>
-
     <div class="user-profile-main">
       <!-- content -->
       <div class="user-content">
         <div class="profile-bar">
           <UserProfileBar @postOrComment="postOrComment" />
         </div>
+        <p>Content</p>
+
+        <p>USER PROFILE {{ events }}</p>
 
         <UserProfilePosts :posts="getUserProfile.posts" :isCurrentUser="isCurrentUser()" v-show="events.isPost" />
-        <UserProfileComments :user="getUserProfile" :isCurrentUser="isCurrentUser()" :isClicked="events.isComment" v-show="events.isComment"
-          v-if="events.isComment" />
+        <UserProfileComments :userId="getUserProfile.id" :isCurrentUser="isCurrentUser()"
+          v-show="events.isComment" v-if="events.isComment" />
+
+        <!--
+        <router-link
+          v-for="post in getUserProfile.posts"
+          :key="post.id"
+          :to="{ name: 'SinglePage', params: { id: post.id } }"
+        >
+          <div class="content">
+            <div class="card" style="width: 35rem">
+              <img :src="post.imageUrl" />
+              <div class="card-body">
+                <h5 class="card-title">{{ post.title }}</h5>
+                <p class="card-text" style="color: black">
+                  {{ post.text }}
+                </p>
+                <div class="delete-icon-wrapper" v-if="isCurrentUser()">
+                  <div class="delete-icon">
+                    <button style="border: none; background: none">
+                      <BIconTrash
+                        @click.prevent="deletePost(post.id)"
+                        color="#0d6efd"
+                        width="25px"
+                        height="25px"
+                      />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </router-link>
+        -->
 
       </div>
 
-
+      <!-- user profile -->
+      <div class="user-profile">
+        <p>Profile</p>
+        <div class="card" style="width: 18rem">
+          <img :src="getUserProfile.imageUrl" />
+          <div class="card-body">
+            <h5 class="card-title">{{ getUserProfile.username }}</h5>
+            <div class="additional-information">
+              <p>Email: {{ getUserProfile.email }}</p>
+              <p>Created at: {{ getUserProfile.createdAt }}</p>
+              <p>Sum of post likes: {{ likes }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -56,7 +76,6 @@ import NavigationBar from "@/components/NavigationBar.vue";
 import UserProfileBar from "@/User/components/UserProfileBar.vue";
 import UserProfilePosts from "@/User/components/UserProfilePosts.vue"
 import UserProfileComments from "./UserProfileComments.vue";
-import UserProfileStatsVue from "./UserProfileStats.vue";
 
 //pinia
 import { useUserStore } from "@/User/store/store";
@@ -73,8 +92,7 @@ export default defineComponent({
     NavigationBar,
     UserProfileBar,
     UserProfilePosts,
-    UserProfileComments,
-    UserProfileStatsVue
+    UserProfileComments
   },
   methods: {
     ...mapActions(useUserStore, [
@@ -106,7 +124,7 @@ export default defineComponent({
       if (val.isPost) {
         this.events.isPost = true;
         this.events.isComment = false
-      } else {
+      }else {
         this.events.isPost = false;
         this.events.isComment = true;
       }
@@ -122,15 +140,6 @@ export default defineComponent({
 
       return false;
     },
-    numberOfComments: function() : number {
-      let numberOfComments = 0;
-
-      this.getUserProfile.commentsPosts.forEach((item) => {
-        numberOfComments += item.commentDto.length;
-      })
-
-      return numberOfComments;
-    }
   },
   data() {
     return {
@@ -170,20 +179,21 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.profile-bar {}
+
 .main p {
-  color: black;
+  color: white;
 }
 
 .user-profile-main {
-  display: grid;
-  justify-items: center;
+  display: flex;
+  justify-content: center;
   margin-top: 10vh;
 }
 
 .user-content {
   margin-right: 5vh;
   text-align: center;
-
 }
 
 .content {
@@ -192,9 +202,6 @@ export default defineComponent({
 
 .user-profile {
   text-align: center;
-  display: grid;
-  justify-items: center;
-  margin-top: 5vh;
 }
 
 .user-profile img {
@@ -207,26 +214,10 @@ export default defineComponent({
 
 .additional-information p {
   color: black;
-  padding-left: 4rem;
 }
 
 .delete-icon-wrapper {
   margin-left: 24.6%;
   margin-right: 25%;
 }
-
-.profile-content {
-  display: flex;
-}
-
-.profile-content img {
-  border-style: solid;
-  border-radius: 55px;
-}
-
-.user-profile-stats{
-  display:flex;
-  margin:1rem;
-}
-
 </style>

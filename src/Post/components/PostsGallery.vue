@@ -9,10 +9,10 @@
         <UserSignupModal />
       </div>
 
-      <img style="display: grid" v-if="posts.length === 0"
+      <img style="display: grid" v-if="posts!.length === 0"
         src="https://res.cloudinary.com/dzatojfyn/image/upload/v1651749462/output-onlinepngtools_pi0ngz.png" />
 
-      <div class="dropdown" v-if="posts.length != 0">
+      <div class="dropdown" v-if="posts!.length != 0">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
           data-bs-toggle="dropdown" aria-expanded="false">
           <BIconFilter />
@@ -23,72 +23,86 @@
         </ul>
       </div>
 
-      <router-link class="router-link" :to="{ name: 'SinglePage', params: { id: post.id } }" v-for="post in posts" :key="post.id">
-        <div class="card" style="width: 40rem; margin-bottom: 20px">
+      <!-- cards -->
+      <router-link class="router-link" :to="{ name: 'SinglePage', params: { id: post.id } }" v-for="post in posts"
+        :key="post.id">
+        <div class="card" style="width: 50rem; margin-bottom: 20px">
 
-          <!-- show first posted by clickable image (route them to user profile)-->
-          <div class="user-avatar">
-            <router-link :to="{ path: '/user/' + post.postedBy.id }">
-              <a class="btn btn-light non-decorative-link" style="margin: 0px 10px 0 10px">
-                <img class="rounded-circle border-image" :src="post.postedBy.imageUrl" alt="" />
-                {{ post.postedBy.username }}
-              </a>
-            </router-link>
-          </div>
 
-          <!-- show image of the post-->
-          <img v-bind:src="post.imageUrl" class="card-img-top" alt="" />
+          <div class="divide-img-likes-dislikes">
+            <div class="like-dislike">
 
-          <div class="card-body">
+              <div class="buttons">
 
-            <div class="buttons">
-              <div class="like-dislike">
-                <!-- like button -->
-                <div class="like-button">
-                  <button @click.prevent="
-                    postLikeOrDislikeForPost({
-                      postId: post.id,
-                      likeOrDislike: true,
-                    })
-                  " class="btn btn-primary bicon-reply-button" style="margin: 0px 10px 0 10px">
-                    <BIconHandThumbsUpFill />
-                  </button>
-                  <span>{{ getNumberOfLikes(post) }}</span>
-                </div>
+                <div style="text-align: center;">
+                  <!-- like button -->
+                  <div class="like-button">
+                    <button @click.prevent="
+                      postLikeOrDislikeForPost({
+                        postId: post.id,
+                        likeOrDislike: true,
+                      })
+                    " class="btn btn-light bicon-reply-button" style="margin: 0px 10px 0 10px">
+                      <BIconArrowUp
+                        :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserUpvoted(post.id) : 'default-arrow'" />
+                    </button>
+                  </div>
 
-                <!-- dislike button -->
-                <div class="dislike-button">
-                  <button @click.prevent="
-                    postLikeOrDislikeForPost({
-                      postId: post.id,
-                      likeOrDislike: false,
-                    })
-                  " class="btn btn-primary bicon-reply-button" style="margin: 0px 10px 0 10px">
-                    <BIconHandThumbsDownFill />
-                  </button>
-                  <span>{{ getNumberOfDislikes(post) }}</span>
-                </div>
+                  <!-- sum likes or dislikes-->
+                  <span style="text-align: center;" :class="cssForNumberOfLikes(sumLikesOrDislikesOnPost(post))">{{
+                      sumLikesOrDislikesOnPost(post)
+                  }}</span>
 
-                <!-- share button -->
-                <div class="share-button">
-                  <button class="btn btn-primary bicon-reply-button" style="margin: 0px 10px 0 10px">
-                    <BIconShareFill />
-                  </button>
-                </div>
+                  <!-- dislike button -->
+                  <div class="dislike-button">
+                    <button @click.prevent="
+                      postLikeOrDislikeForPost({
+                        postId: post.id,
+                        likeOrDislike: false,
+                      })
+                    " class="btn btn-light bicon-reply-button" style="margin: 0px 10px 0 10px">
+                      <BIconArrowDown
+                        :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'default-arrow'" />
 
-                <!--Chat button-->
-                <div class="chat-button">
-                  <a v-if="post.allowComments" class="btn btn-primary">
-                    <BIconChatFill /> {{ post.commentsDto.length }}
-                  </a>
+                    </button>
+                  </div>
+
+                  <!--:class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'default-arrow'" />-->
+
                 </div>
 
               </div>
-
+            </div>
+            <div class="image-div">
+              <!-- show image of the post-->
+              <img v-bind:src="post.imageUrl" class="card-img-top" alt="" />
             </div>
 
-            <h5 class="card-title" style="text-align:center;">{{ post.title }}</h5>
+          </div>
+
+
+          <div class="card-body card-body-shaddow">
+
+            <h3 class="card-title" style="text-align:center;">{{ post.title }}</h3>
             <p class="card-text">{{ post.text }}</p>
+
+            <hr>
+
+            <!-- show first posted by clickable image (route them to user profile) -->
+            <div class="user-avatar">
+              <router-link :to="{ path: '/user/' + post.postedBy.id }">
+                <a class="btn btn-light non-decorative-link" style="margin: 0px 10px 0 10px">
+                  <img class="rounded-circle border-image" :src="post.postedBy.imageUrl" alt="" />
+                  {{ post.postedBy.username }}
+                </a>
+              </router-link>
+              <!--Chat button-->
+              <div class="chat-button">
+                <a v-if="post.allowComments" class="btn btn-light">
+                  <BIconChatFill /> {{ post.commentsDto.length }}
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </router-link>
@@ -103,54 +117,96 @@ import { defineComponent, PropType } from "vue";
 //pinia
 import { usePostStore } from "@/Post/store/store";
 import { mapState, mapActions } from "pinia";
-import { useUserStore } from "@/User/store/store";
+import { useAuthenticationStore } from "@/User/store/authentication_store";
 
 //components
 import {
-  BIconHandThumbsUpFill,
-  BIconHandThumbsDownFill,
   BIconChatFill,
   BIconFilter,
-  BIconShareFill,
+  BIconArrowUp,
+  BIconArrowDown
 } from "bootstrap-icons-vue";
 import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
 
 //types
-import { FrontPagePost } from '@/Post/types';
+import { FrontPagePost, PostLikeOrDislike } from '@/Post/types';
 import { PostedBy } from '@/User/types';
 
 export default defineComponent({
   name: "PostsGallery",
   components: {
-    BIconHandThumbsUpFill,
-    BIconHandThumbsDownFill,
+    BIconArrowUp,
+    BIconArrowDown,
     BIconChatFill,
     UserSignupModal,
     BIconFilter,
-    BIconShareFill,
   },
   methods: {
     ...mapActions(usePostStore, [
       "postLikeOrDislikeForPost",
       "getNumberOfLikes",
       "getNumberOfDislikes",
-      'sortPostsByNumberOfLikesOrDislikes'
+      'sortPostsByNumberOfLikesOrDislikes',
+      'sumLikesOrDislikesOnPost'
     ]),
     getPostId: function (id: number) {
       return id;
     },
     exitedModal: function () {
-      if (this.userLoginResponse.userProfileDto.id != 0) {
-        console.log("Hide modal");
+      if (this.getCurrentlyLoggedUserProfile.id != 0) {
         this.isClose = true;
       }
     },
     sort: function (condition: boolean): void {
       this.sortPostsByNumberOfLikesOrDislikes(condition);
     },
+    findLikeOrDislikedPost: function (postId: number): boolean | undefined {
+
+      let result = this.getCurrentlyLoggedUserProfile.postLikeOrDislikeDtos.find(find => find.postId === postId);
+
+      if (result === undefined) {
+        return undefined;
+      }
+
+      return result.likeOrDislike;
+
+    },
+    checkIfUserUpvoted: function (postId: number): string {
+
+      let find = this.findLikeOrDislikedPost(postId);
+      //console.log("Upvote")
+
+      if (find !== undefined && this.getCurrentlyLoggedUserProfile.id) {
+        if (find)
+          return 'up-vote-arrow';
+      }
+
+      return 'default-arrow';
+
+    },
+    checkIfUserDownVoted: function (postId: number): string {
+      let find = this.findLikeOrDislikedPost(postId);
+
+      if (find !== undefined && this.getCurrentlyLoggedUserProfile.id !== 0) {
+        if (find === false)
+          return 'down-vote-arrow';
+      }
+      return 'default-arrow';
+
+    },
+
+    cssForNumberOfLikes: function (numberOfLikesOrDislikes: number): string {
+      if (numberOfLikesOrDislikes > 0) {
+        return 'up-vote-arrow';
+      } else if (numberOfLikesOrDislikes < 0) {
+        return 'down-vote-arrow';
+      } else {
+        return 'default-arrow';
+      }
+    }
   },
   computed: {
-    ...mapState(useUserStore, ["userLoginResponse"]),
+    ...mapState(useAuthenticationStore, ["getCurrentlyLoggedUserProfile"]),
   },
   props: {
     posts: Object as PropType<FrontPagePost[]>,
@@ -165,12 +221,9 @@ export default defineComponent({
     };
   },
   mounted() {
-    if (this.userLoginResponse.userProfileDto.id != 0) {
+    if (this.getCurrentlyLoggedUserProfile.id != 0) {
       this.isClose = true;
     }
-  },
-  updated() {
-    console.log("Post component updated");
   },
 });
 </script>
@@ -184,13 +237,14 @@ export default defineComponent({
   display: flex;
   margin-top: 1vh;
   margin-bottom: 1vh;
+  justify-content: space-between;
 }
 
 .non-decorative-link a {
   text-decoration: none;
 }
 
-.non-decorative-link:hover{
+.non-decorative-link:hover {
   text-decoration: none;
   border-radius: 20px;
   border-style: solid;
@@ -207,19 +261,19 @@ export default defineComponent({
 }
 
 .like-dislike {
-  display: flex;
-  justify-content: space-evenly;
+  display: grid;
 }
 
 .wrapper-post {
   display: grid;
   justify-content: center;
   padding: 25px 0px;
-  margin: 2% 16%;
+  margin: 2% 12%;
 }
 
-.buttons{
+.buttons {
   margin-bottom: 2vh;
+  padding-top: 15px;
 }
 
 .modal {
@@ -232,7 +286,8 @@ export default defineComponent({
   position: absolute;
   width: 225px;
   border-style: solid;
-  border-color: beige;
+  border-color: black;
+  background-color: rgb(243 243 243);
   border-width: 1px;
   border-radius: 10px;
   padding: 25px;
@@ -242,7 +297,7 @@ export default defineComponent({
 .signup p,
 h3,
 h4 {
-  color: beige;
+  color: black;
 }
 
 .bicon-reply-button {
@@ -261,9 +316,36 @@ h4 {
 }
 
 
-.router-link{
+.router-link {
   text-decoration: none;
   color: black;
 }
 
+.card-body-shaddow {
+  box-shadow: rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;
+}
+
+.divide-img-likes-dislikes {
+  display: flex;
+}
+
+.chat-button {
+  margin-top: 10px;
+}
+
+.image-div {
+  margin: 1rem 1rem 0 0;
+}
+
+.down-vote-arrow {
+  color: red;
+}
+
+.up-vote-arrow {
+  color: blue;
+}
+
+.default-arrow {
+  color: black;
+}
 </style>

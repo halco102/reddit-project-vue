@@ -24,7 +24,8 @@ export default defineComponent({
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   margin-top: 0px;
-  background-color: rgba(28, 28, 28, 0.9) !important;
+  /*background-color: rgba(28, 28, 28, 0.9) !important;*/
+  background-color: #fff !important;
   width:100%;
 }
 

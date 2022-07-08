@@ -3,7 +3,6 @@
     <Form
       @submit="onSubmit"
       :validation-schema="schema"
-      @invalid-submit="onInvalidSubmit"
     >
       <div class="mb-3">
         <Field name="username" v-slot="{ field, meta }">
@@ -111,7 +110,7 @@ import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
 
 //pinia
-import { useUserStore } from "@/User/store/store";
+import { useAuthenticationStore } from "@/User/store/authentication_store";
 import { mapActions, mapState } from "pinia";
 
 //types
@@ -128,19 +127,15 @@ export default defineComponent({
   },
   expose: ["closePopUp"],
   methods: {
-    ...mapActions(useUserStore, ["signupUser"]),
-    onSubmit: function (value: SignupRequest) {
+    ...mapActions(useAuthenticationStore, ["signupUser"]),
+    onSubmit: function (value: SignupRequest | any) {
       this.signupUser(value);
-    },
-    onInvalidSubmit: function (value: any) {
-      console.log(value);
     },
     isSuccessfullSignup: function() {
       console.log("check is signed", this.getSuccessfullSignup)
       this.$emit('signedUp', this.getSuccessfullSignup)
     },
     isPasswordWeak: function(value : number) : boolean {
-      console.log("PASSWORD", value);
       if (value <= 2) {
         console.log("Weak password")
         return true;
@@ -150,12 +145,11 @@ export default defineComponent({
   },
   watch: {
     getSuccessfullSignup: function() : void {
-      console.log("Watch signup process");
       this.isSuccessfullSignup();
     }
   },
   computed: {
-    ...mapState(useUserStore, ["user", "getIsSignupLoading",'getSuccessfullSignup']),
+    ...mapState(useAuthenticationStore, ["getIsSignupLoading",'getSuccessfullSignup']),
   },
   data() {
     const schema = yup.object({

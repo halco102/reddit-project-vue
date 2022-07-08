@@ -1,7 +1,11 @@
 <template>
   <div class="bar">
-    <button class="btn-local">Posts</button>
-    <button class="btn-local">Comments</button>
+    <div class="buttons">
+      <button class="btn-local" @click="postOrCommentClicked(1)">Posts</button>
+      <button class="btn-local" @click="postOrCommentClicked(2)">Comments</button>
+    </div>
+    <hr>
+
   </div>
 </template>
 
@@ -10,7 +14,37 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "UserProfileBar",
+  methods: {
+
+    postOrCommentClicked(args: number): void {
+
+      if (args === 1) {
+        console.log("Post clicked");
+        this.events.isComment = false;
+        this.events.isPost = true;
+        this.$emit("postOrComment", this.events);
+      } else {
+        console.log("comment clicked");
+        this.events.isComment = true;
+        this.events.isPost = false;
+
+        console.log("Event to sent", this.events)
+
+        this.$emit("postOrComment", this.events)
+      }
+    }
+  },
+  data() {
+    return {
+
+      events: {
+        isPost: true,
+        isComment: false
+      }
+    }
+  }
 });
+
 </script>
 
 <style scoped>
@@ -21,23 +55,25 @@ input[type="submit"]:hover {
 .btn-local {
   border: none;
   background: none;
-  color: white;
-  
-}
-button:hover{
-   text-decoration: underline;
-   text-decoration-color: rgb(rgb(150, 144, 144), green, blue);
-   text-decoration-thickness: 5px;
+  color: black;
+
 }
 
+button:hover {
+  text-decoration: underline;
+  text-decoration-color: rgb(rgb(150, 144, 144), green, blue);
+  text-decoration-thickness: 5px;
+}
 
-.bar {
+.buttons {
   display: flex;
   justify-content: space-around;
-  border-style: solid;
-  border-color: antiquewhite;
-  margin-bottom:10px;
-  padding:10px;
+}
+
+.bar {
+  display: grid;
+  margin-bottom: 10px;
+  padding: 10px;
 }
 
 .bar p {
@@ -50,6 +86,6 @@ button:hover{
 }
 
 .bar p {
-  color: white;
+  color: black;
 }
 </style>

@@ -9,14 +9,11 @@ export interface UserPosts {
     postLikeOrDislikeDtos: PostLikeOrDislike[]
  }
  
- export interface PostLikeOrDislikeRequest {
+ export interface PostLikeOrDislike {
     postId: number,
     likeOrDislike: boolean
  }
  
- export interface PostLikeOrDislike {
-    likeOrDislike: boolean | null;
- }
  
  export interface FrontPagePost {
     id: number;

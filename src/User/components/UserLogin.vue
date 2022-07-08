@@ -47,7 +47,6 @@ import { defineComponent } from "vue";
 import { v4 as uuidv4 } from "uuid";
 
 //pinia
-import { useUserStore } from "@/User/store/store";
 import { mapActions, mapState } from "pinia";
 
 //validate
@@ -56,6 +55,7 @@ import * as yup from "yup";
 
 //types
 import { SignInRequest } from '@/User/types';
+import { useAuthenticationStore } from "../store/authentication_store";
 
 let id = null;
 
@@ -67,9 +67,8 @@ export default defineComponent({
     ErrorMessage
   },
   methods: {
-    ...mapActions(useUserStore, ["loginUser", "stopLoadingAnimation",]),
+    ...mapActions(useAuthenticationStore, ["loginUser",]),
     loginUserMethod: function (siginRequest: SignInRequest) {
-      console.log("Login user to app", siginRequest);
       this.loginUser(siginRequest);
     },
     closeEvent: function () {
@@ -90,7 +89,7 @@ export default defineComponent({
     }
   },
   computed: {
-    ...mapState(useUserStore, ["getIsLoginLoading", "getUserLogin", 'getSuccessfullLogin']),
+    ...mapState(useAuthenticationStore, ["getIsLoginLoading", 'getSuccessfullLogin']),
   },
   data() {
     const schema = yup.object({

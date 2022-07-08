@@ -22,7 +22,7 @@ export interface PostComment {
 }
 
 export interface Comment {
-    postLikeOrDislike: PostLikeOrDislikeResponse[],
+    postLikeOrDislike: CommentLikeOrDislikeResponse[],
     commentsDto: CommentDto[],
     commentDto: CommentDto,
     isPostingComment: boolean
@@ -33,7 +33,8 @@ export interface PostLikeOrDislikeRequest {
     likeOrDislike: boolean
 }
 
-export interface PostLikeOrDislikeResponse {
-    commentDto: CommentDto,
+export interface CommentLikeOrDislikeResponse {
+    postId: number,
+    commentId: number,
     likeOrDislike: boolean,
 }

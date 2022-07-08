@@ -9,28 +9,22 @@
             <div class="mb-3">
               <Field name="title" v-slot="{ field, meta }">
                 <label for="insertText" class="form-label">Title</label>
-                <input
-                  v-bind="field"
-                  :class="
-                    !meta.touched || meta.valid
-                      ? 'form-control'
-                      : 'form-control form-color-error'
-                  "
-                />
+                <input v-bind="field" :class="
+                  !meta.touched || meta.valid
+                    ? 'form-control'
+                    : 'form-control form-color-error'
+                " />
               </Field>
               <ErrorMessage name="title" />
             </div>
             <div class="mb-3">
               <Field name="text" v-slot="{ field, meta }">
                 <label for="insertText" class="form-label">Description</label>
-                <input
-                  v-bind="field"
-                  :class="
-                    !meta.touched || meta.valid
-                      ? 'form-control'
-                      : 'form-control form-color-error'
-                  "
-                />
+                <input v-bind="field" :class="
+                  !meta.touched || meta.valid
+                    ? 'form-control'
+                    : 'form-control form-color-error'
+                " />
               </Field>
               <ErrorMessage name="text" />
             </div>
@@ -38,15 +32,13 @@
             <div class="mb-3">
               <Field name="upload">
                 <label for="formFile" class="form-label">Upload image</label>
-                <input
-                  class="form-control"
-                  type="file"
-                  id="formFile"
-                  ref="fileUpload"
-                  @change="onChangeInput"
-                />
+                <input class="form-control" type="file" id="formFile" ref="fileUpload" @change="onChangeInput" />
               </Field>
               <ErrorMessage name="upload" />
+            </div>
+
+            <div class="preview" v-if="preview">
+              <img @click="enlargeImageFunction" :class="enlargeImage ? 'enlarge-image' : 'default-image'" :src="preview" />
             </div>
 
             <div class="mb-3">
@@ -60,19 +52,14 @@
             <div class="comment-checkbox-button">
               <div class="mb-3">
                 <div class="form-check allign">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="allowCommentsCheck"
-                    v-model="isAllowedComment"
-                  />
+                  <input class="form-check-input" type="checkbox" id="allowCommentsCheck" v-model="isAllowedComment" />
                 </div>
                 <label class="form-check-label" for="allowCommentsCheck">
                   Allow comments
                 </label>
               </div>
             </div>
-            <button :class="getIsLoading ? 'btn btn-primary disabled':'btn btn-primary'">Submit</button>
+            <button :class="getIsLoading ? 'btn btn-primary disabled' : 'btn btn-primary'">Submit</button>
           </Form>
 
           <div class="clearfix" v-show="getIsLoading">
@@ -90,7 +77,7 @@
 import { defineComponent } from "vue";
 
 //pinia
-import { useUserStore } from "@/User/store/store";
+import { useAuthenticationStore } from "@/User/store/authentication_store";
 import { usePostStore } from "@/Post/store/store";
 import { mapState, mapActions } from "pinia";
 
@@ -159,11 +146,13 @@ export default defineComponent({
       isDisabled: false,
       imageUrl: "",
       isAllowedComment: false,
-      disableButton: false
+      disableButton: false,
+      preview: '',
+      enlargeImage: false
     };
   },
   computed: {
-    ...mapState(useUserStore, ["getUserLogin"]),
+    ...mapState(useAuthenticationStore, ["getCurrentlyLoggedUserProfile"]),
     ...mapState(usePostStore, ["getIsLoading"]),
   },
   setup() {
@@ -179,7 +168,7 @@ export default defineComponent({
     onSubmit(values: any) {
       values.allowComments = this.isAllowedComment;
 
-      if (this.getUserLogin.userProfileDto.id !== 0) {
+      if (this.getCurrentlyLoggedUserProfile.id !== 0) {
         this.savePost(values, this.locationOfFile);
       } else {
         this.toast.warning("Sign in to post");
@@ -191,10 +180,17 @@ export default defineComponent({
       this.locationOfFile = temp.files![0];
       console.log("file", this.locationOfFile);
       this.isDisabled = true;
+
+      //for preview
+      this.preview = URL.createObjectURL(this.locationOfFile);
+      console.log("Preview", this.preview);
     },
+    enlargeImageFunction: function () {
+      this.enlargeImage = !this.enlargeImage;
+    }
   },
   watch: {
-    getIsLoading : function(val : boolean) : void {
+    getIsLoading: function (val: boolean): void {
       if (!val) {
         this.$router.push('/');
       }
@@ -204,15 +200,38 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.main h3 {
-  color: wheat;
+.enlarge-image {
+  max-width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
+
+.enlarge-image:hover{
+  cursor: zoom-out;
+}
+
+.default-image{
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.default-image:hover{
+  cursor: zoom-in;
+}
+
+.main h3 {
+  color: black;
+}
+
 .post-card {
   display: grid;
   justify-content: center;
   margin: 2% 16%;
   padding: 100px;
 }
+
 .post-card button {
   width: 100px;
 }
