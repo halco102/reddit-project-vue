@@ -49,7 +49,9 @@
                   </div>
 
                   <!-- sum likes or dislikes-->
-                  <span style="text-align: center;" :class="cssForNumberOfLikes(sumLikesOrDislikesOnPost(post))">{{ sumLikesOrDislikesOnPost(post) }}</span>
+                  <span style="text-align: center;" :class="cssForNumberOfLikes(sumLikesOrDislikesOnPost(post))">{{
+                      sumLikesOrDislikesOnPost(post)
+                  }}</span>
 
                   <!-- dislike button -->
                   <div class="dislike-button">
@@ -152,7 +154,6 @@ export default defineComponent({
     },
     exitedModal: function () {
       if (this.getCurrentlyLoggedUserProfile.id != 0) {
-        console.log("Hide modal");
         this.isClose = true;
       }
     },
@@ -184,11 +185,7 @@ export default defineComponent({
 
     },
     checkIfUserDownVoted: function (postId: number): string {
-
-
       let find = this.findLikeOrDislikedPost(postId);
-      //console.log("Downvote")
-
 
       if (find !== undefined && this.getCurrentlyLoggedUserProfile.id !== 0) {
         if (find === false)
@@ -199,7 +196,6 @@ export default defineComponent({
     },
 
     cssForNumberOfLikes: function (numberOfLikesOrDislikes: number): string {
-      console.log("Number", numberOfLikesOrDislikes)
       if (numberOfLikesOrDislikes > 0) {
         return 'up-vote-arrow';
       } else if (numberOfLikesOrDislikes < 0) {
@@ -229,12 +225,6 @@ export default defineComponent({
       this.isClose = true;
     }
   },
-
-  watch: {
-    getCurrentlyLoggedUserProfile: function (newVal: any) {
-      console.log("New val", newVal);
-    }
-  }
 });
 </script>
 
@@ -278,7 +268,7 @@ export default defineComponent({
   display: grid;
   justify-content: center;
   padding: 25px 0px;
-  margin: 2% 16%;
+  margin: 2% 12%;
 }
 
 .buttons {
@@ -296,7 +286,8 @@ export default defineComponent({
   position: absolute;
   width: 225px;
   border-style: solid;
-  border-color: beige;
+  border-color: black;
+  background-color: rgb(243 243 243);
   border-width: 1px;
   border-radius: 10px;
   padding: 25px;

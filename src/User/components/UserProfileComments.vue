@@ -5,7 +5,6 @@
     <div>
         <router-link v-for="temp in user.commentsPosts" :key="temp.postId"
             :to="{ name: 'SinglePage', params: { id: temp.postId } }" v-show="isClicked">
-
             <div>
                 <div class="content card-body-shaddow" v-for="com in temp.commentDto" :key="com.id">
                     <div class="card" style="width: 35rem">
@@ -29,7 +28,6 @@ import { mapActions, mapState } from "pinia";
 import { usePostStore } from "@/Post/store/store";
 import { useCommentStore } from "@/Comment/store/store";
 import { UserProfile } from "../types";
-import { FrontPagePost } from "@/Post/types";
 
 
 export default defineComponent({
