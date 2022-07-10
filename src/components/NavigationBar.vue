@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <router-link class="navbar-brand" :to="{ name: 'Home' }">Logo</router-link>
+      <router-link class="navbar-brand" :to="{ name: 'Home' }" >Logo</router-link>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -10,7 +10,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <router-link class="nav-link" :to="{ name: 'Home' }">Home</router-link>
+            <router-link class="nav-link" :to="{ name: 'Home' }" >Home</router-link>
           </li>
           <li class="nav-item">
             <router-link class="nav-link" :to="{ name: 'PostRequestPage' }">Post</router-link>
@@ -55,7 +55,6 @@ import { usePostStore } from "@/Post/store/store";
 //components
 import UserLoginModal from "@/User/components/modal/UserLoginModal.vue";
 import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
-import { FrontPagePost } from "@/Post/types";
 
 export default defineComponent({
   name: "NavigationBar",

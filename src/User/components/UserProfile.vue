@@ -20,12 +20,12 @@
       </div>
 
       <div class="user-profile-stats">
-       
-       <UserProfileStatsVue info="Number of posts" :number="getUserProfile.posts.length" />
 
-       <UserProfileStatsVue info="Number of comments" :number="numberOfComments()" />
+        <UserProfileStatsVue info="Number of posts" :number="getUserProfile.posts.length" />
 
-       <UserProfileStatsVue info="Number of likes" :number="0" />
+        <UserProfileStatsVue info="Number of comments" :number="numberOfComments()" />
+
+        <UserProfileStatsVue info="Number of likes" :number="sumOfLikesOrDislikes()" />
 
       </div>
     </div>
@@ -38,8 +38,8 @@
         </div>
 
         <UserProfilePosts :posts="getUserProfile.posts" :isCurrentUser="isCurrentUser()" v-show="events.isPost" />
-        <UserProfileComments :user="getUserProfile" :isCurrentUser="isCurrentUser()" :isClicked="events.isComment" v-show="events.isComment"
-          v-if="events.isComment" />
+        <UserProfileComments :user="getUserProfile" :isCurrentUser="isCurrentUser()" :isClicked="events.isComment"
+          v-show="events.isComment" v-if="events.isComment" />
 
       </div>
 
@@ -122,7 +122,7 @@ export default defineComponent({
 
       return false;
     },
-    numberOfComments: function() : number {
+    numberOfComments: function (): number {
       let numberOfComments = 0;
 
       this.getUserProfile.commentsPosts.forEach((item) => {
@@ -130,6 +130,23 @@ export default defineComponent({
       })
 
       return numberOfComments;
+    },
+
+    sumOfLikesOrDislikes: function (): number {
+      let result = 0;
+
+      this.getUserProfile
+        .posts.map((res) => {
+          res.postLikeOrDislikeDtos.filter((k) => {
+            if (k.likeOrDislike) {
+              result++;
+            } else {
+              result--;
+            }
+          })
+        })
+
+      return result;
     }
   },
   data() {
@@ -224,9 +241,8 @@ export default defineComponent({
   border-radius: 55px;
 }
 
-.user-profile-stats{
-  display:flex;
-  margin:1rem;
+.user-profile-stats {
+  display: flex;
+  margin: 1rem;
 }
-
 </style>

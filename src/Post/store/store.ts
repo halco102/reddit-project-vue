@@ -13,6 +13,7 @@ import { useToast } from 'vue-toastification';
 
 //stomp
 import { Client } from "@stomp/stompjs";
+import { Category, SingleCategory } from "../category-types";
 
 
 
@@ -45,13 +46,15 @@ export const usePostStore = defineStore('postStore', {
             },
             allowComments: true,
             commentsDto: [],
-            postLikeOrDislikeDtos: []
+            postLikeOrDislikeDtos: [],
+            categories: []
          },
          request: {
             title: '',
             text: '',
             imageUrl: '',
             allowComments: true,
+            categories: []
          },
          isLoading: false,
          isDeleted: false,
@@ -105,6 +108,8 @@ export const usePostStore = defineStore('postStore', {
       async savePost(request: PostType.PostRequest, location: File | null) {
 
          const json = JSON.stringify(request);
+
+         console.log("Json", json);
          const temp = new FormData();
          if (location != null) {
             temp.append('file', location);
@@ -365,6 +370,15 @@ export const usePostStore = defineStore('postStore', {
             } else {
                toast.error("Error happened :(");
             }
+         })
+      },
+
+      getPostsByCategoryName: async function(category : string) {
+         await axios.get(BASE_URL + "/category/" + category)
+         .then(response => {
+            this.$state.posts = response.data;
+         }).catch(function(ex) {
+            toast.error("Error happened :(")
          })
       }
 

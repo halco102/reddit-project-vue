@@ -10,7 +10,7 @@
       </div>
 
       <img style="display: grid" v-if="posts!.length === 0"
-        src="https://res.cloudinary.com/dzatojfyn/image/upload/v1651749462/output-onlinepngtools_pi0ngz.png" />
+        src="https://res.cloudinary.com/dzatojfyn/image/upload/v1652251254/ui7ainqdeponxlukizk2.png" />
 
       <div class="dropdown" v-if="posts!.length != 0">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
@@ -80,6 +80,13 @@
 
           </div>
 
+          <!-- Categories -->
+          <div class="categories">
+            <div class="category" v-for="category in post.categories" :key="category.id">
+              <button type="button" class="btn btn-light" @click.prevent="getPostsByCategoryName(category.name)" >{{ category.name }}</button>
+            </div>
+          </div>
+
 
           <div class="card-body card-body-shaddow">
 
@@ -129,7 +136,7 @@ import {
 import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
 
 //types
-import { FrontPagePost, PostLikeOrDislike } from '@/Post/types';
+import { FrontPagePost } from '@/Post/types';
 import { PostedBy } from '@/User/types';
 
 export default defineComponent({
@@ -147,7 +154,8 @@ export default defineComponent({
       "getNumberOfLikes",
       "getNumberOfDislikes",
       'sortPostsByNumberOfLikesOrDislikes',
-      'sumLikesOrDislikesOnPost'
+      'sumLikesOrDislikesOnPost',
+      'getPostsByCategoryName'
     ]),
     getPostId: function (id: number) {
       return id;
@@ -347,5 +355,20 @@ h4 {
 
 .default-arrow {
   color: black;
+}
+
+.categories {
+  display: flex;
+  margin-top: 3vh;
+  justify-content: end;
+  padding-right: 0.6rem;
+}
+
+.category{
+  margin: 0 5px;
+}
+
+.category button:hover{
+  background-color: gray;
 }
 </style>

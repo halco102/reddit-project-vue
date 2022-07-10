@@ -1,5 +1,6 @@
 import { PostedBy } from "../User/types";
 import { CommentDto } from "../Comment/types";
+import { Category, SingleCategory } from "./category-types";
 
 export interface UserPosts {
     id: number,
@@ -23,7 +24,8 @@ export interface UserPosts {
     postedBy: PostedBy;
     allowComments: boolean
     commentsDto: CommentDto[]
-    postLikeOrDislikeDtos: PostLikeOrDislike[]
+    postLikeOrDislikeDtos: PostLikeOrDislike[],
+    categories: Category[]
  }
  
  export interface PostRequest {
@@ -31,6 +33,7 @@ export interface UserPosts {
     text: string,
     imageUrl: string,
     allowComments: boolean,
+    categories: SingleCategory[]
  }
  
  export interface PostInterface {
