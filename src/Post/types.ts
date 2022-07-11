@@ -25,7 +25,7 @@ export interface UserPosts {
     allowComments: boolean
     commentsDto: CommentDto[]
     postLikeOrDislikeDtos: PostLikeOrDislike[],
-    categories: Category[]
+    categories: SingleCategory[]
  }
  
  export interface PostRequest {

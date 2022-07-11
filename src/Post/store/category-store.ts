@@ -16,7 +16,8 @@ export const useCategoryStore = defineStore('categoryStore', {
         return {
             category: {
                 id: 0,
-                name: ''
+                name: '',
+                iconUrl: ''
             },
             categories: []
         }

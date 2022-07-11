@@ -53,8 +53,11 @@
             </div>
 
             <!-- Categories -->
-            <Multiselect v-model="value" :options="getAllCategories.map(i => i.name)" mode="tags"
-              placeholder="Select categories" />
+            <Multiselect v-model="categoryOptions" :options="getAllCategories.map(i => i.name)" mode="tags"
+              placeholder="Select categories" :close-on-select="false" :searchable="true" />
+            <ErrorMessage name="categoryOptions" />
+            
+
 
             <div class="comment-checkbox-button">
               <div class="mb-3">
@@ -118,6 +121,13 @@ export default defineComponent({
   },
   data() {
     const schema = yup.object().shape({
+      categoryOptions: yup.array().test('check-if-value-is-empty', 'No category selected', (val : any) => {
+
+        if (this.categoryOptions.length > 0) {
+          return true;
+        }
+        return false;
+      }),
       title: yup.string().required("Title is required"),
       text: yup.string().optional().default("").max(255),
       imageUrl: yup
@@ -162,7 +172,7 @@ export default defineComponent({
       disableButton: false,
       preview: '',
       enlargeImage: false,
-      value: []
+      categoryOptions: []
     };
   },
   computed: {
@@ -185,7 +195,7 @@ export default defineComponent({
 
       values.allowComments = this.isAllowedComment;
 
-      let categoriesObjects = this.findCategoryObjectByName(this.value);
+      let categoriesObjects = this.findCategoryObjectByName(this.categoryOptions);
 
       values.categories = categoriesObjects;
 
@@ -218,8 +228,6 @@ export default defineComponent({
           }
         })
       })
-
-      console.log("The objects are", objects);
 
       return objects;
     }

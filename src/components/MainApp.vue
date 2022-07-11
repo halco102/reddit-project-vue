@@ -2,6 +2,8 @@
   <div class="main">
     <NavigationBar />
     <PostsGallery :posts="getAllPosts" />
+
+    <!--TODO adding footer with credits for icons that i have used-->
   </div>
 </template>
 
