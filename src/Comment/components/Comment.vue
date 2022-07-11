@@ -2,36 +2,23 @@
   <div class="main-comment-div">
     <div class="comments" v-if="post!.allowComments === true">
       <div class="number-of-comments">
-        <p style="color: white; margin-top: 1rem">
+        <p style="margin-top: 1rem">
           Number of comments : {{ getNumberOfComments(getAllCommentsByPostId) }}
         </p>
       </div>
 
-      <form
-        v-on:submit.prevent="
-          postCommentThenReturnData(
-            writingComment,
-            post!.id,
-            getCurrentlyLoggedUserProfile.id,
-            null
-          )
-        "
-        class="form-style"
-      >
+      <form v-on:submit.prevent="
+        postCommentThenReturnData(
+          writingComment,
+          post!.id,
+          getCurrentlyLoggedUserProfile.id,
+          null
+        )
+      " class="form-style">
         <div class="mb-3">
-          <label
-            style="color:white;"
-            for="exampleFormControlTextarea1"
-            class="form-label"
-            >Comment</label
-          >
-          <textarea
-            v-model="writingComment"
-            class="form-control"
-            id="exampleFormControlTextarea1"
-            style="border-color:black;"
-            rows="3"
-          ></textarea>
+          <label for="exampleFormControlTextarea1" class="form-label">Comment</label>
+          <textarea v-model="writingComment" class="form-control" id="exampleFormControlTextarea1"
+            style="border-color:black;" rows="3" placeholder="Write comment here..."></textarea>
         </div>
         <button type="submit" class="btn btn-primary btn-primary-comment-form">
           Post comment
@@ -39,103 +26,62 @@
       </form>
 
       <!-- Comments !-->
-      <div
-        v-for="com in getAllCommentsByPostId"
-        :key="com.id"
-        class="card border-0"
-        :class="
-          com.parentId === null ? 'card-comment-div' : 'reply-comment-card'
-        "
-      >
+      <div v-for="com in getAllCommentsByPostId" :key="com.id" class="card border-0" :class="
+        com.parentId === null ? 'card-comment-div' : 'reply-comment-card'
+      ">
         <div class="commented-by" v-if="com.parentId === null">
           <div class="user-div">
-            <img
-              :src="com.userInfo.imageUrl"
-              style="width: 25px; height: 25px; margin-right: 5px"
-            />
+            <img :src="com.userInfo.imageUrl" style="width: 25px; height: 25px; margin-right: 5px" />
             <p>{{ com.userInfo.username }} : {{ com.text }}</p>
           </div>
           <div class="actions-for-comments">
-            <button
-              type="submit"
-              class="btn btn-primary bicon-reply-button"
-              @click="
-                postLikeOrDislike({
-                  commentId: com.id,
-                  likeOrDislike: true,
-                })
-              "
-            >
+            <button type="submit" class="btn btn-primary bicon-reply-button" @click="
+              postLikeOrDislike({
+                commentId: com.id,
+                likeOrDislike: true,
+              })
+            ">
               <BIconHandThumbsUpFill />
             </button>
             <span class="center-span">{{ getNumberOfLikes(com) }}</span>
-            <button
-              type="submit"
-              class="btn btn-primary bicon-reply-button"
-              @click="
-                postLikeOrDislike({
-                  commentId: com.id,
-                  likeOrDislike: false,
-                })
-              "
-            >
+            <button type="submit" class="btn btn-primary bicon-reply-button" @click="
+              postLikeOrDislike({
+                commentId: com.id,
+                likeOrDislike: false,
+              })
+            ">
               <BIconHandThumbsDownFill />
             </button>
             <span class="center-span">{{ getNumberOfDislikes(com) }}</span>
-            <button
-              class="btn btn-primary bicon-reply-button"
-              style="float: left"
-              @click="toggle(com.id)"
-            >
+            <button class="btn btn-primary bicon-reply-button" style="float: left" @click="toggle(com.id)">
               <BIconReply />
             </button>
 
-            <div
-              class="delete-icon-wrapper"
-              v-show="isCommentHolder(com.userInfo.id)"
-            >
+            <div class="delete-icon-wrapper" v-show="isCommentHolder(com.userInfo.id)">
               <div class="delete-icon">
                 <button style="border: none; background: none">
-                  <BIconTrash
-                    @click.prevent="deleteCommentById(com.id, post!.id)"
-                    color="#0d6efd"
-                    width="25px"
-                    height="25px"
-                  />
+                  <BIconTrash @click.prevent="deleteCommentById(com.id, post!.id)" color="#0d6efd" width="25px"
+                    height="25px" />
                 </button>
               </div>
             </div>
           </div>
 
           <div class="reply-form" v-if="com.id === selectedItem">
-            <form
-              v-on:submit.prevent="
-                postCommentThenReturnData(
-                  writingReplyComment,
-                  post!.id,
-                  getCurrentlyLoggedUserProfile.id,
-                  com.id
-                )
-              "
-            >
+            <form v-on:submit.prevent="
+              postCommentThenReturnData(
+                writingReplyComment,
+                post!.id,
+                getCurrentlyLoggedUserProfile.id,
+                com.id
+              )
+            ">
               <div class="mb-3">
-                <label
-                  style="color: white"
-                  for="exampleFormControlTextarea1"
-                  class="form-label"
-                  >Comment</label
-                >
-                <textarea
-                  v-model="writingReplyComment"
-                  class="form-control"
-                  id="exampleFormControlTextarea1"
-                  rows="3"
-                ></textarea>
+                <label style="color: white" for="exampleFormControlTextarea1" class="form-label">Comment</label>
+                <textarea v-model="writingReplyComment" class="form-control" id="exampleFormControlTextarea1"
+                  rows="3"></textarea>
               </div>
-              <button
-                type="submit"
-                class="btn btn-primary allign-submit-button"
-              >
+              <button type="submit" class="btn btn-primary allign-submit-button">
                 Post comment
               </button>
             </form>
@@ -146,83 +92,56 @@
         <div class="reply-comment" v-else>
           <div class="commented-by">
             <div class="user-div">
-              <img
-                :src="com.userInfo.imageUrl"
-                style="width: 25px; height: 25px; margin-right: 5px"
-              />
+              <img :src="com.userInfo.imageUrl" style="width: 25px; height: 25px; margin-right: 5px" />
               <p>{{ com.userInfo.username }} : {{ com.text }}</p>
             </div>
             <div class="actions-for-comments">
-              <button
-                type="submit"
-                class="btn btn-primary bicon-reply-button"
-                @click="
-                  postLikeOrDislike({
-                    commentId: com.id,
-                    likeOrDislike: true,
-                  })
-                "
-              >
+              <button type="submit" class="btn btn-primary bicon-reply-button" @click="
+                postLikeOrDislike({
+                  commentId: com.id,
+                  likeOrDislike: true,
+                })
+              ">
                 <BIconHandThumbsUpFill />
               </button>
               <span class="center-span">{{ getNumberOfLikes(com) }}</span>
-              <button
-                type="submit"
-                class="btn btn-primary bicon-reply-button"
-                @click="
-                  postLikeOrDislike({
-                    commentId: com.id,
-                    likeOrDislike: false,
-                  })
-                "
-              >
+              <button type="submit" class="btn btn-primary bicon-reply-button" @click="
+                postLikeOrDislike({
+                  commentId: com.id,
+                  likeOrDislike: false,
+                })
+              ">
                 <BIconHandThumbsDownFill />
               </button>
               <span class="center-span">{{ getNumberOfDislikes(com) }}</span>
-              <button
-                class="btn btn-primary bicon-reply-button"
-                style="float: left"
-                @click="toggle(com.id)"
-              >
+              <button class="btn btn-primary bicon-reply-button" style="float: left" @click="toggle(com.id)">
                 <BIconReply />
               </button>
             </div>
             <div class="reply-form" v-if="com.id === selectedItem">
-              <form
-                v-on:submit.prevent="
-                  postCommentThenReturnData(
-                    writingReplyComment,
-                    post!.id,
-                    getCurrentlyLoggedUserProfile.id,
-                    com.id
-                  )
-                "
-              >
+              <form v-on:submit.prevent="
+                postCommentThenReturnData(
+                  writingReplyComment,
+                  post!.id,
+                  getCurrentlyLoggedUserProfile.id,
+                  com.id
+                )
+              ">
                 <div class="mb-3">
-                  <label
-                    style="color: white"
-                    for="exampleFormControlTextarea1"
-                    class="form-label"
-                    >Comment</label
-                  >
-                  <textarea
-                    v-model="writingReplyComment"
-                    class="form-control"
-                    id="exampleFormControlTextarea1"
-                    rows="3"
-                  ></textarea>
+                  <label style="color: white" for="exampleFormControlTextarea1" class="form-label">Comment</label>
+                  <textarea v-model="writingReplyComment" class="form-control" id="exampleFormControlTextarea1"
+                    rows="3"></textarea>
                 </div>
-                <button
-                  type="submit"
-                  class="btn btn-primary allign-submit-button"
-                >
+                <button type="submit" class="btn btn-primary allign-submit-button">
                   Post comment
                 </button>
               </form>
             </div>
           </div>
         </div>
+        <hr>
       </div>
+
     </div>
     <div class="comments" v-else>
       <p>Comments are disabled</p>
@@ -252,7 +171,7 @@ import { useAuthenticationStore } from '@/User/store/authentication_store'
 
 //types
 import { FrontPagePost } from "@/Post/types";
-import {CommentDto} from '@/Comment/types';
+import { CommentDto } from '@/Comment/types';
 
 export default defineComponent({
   name: "CommentSection",
@@ -277,7 +196,7 @@ export default defineComponent({
   created() {
     console.log("Open Stomp connection in Comments.vue");
     this.openWebsocketConnection();
-    
+
   },
   methods: {
     ...mapActions(useCommentStore, [
@@ -355,12 +274,12 @@ export default defineComponent({
       }
       return false;
     },
-  },watch :{
-    post: function() {
+  }, watch: {
+    post: function () {
       console.log("POST")
       this.setCommentsFromPost(this.post!.commentsDto);
     },
-    getIsPostingComment: function(val : boolean) {
+    getIsPostingComment: function (val: boolean) {
       if (val === false) {
         console.log("VALUE", val);
         this.fetchAllCommentsByPostId(this.post!.id);
@@ -386,9 +305,9 @@ export default defineComponent({
 .main-comment-div p {
   color: black;
 }
+
 .number-of-comments {
   margin-bottom: 25px;
-  display: flex;
 }
 
 .comments {
@@ -421,9 +340,11 @@ export default defineComponent({
 .actions-for-comments a {
   margin: 10px;
 }
+
 .actions-for-comments {
   display: flex;
 }
+
 .form-style {
   margin: 10px 0 10px 0;
   display: grid;
@@ -442,6 +363,7 @@ export default defineComponent({
 .bicon-reply-button {
   margin: 10px 4px 10px 4px;
 }
+
 .delete-icon-wrapper {
   margin-left: auto;
   display: grid;

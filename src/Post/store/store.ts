@@ -13,7 +13,7 @@ import { useToast } from 'vue-toastification';
 
 //stomp
 import { Client } from "@stomp/stompjs";
-import { UserProfile } from "@/User/types";
+import { Category, SingleCategory } from "../category-types";
 
 
 
@@ -46,13 +46,15 @@ export const usePostStore = defineStore('postStore', {
             },
             allowComments: true,
             commentsDto: [],
-            postLikeOrDislikeDtos: []
+            postLikeOrDislikeDtos: [],
+            categories: []
          },
          request: {
             title: '',
             text: '',
             imageUrl: '',
             allowComments: true,
+            categories: []
          },
          isLoading: false,
          isDeleted: false,
@@ -77,7 +79,7 @@ export const usePostStore = defineStore('postStore', {
       },
       getPost(state): PostType.FrontPagePost {
          return state.post;
-      }
+      },
    },
    actions: {
 
@@ -106,6 +108,8 @@ export const usePostStore = defineStore('postStore', {
       async savePost(request: PostType.PostRequest, location: File | null) {
 
          const json = JSON.stringify(request);
+
+         console.log("Json", json);
          const temp = new FormData();
          if (location != null) {
             temp.append('file', location);
@@ -332,15 +336,6 @@ export const usePostStore = defineStore('postStore', {
          customWebsocket.deactivate();
       },
 
-      findPostByCommentId: async function (commentId: number) {
-
-         console.log("Find post by comment id");
-         await axios.get(BASE_URL + "/comment/" + commentId)
-            .then(response => {
-               this.$state.post = response.data;
-            })
-      },
-
       sumLikesOrDislikesOnPost: function (post: PostType.FrontPagePost): number {
          // find the post             post.postLikeOrDislikeDtos.filter((x) => x.likeOrDislike === true).map(() => likes++);
          let result = 0;
@@ -357,6 +352,35 @@ export const usePostStore = defineStore('postStore', {
 
          return result;
       },
+
+      searchPostByName: async function(name : string) {
+         console.log("Search", name);
+         await axios.get(BASE_URL + "/search" , {
+            params: {
+               name : name
+            }
+         })
+         .then(response => {
+            this.posts = response.data;
+         }).catch(function (ex) {
+            if (ex.response.status === 404) {
+               toast.error("Whoops noting came up");
+            }else if(ex.response.status === 400) {
+               toast.error("Bad request");
+            } else {
+               toast.error("Error happened :(");
+            }
+         })
+      },
+
+      getPostsByCategoryName: async function(category : string) {
+         await axios.get(BASE_URL + "/category/" + category)
+         .then(response => {
+            this.$state.posts = response.data;
+         }).catch(function(ex) {
+            toast.error("Error happened :(")
+         })
+      }
 
    },
 })

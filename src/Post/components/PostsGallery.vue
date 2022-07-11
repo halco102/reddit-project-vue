@@ -1,111 +1,138 @@
 <template>
   <div class="main-div">
-    <div class="wrapper-post">
-      <div class="signup">
-        <h3>
-          New to app? <br />
-          Signup here<br />
-        </h3>
-        <UserSignupModal />
+
+    <div class="wrapper">
+      <div class="left-side">
+        <div class="signup">
+          <h3>
+            New to app? <br />
+            Signup here<br />
+          </h3>
+          <UserSignupModal />
+        </div>
+
+        <div class="categories-border">
+          <button class="btn btn-light" v-for="category in getAllCategories" :key="category.id"
+           @click.prevent="getPostsByCategoryName(category.name)">
+
+            <div class="category-icon">
+              <img :src="category.iconUrl" style="width: 50px" />
+              <div class="category-name"><span>{{ category.name }}</span></div>
+            </div>
+
+          </button>
+
+        </div>
+
       </div>
+      <div class="right-side">
+        <img style="display: grid" v-if="posts!.length === 0"
+          src="https://res.cloudinary.com/dzatojfyn/image/upload/v1652251254/ui7ainqdeponxlukizk2.png" />
 
-      <img style="display: grid" v-if="posts!.length === 0"
-        src="https://res.cloudinary.com/dzatojfyn/image/upload/v1651749462/output-onlinepngtools_pi0ngz.png" />
+        <div class="dropdown" v-if="posts!.length != 0">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <BIconFilter />
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <li><a class="dropdown-item" @click="sort(true)">Hot</a></li>
+            <li><a class="dropdown-item" @click="sort(false)">Disliked</a></li>
+          </ul>
+        </div>
 
-      <div class="dropdown" v-if="posts!.length != 0">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
-          data-bs-toggle="dropdown" aria-expanded="false">
-          <BIconFilter />
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-          <li><a class="dropdown-item" @click="sort(true)">Hot</a></li>
-          <li><a class="dropdown-item" @click="sort(false)">Disliked</a></li>
-        </ul>
-      </div>
-
-      <!-- cards -->
-      <router-link class="router-link" :to="{ name: 'SinglePage', params: { id: post.id } }" v-for="post in posts"
-        :key="post.id">
-        <div class="card" style="width: 50rem; margin-bottom: 20px">
+        <!-- cards -->
+        <router-link class="router-link" :to="{ name: 'SinglePage', params: { id: post.id } }" v-for="post in posts"
+          :key="post.id">
+          <div class="card" style="width: 50rem; margin-bottom: 20px">
 
 
-          <div class="divide-img-likes-dislikes">
-            <div class="like-dislike">
+            <div class="divide-img-likes-dislikes">
+              <div class="like-dislike">
 
-              <div class="buttons">
+                <div class="buttons">
 
-                <div style="text-align: center;">
-                  <!-- like button -->
-                  <div class="like-button">
-                    <button @click.prevent="
-                      postLikeOrDislikeForPost({
-                        postId: post.id,
-                        likeOrDislike: true,
-                      })
-                    " class="btn btn-light bicon-reply-button" style="margin: 0px 10px 0 10px">
-                      <BIconArrowUp
-                        :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserUpvoted(post.id) : 'default-arrow'" />
-                    </button>
+                  <div style="text-align: center;">
+                    <!-- like button -->
+                    <div class="like-button">
+                      <button @click.prevent="
+                        postLikeOrDislikeForPost({
+                          postId: post.id,
+                          likeOrDislike: true,
+                        })
+                      " class="btn btn-light bicon-reply-button" style="margin: 0px 10px 0 10px">
+                        <BIconArrowUp
+                          :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserUpvoted(post.id) : 'default-arrow'" />
+                      </button>
+                    </div>
+
+                    <!-- sum likes or dislikes-->
+                    <span style="text-align: center;" :class="cssForNumberOfLikes(sumLikesOrDislikesOnPost(post))">{{
+                        sumLikesOrDislikesOnPost(post)
+                    }}</span>
+
+                    <!-- dislike button -->
+                    <div class="dislike-button">
+                      <button @click.prevent="
+                        postLikeOrDislikeForPost({
+                          postId: post.id,
+                          likeOrDislike: false,
+                        })
+                      " class="btn btn-light bicon-reply-button" style="margin: 0px 10px 0 10px">
+                        <BIconArrowDown
+                          :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'default-arrow'" />
+
+                      </button>
+                    </div>
+
+                    <!--:class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'default-arrow'" />-->
+
                   </div>
-
-                  <!-- sum likes or dislikes-->
-                  <span style="text-align: center;" :class="cssForNumberOfLikes(sumLikesOrDislikesOnPost(post))">{{
-                      sumLikesOrDislikesOnPost(post)
-                  }}</span>
-
-                  <!-- dislike button -->
-                  <div class="dislike-button">
-                    <button @click.prevent="
-                      postLikeOrDislikeForPost({
-                        postId: post.id,
-                        likeOrDislike: false,
-                      })
-                    " class="btn btn-light bicon-reply-button" style="margin: 0px 10px 0 10px">
-                      <BIconArrowDown
-                        :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'default-arrow'" />
-
-                    </button>
-                  </div>
-
-                  <!--:class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'default-arrow'" />-->
 
                 </div>
+              </div>
+              <div class="image-div">
+                <!-- show image of the post-->
+                <img v-bind:src="post.imageUrl" class="card-img-top" alt="" />
+              </div>
 
+            </div>
+
+            <!-- Categories -->
+            <div class="categories">
+              <div class="category" v-for="category in post.categories" :key="category.id">
+                <button type="button" class="btn btn-light" @click.prevent="getPostsByCategoryName(category.name)">{{
+                    category.name
+                }}</button>
               </div>
             </div>
-            <div class="image-div">
-              <!-- show image of the post-->
-              <img v-bind:src="post.imageUrl" class="card-img-top" alt="" />
-            </div>
-
-          </div>
 
 
-          <div class="card-body card-body-shaddow">
+            <div class="card-body card-body-shaddow">
 
-            <h3 class="card-title" style="text-align:center;">{{ post.title }}</h3>
-            <p class="card-text">{{ post.text }}</p>
+              <h3 class="card-title" style="text-align:center;">{{ post.title }}</h3>
+              <p class="card-text">{{ post.text }}</p>
 
-            <hr>
+              <hr>
 
-            <!-- show first posted by clickable image (route them to user profile) -->
-            <div class="user-avatar">
-              <router-link :to="{ path: '/user/' + post.postedBy.id }">
-                <a class="btn btn-light non-decorative-link" style="margin: 0px 10px 0 10px">
-                  <img class="rounded-circle border-image" :src="post.postedBy.imageUrl" alt="" />
-                  {{ post.postedBy.username }}
-                </a>
-              </router-link>
-              <!--Chat button-->
-              <div class="chat-button">
-                <a v-if="post.allowComments" class="btn btn-light">
-                  <BIconChatFill /> {{ post.commentsDto.length }}
-                </a>
+              <!-- show first posted by clickable image (route them to user profile) -->
+              <div class="user-avatar">
+                <router-link :to="{ path: '/user/' + post.postedBy.id }">
+                  <a class="btn btn-light non-decorative-link" style="margin: 0px 10px 0 10px">
+                    <img class="rounded-circle border-image" :src="post.postedBy.imageUrl" alt="" />
+                    {{ post.postedBy.username }}
+                  </a>
+                </router-link>
+                <!--Chat button-->
+                <div class="chat-button">
+                  <a v-if="post.allowComments" class="btn btn-light">
+                    <BIconChatFill /> {{ post.commentsDto.length }}
+                  </a>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </router-link>
+        </router-link>
+      </div>
     </div>
 
   </div>
@@ -118,6 +145,7 @@ import { defineComponent, PropType } from "vue";
 import { usePostStore } from "@/Post/store/store";
 import { mapState, mapActions } from "pinia";
 import { useAuthenticationStore } from "@/User/store/authentication_store";
+import { useCategoryStore } from "../store/category-store";
 
 //components
 import {
@@ -129,7 +157,7 @@ import {
 import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
 
 //types
-import { FrontPagePost, PostLikeOrDislike } from '@/Post/types';
+import { FrontPagePost } from '@/Post/types';
 import { PostedBy } from '@/User/types';
 
 export default defineComponent({
@@ -147,8 +175,10 @@ export default defineComponent({
       "getNumberOfLikes",
       "getNumberOfDislikes",
       'sortPostsByNumberOfLikesOrDislikes',
-      'sumLikesOrDislikesOnPost'
+      'sumLikesOrDislikesOnPost',
+      'getPostsByCategoryName'
     ]),
+    ...mapActions(useCategoryStore, ['fetchAllCategories']),
     getPostId: function (id: number) {
       return id;
     },
@@ -207,6 +237,7 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useAuthenticationStore, ["getCurrentlyLoggedUserProfile"]),
+    ...mapState(useCategoryStore, ['getAllCategories']),
   },
   props: {
     posts: Object as PropType<FrontPagePost[]>,
@@ -224,6 +255,7 @@ export default defineComponent({
     if (this.getCurrentlyLoggedUserProfile.id != 0) {
       this.isClose = true;
     }
+    this.fetchAllCategories();
   },
 });
 </script>
@@ -283,7 +315,6 @@ export default defineComponent({
 
 .signup {
   margin-top: 5vh;
-  position: absolute;
   width: 225px;
   border-style: solid;
   border-color: black;
@@ -313,6 +344,7 @@ h4 {
   .signup {
     display: none;
   }
+
 }
 
 
@@ -348,4 +380,52 @@ h4 {
 .default-arrow {
   color: black;
 }
+
+.categories {
+  display: flex;
+  margin-top: 3vh;
+  justify-content: end;
+  padding-right: 0.6rem;
+}
+
+.category {
+  margin: 0 5px;
+}
+
+.category button:hover {
+  background-color: gray;
+}
+
+.wrapper {
+  display: flex;
+  margin-right: 19%;
+  justify-content: space-around;
+  padding-top: 7vh;
+}
+
+.categories-border {
+  border-style: solid;
+  border-color: black;
+  display: grid;
+  margin-top: 2vh;
+  border-width: 1px;
+  border-radius: 5px;
+}
+
+.categories-border button:hover {
+  background-color: gray;
+}
+
+.like-dislike button:hover {
+  background-color: gray;
+}
+
+.category-icon {
+  display: flex;
+}
+
+.category-name{
+  margin: auto 0 auto 1rem;
+}
+
 </style>

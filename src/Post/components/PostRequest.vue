@@ -1,5 +1,5 @@
 <template>
-  <div class="main" ref="request">
+  <div class="main" :class="enlargeImage ? 'enlarge-image' : ''" ref="request">
     <NavigationBar />
     <div class="post-card">
       <h3>Upload a post</h3>
@@ -38,7 +38,10 @@
             </div>
 
             <div class="preview" v-if="preview">
-              <img @click="enlargeImageFunction" :class="enlargeImage ? 'enlarge-image' : 'default-image'" :src="preview" />
+              <vue-final-modal v-model="enlargeImage" classes="modal-container" content-class="modal-content">
+                <img @click="enlargeImageFunction" class="enlarge-image" :src="preview" />
+              </vue-final-modal>
+              <img @click="enlargeImageFunction" class="default-image" :src="preview" />
             </div>
 
             <div class="mb-3">
@@ -48,6 +51,13 @@
                 <ErrorMessage name="imageUrl" />
               </fieldset>
             </div>
+
+            <!-- Categories -->
+            <Multiselect v-model="categoryOptions" :options="getAllCategories.map(i => i.name)" mode="tags"
+              placeholder="Select categories" :close-on-select="false" :searchable="true" />
+            <ErrorMessage name="categoryOptions" />
+            
+
 
             <div class="comment-checkbox-button">
               <div class="mb-3">
@@ -80,6 +90,7 @@ import { defineComponent } from "vue";
 import { useAuthenticationStore } from "@/User/store/authentication_store";
 import { usePostStore } from "@/Post/store/store";
 import { mapState, mapActions } from "pinia";
+import { useCategoryStore } from "../store/category-store";
 
 //custom components
 import NavigationBar from "@/components/NavigationBar.vue";
@@ -91,8 +102,12 @@ import { useToast } from "vue-toastification";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
 
+import Multiselect from '@vueform/multiselect'
 
-// types
+//types
+import { PostRequest } from "../types";
+import { SingleCategory } from "../category-types";
+
 
 
 export default defineComponent({
@@ -102,9 +117,17 @@ export default defineComponent({
     Field,
     Form,
     ErrorMessage,
+    Multiselect
   },
   data() {
     const schema = yup.object().shape({
+      categoryOptions: yup.array().test('check-if-value-is-empty', 'No category selected', (val : any) => {
+
+        if (this.categoryOptions.length > 0) {
+          return true;
+        }
+        return false;
+      }),
       title: yup.string().required("Title is required"),
       text: yup.string().optional().default("").max(255),
       imageUrl: yup
@@ -120,7 +143,7 @@ export default defineComponent({
           let temp = this.locationOfFile as unknown as HTMLInputElement;
 
           if (temp != null) {
-            if (temp.size > 5097152) {
+            if (temp.size > 25097152) {
               return false;
             }
           }
@@ -148,12 +171,14 @@ export default defineComponent({
       isAllowedComment: false,
       disableButton: false,
       preview: '',
-      enlargeImage: false
+      enlargeImage: false,
+      categoryOptions: []
     };
   },
   computed: {
     ...mapState(useAuthenticationStore, ["getCurrentlyLoggedUserProfile"]),
     ...mapState(usePostStore, ["getIsLoading"]),
+    ...mapState(useCategoryStore, ['getAllCategories'])
   },
   setup() {
     const toast = useToast();
@@ -162,11 +187,17 @@ export default defineComponent({
   },
   methods: {
     ...mapActions(usePostStore, ["savePost"]),
+    ...mapActions(useCategoryStore, ['fetchAllCategories']),
     isRequired: function (value: string): boolean | string {
       return value ? true : "This field is required";
     },
-    onSubmit(values: any) {
+    onSubmit(values: PostRequest | any) {
+
       values.allowComments = this.isAllowedComment;
+
+      let categoriesObjects = this.findCategoryObjectByName(this.categoryOptions);
+
+      values.categories = categoriesObjects;
 
       if (this.getCurrentlyLoggedUserProfile.id !== 0) {
         this.savePost(values, this.locationOfFile);
@@ -187,6 +218,18 @@ export default defineComponent({
     },
     enlargeImageFunction: function () {
       this.enlargeImage = !this.enlargeImage;
+    },
+    findCategoryObjectByName: function (names: string[]): SingleCategory[] {
+      let objects = [] as SingleCategory[];
+      names.forEach((name) => {
+        this.getAllCategories.filter((i) => {
+          if (i.name === name) {
+            objects.push(i);
+          }
+        })
+      })
+
+      return objects;
     }
   },
   watch: {
@@ -194,30 +237,40 @@ export default defineComponent({
       if (!val) {
         this.$router.push('/');
       }
-    }
+    },
+  },
+  mounted() {
+    this.fetchAllCategories();
   }
 });
 </script>
 
+
+
 <style scoped>
+@import "@vueform/multiselect/themes/default.css";
+
 .enlarge-image {
-  max-width: 100%;
+
+  width: 100%;
   height: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
+
 }
 
-.enlarge-image:hover{
+.enlarge-image:hover {
   cursor: zoom-out;
 }
 
-.default-image{
-  max-width: 100%;
+.default-image {
+  max-width: 33rem;
   max-height: 100%;
 }
 
-.default-image:hover{
+.preview {
+  margin-bottom: 1vh;
+}
+
+.default-image:hover {
   cursor: zoom-in;
 }
 
@@ -256,6 +309,7 @@ export default defineComponent({
 }
 
 .comment-checkbox-button {
+  margin-top: 1vh;
   display: grid;
   justify-content: center;
 }
@@ -267,5 +321,28 @@ export default defineComponent({
 
 span {
   color: #f23648;
+}
+
+::v-deep .modal-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+::v-deep .modal-content {
+  display: flex;
+  flex-direction: column;
+  margin: 0 1rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.25rem;
+  background: #fff;
+  margin-left: 10%;
+  margin-right: 10%
+}
+
+.modal__title {
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 </style>
