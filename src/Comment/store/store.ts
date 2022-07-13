@@ -13,13 +13,8 @@ import { useToast } from 'vue-toastification';
 import { Client } from "@stomp/stompjs";
 
 
-// base url when using localhost
-const BASE_URL = 'http://127.0.0.1:8082/api/v1/comment'
-const ws = 'ws://127.0.0.1:8082/ws'
-
-//base url when deployed
-//const BASE_URL = 'https://demo-reddit-project.herokuapp.com' +  '/api/v1/comment'
-//const ws = 'wss://demo-reddit-project.herokuapp.com/ws'
+const BASE_URL = process.env.VUE_APP_BASE_URL_COMMENT;
+const ws = process.env.VUE_APP_WEBSOCKET;
 
 
 let customWebsocket: Client;
