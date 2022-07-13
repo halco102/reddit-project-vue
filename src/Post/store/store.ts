@@ -14,8 +14,8 @@ import { useToast } from 'vue-toastification';
 //stomp
 import { Client } from "@stomp/stompjs";
 
-const BASE_URL = process.env.VUE_APP_BASE_URL_POST;
-const ws = process.env.VUE_APP_WEBSOCKET;
+const BASE_URL = 'https://' + process.env.VUE_APP_BASE_URL + '/api/v1/post';
+const ws = 'wss://' + process.env.VUE_APP_BASE_URL + '/ws';
 
 
 let customWebsocket: Client;
@@ -81,7 +81,10 @@ export const usePostStore = defineStore('postStore', {
    },
    actions: {
 
+
       async fetchAllPostToShow() {
+
+         console.log("Check URL", BASE_URL);
          await axios.get(BASE_URL).then(response => {
             this.posts = response.data;
          }).catch(function (ex) {
@@ -189,7 +192,7 @@ export const usePostStore = defineStore('postStore', {
                else if (state.userProfile.postLikeOrDislikeDtos[findIndex].likeOrDislike === request.likeOrDislike) {
                   console.log("Delete same object");
                   state.userProfile.postLikeOrDislikeDtos.splice(findIndex, 1);
-               }else {
+               } else {
                   console.log("Update");
                   state.userProfile.postLikeOrDislikeDtos[findIndex] = request;
                }
@@ -334,8 +337,10 @@ export const usePostStore = defineStore('postStore', {
          customWebsocket.deactivate();
       },
 
-      sumLikesOrDislikesOnPost: function (post: PostType.FrontPagePost): number {
-         // find the post             post.postLikeOrDislikeDtos.filter((x) => x.likeOrDislike === true).map(() => likes++);
+      sumLikesOrDislikesOnPost: function (post: PostType.FrontPagePost): number{
+
+console.log("sumLikesDislikes", post);
+
          let result = 0;
 
          post.postLikeOrDislikeDtos
@@ -351,36 +356,36 @@ export const usePostStore = defineStore('postStore', {
          return result;
       },
 
-      searchPostByName: async function(name : string) {
+      searchPostByName: async function (name: string) {
          console.log("Search", name);
-         await axios.get(BASE_URL + "/search" , {
+         await axios.get(BASE_URL + "/search", {
             params: {
-               name : name
+               name: name
             }
          })
-         .then(response => {
-            this.posts = response.data;
-         }).catch(function (ex) {
-            if (ex.response.status === 404) {
-               toast.error("Whoops noting came up");
-            }else if(ex.response.status === 400) {
-               toast.error("Bad request");
-            } else {
-               toast.error("Error happened :(");
-            }
-         })
+            .then(response => {
+               this.posts = response.data;
+            }).catch(function (ex) {
+               if (ex.response.status === 404) {
+                  toast.error("Whoops noting came up");
+               } else if (ex.response.status === 400) {
+                  toast.error("Bad request");
+               } else {
+                  toast.error("Error happened :(");
+               }
+            })
       },
 
-      getPostsByCategoryName: async function(category : string) {
+      getPostsByCategoryName: async function (category: string) {
          await axios.get(BASE_URL + "/category/" + category)
-         .then(response => {
-            this.$state.posts = response.data;
-         }).catch(function(ex) {
-            toast.error("Error happened :(")
-         })
+            .then(response => {
+               this.$state.posts = response.data;
+            }).catch(function (ex) {
+               toast.error("Error happened :(")
+            })
       },
 
-      updatePostById: async function(postId: number, update : PostType.UpdatePost) {
+      updatePostById: async function (postId: number, update: PostType.UpdatePost) {
 
          const json = JSON.stringify(update);
 
