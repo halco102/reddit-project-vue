@@ -13,7 +13,7 @@
 
         <div class="categories-border">
           <button class="btn btn-light" v-for="category in getAllCategories" :key="category.id"
-           @click.prevent="getPostsByCategoryName(category.name)">
+            @click.prevent="getPostsByCategoryName(category.name)">
 
             <div class="category-icon">
               <img :src="category.iconUrl" style="width: 50px" />
@@ -40,98 +40,100 @@
           </ul>
         </div>
 
-        <!-- cards -->
-        <router-link class="router-link" :to="{ name: 'SinglePage', params: { id: post.id } }" v-for="post in posts"
-          :key="post.id">
-          <div class="card" style="width: 50rem; margin: 0 auto 20px auto">
+        <div class="posts" v-if="posts !== undefined">
+          <!-- cards -->
+          <router-link class="router-link" :to="{ name: 'SinglePage', params: { id: post.id } }" v-for="post in posts"
+            :key="post.id">
+            <div class="card" style="width: 50rem; margin: 0 auto 20px auto">
 
 
-            <div class="divide-img-likes-dislikes">
-              <div class="like-dislike">
+              <div class="divide-img-likes-dislikes">
+                <div class="like-dislike">
 
-                <div class="buttons">
+                  <div class="buttons">
 
-                  <div style="text-align: center;">
-                    <!-- like button -->
-                    <div class="like-button">
-                      <button @click.prevent="
-                        postLikeOrDislikeForPost({
-                          postId: post.id,
-                          likeOrDislike: true,
-                        })
-                      " class="btn btn-light bicon-reply-button" style="margin: 0px 10px 0 10px">
-                        <BIconArrowUp
-                          :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserUpvoted(post.id) : 'default-arrow'" />
-                      </button>
+                    <div style="text-align: center;">
+                      <!-- like button -->
+                      <div class="like-button">
+                        <button @click.prevent="
+                          postLikeOrDislikeForPost({
+                            postId: post.id,
+                            likeOrDislike: true,
+                          })
+                        " class="btn btn-light bicon-reply-button" style="margin: 0px 10px 0 10px">
+                          <BIconArrowUp
+                            :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserUpvoted(post.id) : 'default-arrow'" />
+                        </button>
+                      </div>
+
+                      <!-- sum likes or dislikes-->
+                      <span style="text-align: center;" :class="cssForNumberOfLikes(sumLikesOrDislikesOnPost(post))">{{
+                          sumLikesOrDislikesOnPost(post)
+                      }}</span>
+
+                      <!-- dislike button -->
+                      <div class="dislike-button">
+                        <button @click.prevent="
+                          postLikeOrDislikeForPost({
+                            postId: post.id,
+                            likeOrDislike: false,
+                          })
+                        " class="btn btn-light bicon-reply-button" style="margin: 0px 10px 0 10px">
+                          <BIconArrowDown
+                            :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'default-arrow'" />
+
+                        </button>
+                      </div>
+
+                      <!--:class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'default-arrow'" />-->
+
                     </div>
-
-                    <!-- sum likes or dislikes-->
-                    <span style="text-align: center;" :class="cssForNumberOfLikes(sumLikesOrDislikesOnPost(post))">{{
-                        sumLikesOrDislikesOnPost(post)
-                    }}</span>
-
-                    <!-- dislike button -->
-                    <div class="dislike-button">
-                      <button @click.prevent="
-                        postLikeOrDislikeForPost({
-                          postId: post.id,
-                          likeOrDislike: false,
-                        })
-                      " class="btn btn-light bicon-reply-button" style="margin: 0px 10px 0 10px">
-                        <BIconArrowDown
-                          :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'default-arrow'" />
-
-                      </button>
-                    </div>
-
-                    <!--:class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'default-arrow'" />-->
 
                   </div>
+                </div>
+                <div class="image-div">
+                  <!-- show image of the post-->
+                  <img v-bind:src="post.imageUrl" class="card-img-top" alt="" />
+                </div>
 
+              </div>
+
+              <!-- Categories -->
+              <div class="categories">
+                <div class="category" v-for="category in post.categories" :key="category.id">
+                  <button type="button" class="btn btn-light" @click.prevent="getPostsByCategoryName(category.name)">{{
+                      category.name
+                  }}</button>
                 </div>
               </div>
-              <div class="image-div">
-                <!-- show image of the post-->
-                <img v-bind:src="post.imageUrl" class="card-img-top" alt="" />
-              </div>
-
-            </div>
-
-            <!-- Categories -->
-            <div class="categories">
-              <div class="category" v-for="category in post.categories" :key="category.id">
-                <button type="button" class="btn btn-light" @click.prevent="getPostsByCategoryName(category.name)">{{
-                    category.name
-                }}</button>
-              </div>
-            </div>
 
 
-            <div class="card-body card-body-shaddow">
+              <div class="card-body card-body-shaddow">
 
-              <h3 class="card-title" style="text-align:center;">{{ post.title }}</h3>
-              <p class="card-text">{{ post.text }}</p>
+                <h3 class="card-title" style="text-align:center;">{{ post.title }}</h3>
+                <p class="card-text">{{ post.text }}</p>
 
-              <hr>
+                <hr>
 
-              <!-- show first posted by clickable image (route them to user profile) -->
-              <div class="user-avatar">
-                <router-link :to="{ path: '/user/' + post.postedBy.id }">
-                  <a class="btn btn-light non-decorative-link" style="margin: 0px 10px 0 10px">
-                    <img class="rounded-circle border-image" :src="post.postedBy.imageUrl" alt="" />
-                    {{ post.postedBy.username }}
-                  </a>
-                </router-link>
-                <!--Chat button-->
-                <div class="chat-button">
-                  <a v-if="post.allowComments" class="btn btn-light">
-                    <BIconChatFill /> {{ post.commentsDto.length }}
-                  </a>
+                <!-- show first posted by clickable image (route them to user profile) -->
+                <div class="user-avatar">
+                  <router-link :to="{ path: '/user/' + post.postedBy.id }">
+                    <a class="btn btn-light non-decorative-link" style="margin: 0px 10px 0 10px">
+                      <img class="rounded-circle border-image" :src="post.postedBy.imageUrl" alt="" />
+                      {{ post.postedBy.username }}
+                    </a>
+                  </router-link>
+                  <!--Chat button-->
+                  <div class="chat-button">
+                    <a v-if="post.allowComments" class="btn btn-light">
+                      <BIconChatFill /> {{ post.commentsDto.length }}
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </router-link>
+          </router-link>
+        </div>
       </div>
     </div>
 
@@ -365,7 +367,7 @@ h4 {
   margin-top: 10px;
 }
 
-.chat-button a:hover{
+.chat-button a:hover {
   background-color: gray;
 }
 
@@ -428,8 +430,7 @@ h4 {
   display: flex;
 }
 
-.category-name{
+.category-name {
   margin: auto 0 auto 1rem;
 }
-
 </style>

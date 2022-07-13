@@ -15,7 +15,7 @@ import { useToast } from 'vue-toastification';
 import { Client } from "@stomp/stompjs";
 
 const BASE_URL = 'https://' + process.env.VUE_APP_BASE_URL + '/api/v1/post';
-const ws = 'wss://' + process.env.VUE_APP_BASE_URL + 'ws';
+const ws = 'wss://' + process.env.VUE_APP_BASE_URL + '/ws';
 
 
 let customWebsocket: Client;
@@ -337,7 +337,7 @@ export const usePostStore = defineStore('postStore', {
          customWebsocket.deactivate();
       },
 
-      sumLikesOrDislikesOnPost: function (post: PostType.FrontPagePost): number {
+      sumLikesOrDislikesOnPost: function (post: PostType.FrontPagePost): number{
          // find the post             post.postLikeOrDislikeDtos.filter((x) => x.likeOrDislike === true).map(() => likes++);
          let result = 0;
 
