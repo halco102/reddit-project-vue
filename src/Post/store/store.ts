@@ -14,8 +14,8 @@ import { useToast } from 'vue-toastification';
 //stomp
 import { Client } from "@stomp/stompjs";
 
-const BASE_URL = process.env.VUE_APP_BASE_URL_POST;
-const ws = process.env.VUE_APP_WEBSOCKET;
+const BASE_URL = process.env.VUE_APP_BASE_URL + '/api/v1/post';
+const ws = 'wss://' + process.env.VUE_APP_WEBSOCKET + 'ws';
 
 
 let customWebsocket: Client;

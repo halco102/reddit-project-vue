@@ -13,12 +13,8 @@ import { Client } from "@stomp/stompjs";
 
 
 //Base url localhost
-const BASE_URL = process.env.VUE_APP_BASE_URL_USER;
-const ws = process.env.VUE_APP_WEBSOCKET;
-
-// Deployed url
-//const BASE_URL = 'https://demo-reddit-project.herokuapp.com' + '/api/v1/user'
-//const ws = 'wss://demo-reddit-project.herokuapp.com/ws';
+const BASE_URL = process.env.VUE_APP_BASE_URL + '/api/v1/user';
+const ws = 'wss://' + process.env.VUE_APP_BASE_URL + '/ws';
 
 let customWebsocket: Client;
 
