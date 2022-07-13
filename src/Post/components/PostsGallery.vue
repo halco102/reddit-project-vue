@@ -370,7 +370,7 @@ h4 {
 }
 
 .image-div {
-  margin: 1rem 1rem 0 0;
+  margin: 1rem auto;
 }
 
 .down-vote-arrow {
