@@ -12,11 +12,7 @@ import * as UserType from "@/User/types";
 import * as authenticationTypes from "../authenticationTypes";
 
 
-//Base url localhost
-const BASE_URL = 'http://127.0.0.1:8082/api/v1/user'
-
-//deployed Base url
-//const BASE_URL = 'https://demo-reddit-project.herokuapp.com/api/v1/user'
+const BASE_URL = process.env.VUE_APP_BASE_URL_USER;
 
 const toast = useToast();
 

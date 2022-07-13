@@ -121,7 +121,7 @@ export default defineComponent({
   },
   data() {
     const schema = yup.object().shape({
-      categoryOptions: yup.array().test('check-if-value-is-empty', 'No category selected', (val : any) => {
+      categoryOptions: yup.array().test('check-if-value-is-empty', 'No category selected', () => {
 
         if (this.categoryOptions.length > 0) {
           return true;
