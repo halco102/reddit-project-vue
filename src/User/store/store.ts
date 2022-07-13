@@ -13,7 +13,7 @@ import { Client } from "@stomp/stompjs";
 
 
 //Base url localhost
-const BASE_URL = process.env.VUE_APP_BASE_URL + '/api/v1/user';
+const BASE_URL = 'https://' + process.env.VUE_APP_BASE_URL + '/api/v1/user';
 const ws = 'wss://' + process.env.VUE_APP_BASE_URL + '/ws';
 
 let customWebsocket: Client;
