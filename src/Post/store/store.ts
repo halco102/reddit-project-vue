@@ -13,20 +13,18 @@ import { useToast } from 'vue-toastification';
 
 //stomp
 import { Client } from "@stomp/stompjs";
-import { Category, SingleCategory } from "../category-types";
 
 
 
 // Base url on localhost and ws
 const BASE_URL = 'http://127.0.0.1:8082/api/v1/post'
 const ws = 'ws://127.0.0.1:8082/ws'
-let customWebsocket: Client;
-
 
 //when deployed
 //const BASE_URL = 'https://demo-reddit-project.herokuapp.com' + '/api/v1/post'
 //const ws = 'wss://demo-reddit-project.herokuapp.com/ws'
 
+let customWebsocket: Client;
 const toast = useToast();
 
 
@@ -58,7 +56,13 @@ export const usePostStore = defineStore('postStore', {
          },
          isLoading: false,
          isDeleted: false,
-         isSameLikeOrDislikeButton: false
+         isSameLikeOrDislikeButton: false,
+         updatePost: {
+            title: '',
+            text: '',
+            allowComments: false,
+            categories: []
+         }
       }
    },
    getters: {
@@ -379,6 +383,20 @@ export const usePostStore = defineStore('postStore', {
             this.$state.posts = response.data;
          }).catch(function(ex) {
             toast.error("Error happened :(")
+         })
+      },
+
+      updatePostById: async function(postId: number, update : PostType.UpdatePost) {
+
+         const json = JSON.stringify(update);
+
+         await axios.put(BASE_URL + '/update/' + postId, json, {
+            headers: {
+               'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
+               'Content-Type': 'application/json'
+            }
+         }).then(response => {
+            console.log("Response on update", response.data);
          })
       }
 

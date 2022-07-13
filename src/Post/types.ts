@@ -1,13 +1,14 @@
 import { PostedBy } from "../User/types";
 import { CommentDto } from "../Comment/types";
-import { Category, SingleCategory } from "./category-types";
+import { SingleCategory } from "./category-types";
 
 export interface UserPosts {
     id: number,
     title: string,
     text: string,
     imageUrl: string,
-    postLikeOrDislikeDtos: PostLikeOrDislike[]
+    postLikeOrDislikeDtos: PostLikeOrDislike[],
+    categories: SingleCategory[]
  }
  
  export interface PostLikeOrDislike {
@@ -15,6 +16,12 @@ export interface UserPosts {
     likeOrDislike: boolean
  }
  
+ export interface UpdatePost{
+   title: string,
+   text: string,
+   allowComments: boolean,
+   categories: SingleCategory[]
+ }
  
  export interface FrontPagePost {
     id: number;
@@ -42,5 +49,6 @@ export interface UserPosts {
     request: PostRequest,
     isLoading: boolean,
     isDeleted: boolean,
-    isSameLikeOrDislikeButton: boolean
+    isSameLikeOrDislikeButton: boolean,
+    updatePost: UpdatePost
  }

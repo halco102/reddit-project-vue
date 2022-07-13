@@ -43,7 +43,7 @@
         <!-- cards -->
         <router-link class="router-link" :to="{ name: 'SinglePage', params: { id: post.id } }" v-for="post in posts"
           :key="post.id">
-          <div class="card" style="width: 50rem; margin-bottom: 20px">
+          <div class="card" style="width: 50rem; margin: 0 auto 20px auto">
 
 
             <div class="divide-img-likes-dislikes">
@@ -363,6 +363,10 @@ h4 {
 
 .chat-button {
   margin-top: 10px;
+}
+
+.chat-button a:hover{
+  background-color: gray;
 }
 
 .image-div {

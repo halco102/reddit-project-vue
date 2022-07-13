@@ -10,10 +10,21 @@
             <p class="card-text" style="color: black">
               {{ post.text }}
             </p>
-            <div class="delete-icon-wrapper" v-if="isCurrentUser">
-              <div class="delete-icon">
-                <button style="border: none; background: none">
+            <div class="icon-wrapper" v-if="isCurrentUser">
+              <div class="icon">
+                <button>
                   <BIconTrash @click.prevent="deletePostById(post.id)" color="#0d6efd" width="25px" height="25px" />
+                </button>
+              </div>
+              <div class="icon">
+                <button @click="showModal = true">
+
+                  <router-link :to="{ name: 'UpdatePage', params: {
+                    id: post.id,
+                  } }">
+                    <BIconPencil color="#0d6efd" width="20px" height="20px" />
+                  </router-link>
+
                 </button>
               </div>
             </div>
@@ -27,24 +38,42 @@
 
 
 <script lang="ts">
-import { usePostStore } from "@/Post/store/store";
+//vue
 import { defineComponent } from "vue";
+
+//pinia
+import { usePostStore } from "@/Post/store/store";
 import { mapActions } from "pinia";
+
+//types
 import { UserPosts } from "@/Post/types";
+
+//bootstrap icons
+import { BIconPencil } from "bootstrap-icons-vue";
 import { BIconTrash } from "bootstrap-icons-vue";
+
+//components
+import UpdatePostModal from '@/Post/components/modal/UpdatePostModal.vue';
 
 export default defineComponent({
   name: "UserProfilePosts",
   components: {
-    BIconTrash
+    BIconTrash,
+    BIconPencil,
   },
   methods: {
     ...mapActions(usePostStore, ['deletePostById']),
+
 
   },
   props: {
     posts: Object as () => UserPosts[],
     isCurrentUser: Boolean
+  },
+  data() {
+    return {
+      showModal: false
+    }
   }
 });
 </script>
@@ -53,5 +82,20 @@ export default defineComponent({
 .card-body-shaddow {
   box-shadow: rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;
   margin-bottom: 3vh;
+}
+
+.icon-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.icon button {
+  border: none;
+  background: none;
+  margin: 0 1rem;
+}
+
+.icon:hover {
+  background-color: gray;
 }
 </style>

@@ -10,6 +10,9 @@ import axios from "axios";
 // Base url on localhost and ws
 const BASE_URL = 'http://127.0.0.1:8082/api/v1/category'
 
+//deployed base url
+//const BASE_URL = "https://demo-reddit-project.herokuapp.com/api/v1/category"
+
 export const useCategoryStore = defineStore('categoryStore', {
 
     state: (): CategoryTypes.Category => {
