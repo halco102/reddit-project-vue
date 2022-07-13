@@ -338,7 +338,9 @@ export const usePostStore = defineStore('postStore', {
       },
 
       sumLikesOrDislikesOnPost: function (post: PostType.FrontPagePost): number{
-         // find the post             post.postLikeOrDislikeDtos.filter((x) => x.likeOrDislike === true).map(() => likes++);
+
+console.log("sumLikesDislikes", post);
+
          let result = 0;
 
          post.postLikeOrDislikeDtos
