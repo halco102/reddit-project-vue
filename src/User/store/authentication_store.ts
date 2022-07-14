@@ -12,7 +12,7 @@ import * as UserType from "@/User/types";
 import * as authenticationTypes from "../authenticationTypes";
 
 
-const BASE_URL = 'http://' + process.env.VUE_APP_BASE_URL + '/api/v1/user';
+const BASE_URL = process.env.VUE_APP_BASE_URL + '/api/v1/user';
 
 const toast = useToast();
 
