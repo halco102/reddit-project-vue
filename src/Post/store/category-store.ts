@@ -8,7 +8,7 @@ import * as CategoryTypes from '@/Post/category-types';
 import axios from "axios";
 
 // Base url on localhost and ws
-const BASE_URL = 'https://' + process.env.VUE_APP_BASE_URL + '/api/v1/category';
+const BASE_URL = 'http://' + process.env.VUE_APP_BASE_URL + '/api/v1/category';
 
 export const useCategoryStore = defineStore('categoryStore', {
 
