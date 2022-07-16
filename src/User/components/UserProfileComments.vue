@@ -4,7 +4,7 @@
     -->
     <div>
         <router-link v-for="temp in user.commentsPosts" :key="temp.postId"
-            :to="{ name: 'SinglePage', params: { id: temp.postId } }" v-show="isClicked">
+            :to="{ name: 'SinglePage', params: { id: temp.postId } }">
             <div>
                 <div class="content card-body-shaddow" v-for="com in temp.commentDto" :key="com.id">
                     <div class="card" style="width: 35rem">
@@ -34,7 +34,6 @@ export default defineComponent({
     name: "UserProfileComments",
     props: {
         isCurrentUser: Boolean,
-        isClicked: Boolean,
         user: {
             type: Object as () => UserProfile,
             required: true

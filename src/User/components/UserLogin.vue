@@ -2,8 +2,8 @@
   <div>
     <Form @submit="onSubmit" :validation-schema="schema">
       <div class="mb-3">
-        <Field name="email" v-slot="{ field, meta }" >
-        <label for="inserEmail" class="form-label">Email</label>
+        <Field name="emailOrUsername" v-slot="{ field, meta }" >
+        <label for="inserttEmailOrUsername" class="form-label">Email or username</label>
         <input
           v-bind="field"
           :class="
@@ -13,7 +13,7 @@
           "
         />
         </Field>
-        <ErrorMessage name="email"/>
+        <ErrorMessage name="emailOrUsername"/>
       </div>
       <div class="mb-3">
         <Field name="password" v-slot="{ field, meta }" >
@@ -75,6 +75,7 @@ export default defineComponent({
       this.$emit("close", this.getSuccessfullLogin);
     },
     onSubmit: function(value : SignInRequest | any) {
+      console.log("VALUE", value)
       this.loginUser(value);
     },
   },
@@ -93,7 +94,7 @@ export default defineComponent({
   },
   data() {
     const schema = yup.object({
-      email: yup.string().min(1).max(50).required(),
+      emailOrUsername: yup.string().min(1).max(50).required(),
       password: yup.string().min(8).required(),
     });
 

@@ -1,21 +1,34 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <router-link class="navbar-brand" :to="{ name: 'Home' }" >Logo</router-link>
+      <router-link class="navbar-brand" :to="{ name: 'Home' }">Logo</router-link>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <ul class="navbar-nav mb-2 mb-lg-0">
           <li class="nav-item">
-            <router-link class="nav-link" :to="{ name: 'Home' }" >Home</router-link>
+            <router-link class="nav-link" :to="{ name: 'Home' }">Home</router-link>
           </li>
           <li class="nav-item">
             <router-link class="nav-link" :to="{ name: 'PostRequestPage' }">Post</router-link>
           </li>
         </ul>
+
+        <!--search-->
+        <form class="d-flex" style="margin:auto">
+
+          <button class="btn btn-outline-success" style="margin-right:0.5rem;" type="submit" @click.prevent="searchPostByName(searchQuery)">
+            <BIconSearch />
+          </button>
+          <input v-model="searchQuery" class="form-control me-2" type="search" placeholder="Search"
+            aria-label="Search" />
+
+
+
+        </form>
 
         <div class="second-type-login-signup" v-if="!exit()">
           <UserLoginModal />
@@ -25,17 +38,12 @@
         <router-link :to="{ path: '/user/' + getCurrentlyLoggedUserProfile.id }">
           <div v-show="getCurrentlyLoggedUserProfile.id != 0" class="username-img">
             <img :src="getCurrentlyLoggedUserProfile.imageUrl" width="50" height="40" />
-            <span class="navbar-text" style="margin-right: 5px">{{
+            <span class="navbar-text" style="margin-right: 2rem">{{
                 getCurrentlyLoggedUserProfile.username
             }}</span>
           </div>
         </router-link>
-        <form class="d-flex">
-          <input v-model="searchQuery" class="form-control me-2" type="search" placeholder="Search"
-            aria-label="Search" />
-          <button class="btn btn-outline-success" type="submit"
-            @click.prevent="searchPostByName(searchQuery)">Search</button>
-        </form>
+
       </div>
 
       <button v-show="getCurrentlyLoggedUserProfile.id != 0" class="btn btn-primary"
@@ -55,12 +63,14 @@ import { usePostStore } from "@/Post/store/store";
 //components
 import UserLoginModal from "@/User/components/modal/UserLoginModal.vue";
 import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
+import { BIconSearch } from "bootstrap-icons-vue";
 
 export default defineComponent({
   name: "NavigationBar",
   components: {
     UserLoginModal,
     UserSignupModal,
+    BIconSearch
   },
   methods: {
 
