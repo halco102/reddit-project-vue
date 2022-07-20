@@ -31,20 +31,22 @@
     </div>
 
     <div class="user-profile-main">
-      <!-- content -->
+
       <div class="user-content">
         <div class="profile-bar">
           <UserProfileBar @postOrComment="postOrComment" />
         </div>
 
-        <UserProfilePosts :posts="getUserProfile.posts" :isCurrentUser="isCurrentUser()" v-show="events.isPost" />
-        <UserProfileComments :user="getUserProfile" :isCurrentUser="isCurrentUser()" :isClicked="events.isComment"
-          v-show="events.isComment" v-if="events.isComment" />
+        <router-view :user="getUserProfile" :posts="getUserProfile.posts" :isCurrentUser="isCurrentUser()">
+        </router-view>
 
       </div>
 
 
+
     </div>
+
+
   </div>
 </template>
 
@@ -54,8 +56,6 @@ import { defineComponent } from "vue";
 //components
 import NavigationBar from "@/components/NavigationBar.vue";
 import UserProfileBar from "@/User/components/UserProfileBar.vue";
-import UserProfilePosts from "@/User/components/UserProfilePosts.vue"
-import UserProfileComments from "./UserProfileComments.vue";
 import UserProfileStatsVue from "./UserProfileStats.vue";
 
 //pinia
@@ -71,10 +71,8 @@ export default defineComponent({
   name: "UserProfile",
   components: {
     NavigationBar,
-    UserProfileBar,
-    UserProfilePosts,
-    UserProfileComments,
-    UserProfileStatsVue
+    UserProfileStatsVue,
+    UserProfileBar
   },
   methods: {
     ...mapActions(useUserStore, [

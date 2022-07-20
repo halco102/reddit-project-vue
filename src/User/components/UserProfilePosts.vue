@@ -1,6 +1,8 @@
 <template>
 
   <div class="user-profile-posts">
+    <p>HEllo world</p>
+    
     <router-link v-for="post in posts" :key="post.id" :to="{ name: 'SinglePage', params: { id: post.id } }">
       <div class="content card-body-shaddow ">
         <div class="card" style="width: 35rem">
@@ -52,8 +54,6 @@ import { UserPosts } from "@/Post/types";
 import { BIconPencil } from "bootstrap-icons-vue";
 import { BIconTrash } from "bootstrap-icons-vue";
 
-//components
-import UpdatePostModal from '@/Post/components/modal/UpdatePostModal.vue';
 
 export default defineComponent({
   name: "UserProfilePosts",

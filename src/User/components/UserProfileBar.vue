@@ -1,8 +1,14 @@
 <template>
   <div class="bar">
     <div class="buttons">
-      <button class="btn-local" @click="postOrCommentClicked(1)">Posts</button>
-      <button class="btn-local" @click="postOrCommentClicked(2)">Comments</button>
+      <router-link :to="{ name: 'FilterPosts', query: {filter: 'posts'} }">
+        <button class="btn-local" >Posts</button>
+      </router-link>
+
+      <router-link :to="{ name: 'FilterComments', query : {filter: 'comments'} }">
+        <button class="btn-local" >Comments</button>
+      </router-link>
+
     </div>
     <hr>
 

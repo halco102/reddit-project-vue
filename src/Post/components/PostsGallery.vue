@@ -48,6 +48,7 @@
 
 
               <div class="divide-img-likes-dislikes">
+
                 <div class="like-dislike">
 
                   <div class="buttons">
@@ -91,7 +92,12 @@
 
                   </div>
                 </div>
+
                 <div class="image-div">
+                  <div class="card-body card-body-shaddow">
+                    <h3 class="card-title" style="text-align:center;">{{ post.title }}</h3>
+                  </div>
+
                   <!-- show image of the post-->
                   <img v-bind:src="post.imageUrl" class="card-img-top" alt="" />
                 </div>
@@ -110,7 +116,7 @@
 
               <div class="card-body card-body-shaddow">
 
-                <h3 class="card-title" style="text-align:center;">{{ post.title }}</h3>
+
                 <p class="card-text">{{ post.text }}</p>
 
                 <hr>
@@ -405,7 +411,7 @@ h4 {
 .wrapper {
   display: flex;
   margin-right: 19%;
-  justify-content: space-around;
+  justify-content: space-evenly;
   padding-top: 7vh;
 }
 

@@ -1,10 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
-import UserProfile from '../User/components/UserProfile.vue'
-import SinglePagePost from '../Post/components/SinglePagePost.vue'
-import PostRequest from '../Post/components/PostRequest.vue'
-import MainApp from '../components/MainApp.vue'
+import UserProfilePosts from '../User/components/UserProfilePosts.vue';
+import UserProfileComments from '../User/components/UserProfileComments.vue';
+import UserProfile from '../User/components/UserProfile.vue';
+import SinglePagePost from '../Post/components/SinglePagePost.vue';
+import PostRequest from '../Post/components/PostRequest.vue';
+import MainApp from '../components/MainApp.vue';
 import { useAuthenticationStore } from "@/User/store/authentication_store";
-import UpdatePost from '@/Post/components/UpdatePost.vue'
+import UpdatePost from '@/Post/components/UpdatePost.vue';
 
 
 
@@ -25,14 +27,27 @@ const routes = [
         path: '/user/:userId',
         name: "UserProfileById",
         component: UserProfile,
+        children: [
+            {
+                path: 'content',
+                name: 'FilterPosts',
+                component: UserProfilePosts
+
+            },
+            {
+                path: 'content',
+                name: 'FilterComments',
+                component: UserProfileComments
+            }
+        ]
     },
     {
-            
+
         path: '/edit/:id',
         name: "UpdatePage",
         component: UpdatePost,
         props: true
-    
+
     },
     {
         path: '/post/:id',
