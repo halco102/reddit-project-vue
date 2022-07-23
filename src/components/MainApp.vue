@@ -1,8 +1,6 @@
 <template>
-  <div class="main">
-    <NavigationBar  />
-    <PostsGallery :posts="getAllPosts" />
-    <!--TODO adding footer with credits for icons that i have used-->
+  <div>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -10,9 +8,6 @@
 import { defineComponent } from "vue";
 import { _RouteLocationBase } from "vue-router";
 
-//components
-import NavigationBar from "@/components/NavigationBar.vue";
-import PostsGallery from "@/Post/components/PostsGallery.vue";
 
 //pinia
 import { usePostStore } from "@/Post/store/store";
@@ -24,8 +19,7 @@ import { useAuthenticationStore } from "@/User/store/authentication_store";
 export default defineComponent({
   name: "MainApp",
   components: {
-    NavigationBar,
-    PostsGallery,
+    
   },
   methods: {
     ...mapActions(usePostStore, [
@@ -60,7 +54,7 @@ export default defineComponent({
           console.log("Disconnect", to.fullPath)
           this.disconnectFromWs();
         }
-      }else{
+      } else {
         if (to.fullPath == '/post') {
           console.log("User not logged in")
           this.$router.push('/')

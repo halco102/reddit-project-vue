@@ -1,6 +1,5 @@
 <template>
   <div class="main" :class="enlargeImage ? 'enlarge-image' : ''" ref="request">
-    <NavigationBar />
     <div class="post-card">
       <h3>Upload a post</h3>
       <div class="card" style="width: 35rem">
@@ -92,8 +91,6 @@ import { usePostStore } from "@/Post/store/store";
 import { mapState, mapActions } from "pinia";
 import { useCategoryStore } from "../store/category-store";
 
-//custom components
-import NavigationBar from "@/components/NavigationBar.vue";
 
 //toast
 import { useToast } from "vue-toastification";
@@ -113,7 +110,6 @@ import { SingleCategory } from "../category-types";
 export default defineComponent({
   name: "PostRequest",
   components: {
-    NavigationBar,
     Field,
     Form,
     ErrorMessage,

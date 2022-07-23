@@ -96,7 +96,7 @@ export const usePostStore = defineStore('postStore', {
 
       async fetchPostById(id: number) {
          await axios.get(BASE_URL + '/' + id).then(response => {
-            console.log(response.data, " response")
+            
             this.post = response.data;
          }).catch(function (ex) {
             if (ex.response.state === 500) {
@@ -142,10 +142,8 @@ export const usePostStore = defineStore('postStore', {
                return;
             }
          }).finally(() => {
-            console.log("Before isLoading", this.isLoading);
             this.isLoading = false;
 
-            console.log("Check if this executes before time");
          })
       },
 
@@ -154,7 +152,7 @@ export const usePostStore = defineStore('postStore', {
       This method is used for submiting like or dislike to the backend
       User is get from jwt (only logged users can like posts)
       */
-      async postLikeOrDislikeForPost(request: PostType.PostLikeOrDislike) {
+      async postLikeOrDislikeForPost(request: PostType.LikeOrDislikeRequest) {
 
          const json = JSON.stringify(request);
 
@@ -184,16 +182,13 @@ export const usePostStore = defineStore('postStore', {
 
                //means its there is no recorded like/dislike in list, than add it
                if (findIndex === -1) {
-                  console.log(request);
                   state.userProfile.postLikeOrDislikeDtos.push(request);
                }
 
                // if its the same delete from array
                else if (state.userProfile.postLikeOrDislikeDtos[findIndex].likeOrDislike === request.likeOrDislike) {
-                  console.log("Delete same object");
                   state.userProfile.postLikeOrDislikeDtos.splice(findIndex, 1);
                } else {
-                  console.log("Update");
                   state.userProfile.postLikeOrDislikeDtos[findIndex] = request;
                }
 
@@ -251,7 +246,6 @@ export const usePostStore = defineStore('postStore', {
 
 
          }).catch(function (ex) {
-            console.log("EXCEPTION ON DELETE")
             if (ex.response.status === 404) {
                toast.error('2');
             } else if (ex.response.status === 401) {
@@ -274,7 +268,6 @@ export const usePostStore = defineStore('postStore', {
          await axios.get(BASE_URL + '/sort/' + url)
             .then(response => {
                this.posts = response.data;
-               console.log("Sorted", url, response.data);
 
             }).catch(function (ex) {
                if (ex.response.status === 404) {
@@ -316,7 +309,6 @@ export const usePostStore = defineStore('postStore', {
 
 
          if (typeof object === 'string') {
-            console.log("String");
             msgEvent = object;
             console.log("msgEvent", msgEvent)
             customWebsocket.publish({
@@ -326,7 +318,6 @@ export const usePostStore = defineStore('postStore', {
             return;
          }
 
-         console.log("Send object");
          customWebsocket.publish({
             destination: '/app/post' + path,
             body: JSON.stringify(object)
@@ -339,7 +330,6 @@ export const usePostStore = defineStore('postStore', {
 
       sumLikesOrDislikesOnPost: function (post: PostType.FrontPagePost): number{
 
-console.log("sumLikesDislikes", post);
 
          let result = 0;
 

@@ -1,4 +1,4 @@
-import { UserPosts, FrontPagePost, PostLikeOrDislike } from "../Post/types";
+import { UserPosts, FrontPagePost, LikeOrDislikeRequest } from "../Post/types";
 import { CommentDto, CommentLikeOrDislikeResponse } from '../Comment/types';
 
 
@@ -43,7 +43,7 @@ export interface UserProfile {
     posts: UserPosts[],
     commentsPosts: CommentsPost[],
     likedOrDislikedComments: CommentLikeOrDislikeResponse[],
-    postLikeOrDislikeDtos: PostLikeOrDislike[]
+    postLikeOrDislikeDtos: LikeOrDislikeRequest[]
 }
 
 export interface CommentsPost {

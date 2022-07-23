@@ -7,11 +7,11 @@ export interface UserPosts {
     title: string,
     text: string,
     imageUrl: string,
-    postLikeOrDislikeDtos: PostLikeOrDislike[],
+    postLikeOrDislikeDtos: LikeOrDislikeRequest[],
     categories: SingleCategory[]
  }
  
- export interface PostLikeOrDislike {
+ export interface LikeOrDislikeRequest {
     postId: number,
     likeOrDislike: boolean
  }
@@ -31,7 +31,7 @@ export interface UserPosts {
     postedBy: PostedBy;
     allowComments: boolean
     commentsDto: CommentDto[]
-    postLikeOrDislikeDtos: PostLikeOrDislike[],
+    postLikeOrDislikeDtos: LikeOrDislikeRequest[],
     categories: SingleCategory[]
  }
  

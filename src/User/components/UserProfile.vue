@@ -1,6 +1,5 @@
 <template>
   <div class="main">
-    <NavigationBar />
 
     <!-- first show the user profile in its own div -->
 
@@ -54,7 +53,6 @@
 import { defineComponent } from "vue";
 
 //components
-import NavigationBar from "@/components/NavigationBar.vue";
 import UserProfileBar from "@/User/components/UserProfileBar.vue";
 import UserProfileStatsVue from "./UserProfileStats.vue";
 
@@ -70,7 +68,6 @@ import { PostedBy } from '@/User/types';
 export default defineComponent({
   name: "UserProfile",
   components: {
-    NavigationBar,
     UserProfileStatsVue,
     UserProfileBar
   },

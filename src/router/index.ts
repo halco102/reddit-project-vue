@@ -7,6 +7,7 @@ import PostRequest from '../Post/components/PostRequest.vue';
 import MainApp from '../components/MainApp.vue';
 import { useAuthenticationStore } from "@/User/store/authentication_store";
 import UpdatePost from '@/Post/components/UpdatePost.vue';
+import PostsGallery from '@/Post/components/PostsGallery.vue';
 
 
 
@@ -16,7 +17,14 @@ const routes = [
     {
         path: '/',
         name: 'Home',
-        component: MainApp,
+        component: PostsGallery,
+        children: [
+            {
+                path: 'filter',
+                name:"FilterCategories",
+                component: PostsGallery
+            }
+        ]
     },
     {
         path: '/post',
