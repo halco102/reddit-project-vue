@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" :href="$router.resolve({name: 'Home'}).href">Logo</a>
+      <a class="navbar-brand" :href="$router.resolve({ name: 'Home' }).href">Logo</a>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -10,7 +10,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link" :href="$router.resolve({name: 'Home'}).href">Home</a>
+            <a class="nav-link" :href="$router.resolve({ name: 'Home' }).href">Home</a>
           </li>
           <li class="nav-item">
             <router-link class="nav-link" :to="{ name: 'PostRequestPage' }">Post</router-link>
@@ -19,10 +19,12 @@
 
         <!--search-->
         <form class="d-flex" style="margin:auto">
+        
 
-          <button class="btn btn-outline-success" style="margin-right:0.5rem;" type="submit" @click.prevent="validateSearchButtonOnSubmit(searchQuery)">
+          <router-link :to="{ name: 'SearchGallery', query: { 'q': searchQuery }, params: {name : searchQuery} }"
+            class="btn btn-outline-success" style="margin-right:0.5rem;">
             <BIconSearch />
-          </button>
+          </router-link>
           <input v-model="searchQuery" class="form-control me-2" type="search" placeholder="Search"
             aria-label="Search" />
 
@@ -58,13 +60,13 @@ import { defineComponent } from "vue";
 //pinia
 import { useAuthenticationStore } from "@/User/store/authentication_store";
 import { mapState, mapActions } from "pinia";
-import { usePostStore } from "@/Post/store/store";
-import {useSearchStore} from "@/Post/store/search-store";
+import { useSearchStore } from "@/Search/store/search-store";
 
 //components
 import UserLoginModal from "@/User/components/modal/UserLoginModal.vue";
 import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
 import { BIconSearch } from "bootstrap-icons-vue";
+
 
 export default defineComponent({
   name: "NavigationBar",
@@ -77,7 +79,6 @@ export default defineComponent({
 
     //...mapActions(usePostStore, ['searchPostByName']),
     ...mapActions(useAuthenticationStore, ['logout']),
-    ...mapActions(useSearchStore, ['searchPostsByName']),
 
     exit: function (): boolean {
 
@@ -90,12 +91,11 @@ export default defineComponent({
       this.logout;
       this.$router.go(0);
     },
-    validateSearchButtonOnSubmit: function(name : string) {
+    reRoute: function (name: string): boolean {
       if (name.length > 0) {
-        this.searchPostsByName(name);
-      }else {
-        return;
+        return true;
       }
+      return false;
     }
 
   },

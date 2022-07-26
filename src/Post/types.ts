@@ -32,7 +32,9 @@ export interface UserPosts {
     allowComments: boolean
     commentsDto: CommentDto[]
     postLikeOrDislikeDtos: LikeOrDislikeRequest[],
-    categories: SingleCategory[]
+    categories: SingleCategory[],
+    createdAt: Date,
+    editedAt: Date | null
  }
  
  export interface PostRequest {

@@ -39,7 +39,9 @@ export const usePostStore = defineStore('postStore', {
             allowComments: true,
             commentsDto: [],
             postLikeOrDislikeDtos: [],
-            categories: []
+            categories: [],
+            createdAt: new Date(),
+            editedAt: null
          },
          request: {
             title: '',
@@ -133,17 +135,13 @@ export const usePostStore = defineStore('postStore', {
 
             if (ex.response.status === 400) {
                toast.error("Bad request");
-               return;
             } else if (ex.response.status === 401) {
                toast.error("Unathorized to post");
-               return;
             } else {
                toast.error("Something went wrong while saving post");
-               return;
             }
          }).finally(() => {
             this.isLoading = false;
-
          })
       },
 
