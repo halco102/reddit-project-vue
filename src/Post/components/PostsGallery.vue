@@ -12,13 +12,15 @@
         </div>
 
         <div class="categories-border">
+          
           <button class="btn btn-light" v-for="category in getAllCategories" :key="category.id"
             @click.prevent="getPostsByCategoryName(category.name)">
-
-            <div class="category-icon">
-              <img :src="category.iconUrl" style="width: 50px" />
-              <div class="category-name"><span>{{ category.name }}</span></div>
-            </div>
+            <router-link :to="{ name: 'FilterCategories', query: { category: category.name } }">
+              <div class="category-icon">
+                <img :src="category.iconUrl" style="width: 50px" />
+                <div class="category-name"><span>{{ category.name }}</span></div>
+              </div>
+            </router-link>
 
           </button>
 
@@ -107,9 +109,11 @@
               <!-- Categories -->
               <div class="categories">
                 <div class="category" v-for="category in post.categories" :key="category.id">
-                  <button type="button" class="btn btn-light" @click.prevent="getPostsByCategoryName(category.name)">{{
-                      category.name
-                  }}</button>
+
+                  <router-link :to="{ name: 'FilterCategories', query: { category: category.name } }" class="btn btn-light"
+                    @click.prevent="getPostsByCategoryName(category.name)">{{
+                        category.name
+                    }}</router-link>
                 </div>
               </div>
 
@@ -422,6 +426,11 @@ h4 {
   margin-top: 2vh;
   border-width: 1px;
   border-radius: 5px;
+}
+
+.categories-border a{
+  text-decoration: none;
+  color:black;
 }
 
 .categories-border button:hover {

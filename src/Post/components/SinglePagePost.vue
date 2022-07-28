@@ -1,6 +1,5 @@
 <template>
   <div class="main">
-    <NavigationBar />
     <div class="single-post-div">
       
       <div class="card post-div">
@@ -27,14 +26,12 @@ import { useUserStore } from "@/User/store/store";
 import { mapActions, mapState } from "pinia";
 
 //components
-import NavigationBar from "@/components/NavigationBar.vue";
 import CommentSection from "@/Comment/components/Comment.vue";
 
 
 export default defineComponent({
   name: "App",
   components: {
-    NavigationBar,
     CommentSection,
   },
   created() {
