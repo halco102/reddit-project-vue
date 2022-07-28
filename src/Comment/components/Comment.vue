@@ -17,8 +17,18 @@
       " class="form-style">
         <div class="mb-3">
           <label for="exampleFormControlTextarea1" class="form-label">Comment</label>
-          <textarea v-model="writingComment" class="form-control" id="exampleFormControlTextarea1"
-            style="border-color:black;" rows="3" placeholder="Write comment here..."></textarea>
+
+
+          <div class="text-area-emoji" @click="expandEmojiClick = !expandEmojiClick">
+            <textarea v-model="writingComment" class="form-control" id="exampleFormControlTextarea1"
+              style="border-color:black;" rows="3" placeholder="Write comment here..."></textarea>
+            <BIconEmojiSmile class="emoji-picker" style="width:30px; height:30px;" />
+
+            <VuemojiPicker @focusout="closeWhenOutOfFocus" v-if="expandEmojiClick" @emojiClick="handleEmojiClick"
+              :class="expandEmojiClick ? 'expand-emoji' : 'hide-emoji'" />
+          </div>
+
+
         </div>
         <button type="submit" class="btn btn-primary btn-primary-comment-form">
           Post comment
@@ -67,7 +77,7 @@
             </div>
           </div>
 
-          <div class="reply-form" v-if="com.id === selectedItem">
+          <div class="reply-form" v-if="com.id === selectedItem && closeReplyTextArea">
             <form v-on:submit.prevent="
               postCommentThenReturnData(
                 writingReplyComment,
@@ -78,8 +88,18 @@
             ">
               <div class="mb-3">
                 <label style="color: white" for="exampleFormControlTextarea1" class="form-label">Comment</label>
-                <textarea v-model="writingReplyComment" class="form-control" id="exampleFormControlTextarea1"
-                  rows="3"></textarea>
+
+
+                <div class="text-area-emoji" @click="expandEmojiClick = !expandEmojiClick">
+                  <textarea v-model="writingReplyComment" class="form-control" id="exampleFormControlTextarea1"
+                    rows="3">
+                  </textarea>
+                  <BIconEmojiSmile class="emoji-picker" style="width:30px; height:30px;" />
+
+                  <VuemojiPicker @focusout="closeWhenOutOfFocus" v-if="expandEmojiClick"
+                    @emojiClick="handleEmojiClick" :class="expandEmojiClick ? 'expand-emoji' : 'hide-emoji'" />
+                </div>
+
               </div>
               <button type="submit" class="btn btn-primary allign-submit-button">
                 Post comment
@@ -118,7 +138,7 @@
                 <BIconReply />
               </button>
             </div>
-            <div class="reply-form" v-if="com.id === selectedItem">
+            <div class="reply-form" v-if="com.id === selectedItem && closeReplyTextArea">
               <form v-on:submit.prevent="
                 postCommentThenReturnData(
                   writingReplyComment,
@@ -129,8 +149,15 @@
               ">
                 <div class="mb-3">
                   <label style="color: white" for="exampleFormControlTextarea1" class="form-label">Comment</label>
-                  <textarea v-model="writingReplyComment" class="form-control" id="exampleFormControlTextarea1"
-                    rows="3"></textarea>
+
+                  <div class="text-area-emoji" @click="expandEmojiClick = !expandEmojiClick">
+                    <textarea v-model="writingReplyComment" class="form-control" id="exampleFormControlTextarea1"
+                      rows="3"></textarea>
+                    <BIconEmojiSmile class="emoji-picker" style="width:30px; height:30px;" />
+
+                    <VuemojiPicker @focusout="closeWhenOutOfFocus" v-if="expandEmojiClick"
+                      @emojiClick="handleEmojiClickReply" :class="expandEmojiClick ? 'expand-emoji' : 'hide-emoji'" />
+                  </div>
                 </div>
                 <button type="submit" class="btn btn-primary allign-submit-button">
                   Post comment
@@ -161,6 +188,7 @@ import {
   BIconHandThumbsDownFill,
   BIconReply,
   BIconTrash,
+  BIconEmojiSmile
 } from "bootstrap-icons-vue";
 
 //pinia
@@ -173,6 +201,8 @@ import { useAuthenticationStore } from '@/User/store/authentication_store'
 import { FrontPagePost } from "@/Post/types";
 import { CommentDto } from '@/Comment/types';
 
+import { VuemojiPicker, EmojiClickEventDetail } from 'vuemoji-picker'
+
 export default defineComponent({
   name: "CommentSection",
   components: {
@@ -180,6 +210,8 @@ export default defineComponent({
     BIconHandThumbsDownFill,
     BIconReply,
     BIconTrash,
+    VuemojiPicker,
+    BIconEmojiSmile
   },
   props: {
     post: Object as PropType<FrontPagePost>,
@@ -199,6 +231,10 @@ export default defineComponent({
 
   },
   methods: {
+    closeWhenOutOfFocus: function (): void {
+      console.log("Focus")
+      this.expandEmojiClick = false;
+    },
     ...mapActions(useCommentStore, [
       "postCommentAction",
       "postLikeOrDislike",
@@ -243,9 +279,15 @@ export default defineComponent({
       this.writingComment = '';
       this.writingReplyComment = '';
 
+      //close text are in reply
+      this.closeReplyTextArea = true;
+
     },
     toggle: function (item: number) {
       this.selectedItem = item;
+
+      //enable form
+      this.closeReplyTextArea = !this.closeReplyTextArea;
     },
     checkIfUserIsLogged: function (): boolean {
       console.log(this.getCurrentlyLoggedUserProfile);
@@ -274,9 +316,22 @@ export default defineComponent({
       }
       return false;
     },
+    handleEmojiClickReply: function (detail: EmojiClickEventDetail): void {
+
+      if (detail.unicode !== undefined) {
+        this.writingReplyComment += detail.unicode;
+      }
+
+    },
+    handleEmojiClick: function (detail: EmojiClickEventDetail): void {
+
+      if (detail.unicode !== undefined) {
+        this.writingComment += detail.unicode;
+      }
+
+    },
   }, watch: {
     post: function () {
-      console.log("POST")
       this.setCommentsFromPost(this.post!.commentsDto);
     },
     getIsPostingComment: function (val: boolean) {
@@ -296,6 +351,8 @@ export default defineComponent({
       selectedItem: 0 as number,
       currentCommentId: 0 as number,
       isReplyComment: false as boolean,
+      expandEmojiClick: false as boolean,
+      closeReplyTextArea : false as boolean,
     };
   },
 });
@@ -368,5 +425,26 @@ export default defineComponent({
   margin-left: auto;
   display: grid;
   align-items: center;
+}
+
+.expand-emoji {
+  position: absolute;
+  right: -5rem;
+  z-index: 1;
+}
+
+.text-area-emoji {
+  position: relative;
+}
+
+.hide-emoji {
+  display: none;
+}
+
+.emoji-picker {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 5px;
 }
 </style>

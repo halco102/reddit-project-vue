@@ -12,9 +12,10 @@
         </div>
 
         <div class="categories-border">
+          
           <button class="btn btn-light" v-for="category in getAllCategories" :key="category.id"
             @click.prevent="getPostsByCategoryName(category.name)">
-            <router-link style="" :to="{ name: 'FilterCategories', query: { category: category.name } }">
+            <router-link :to="{ name: 'FilterCategories', query: { category: category.name } }">
               <div class="category-icon">
                 <img :src="category.iconUrl" style="width: 50px" />
                 <div class="category-name"><span>{{ category.name }}</span></div>

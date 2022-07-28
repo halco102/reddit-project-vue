@@ -4,11 +4,12 @@ import UserProfileComments from '../User/components/UserProfileComments.vue';
 import UserProfile from '../User/components/UserProfile.vue';
 import SinglePagePost from '../Post/components/SinglePagePost.vue';
 import PostRequest from '../Post/components/PostRequest.vue';
-import MainApp from '../components/MainApp.vue';
 import { useAuthenticationStore } from "@/User/store/authentication_store";
 import UpdatePost from '@/Post/components/UpdatePost.vue';
 import PostsGallery from '@/Post/components/PostsGallery.vue';
-
+import SearchGallery from '@/Search/components/SearchGallery.vue'
+import SearchPost from '@/Search/components/SearchPost.vue';
+import SearchUser from '@/Search/components/SearchUser.vue';
 
 
 
@@ -21,8 +22,31 @@ const routes = [
         children: [
             {
                 path: 'filter',
-                name:"FilterCategories",
+                name: "FilterCategories",
                 component: PostsGallery
+            },
+        ]
+    },
+    {
+        path: '/search',
+        name: 'SearchGallery',
+        component: SearchGallery,
+        props: true,
+        redirect: {
+            name: 'SearchPosts'
+        },
+        children: [
+            {
+                path: '',
+                name: 'SearchPosts',
+                component: SearchPost,
+                props: true
+            },
+            {
+                path: '',
+                name: 'SearchUsers',
+                component: SearchUser,
+                props: true
             }
         ]
     },
@@ -39,7 +63,7 @@ const routes = [
             {
                 path: 'content',
                 name: 'FilterPosts',
-                component: UserProfilePosts
+                component: UserProfilePosts,
 
             },
             {
@@ -54,8 +78,7 @@ const routes = [
         path: '/edit/:id',
         name: "UpdatePage",
         component: UpdatePost,
-        props: true
-
+        props: true,
     },
     {
         path: '/post/:id',
