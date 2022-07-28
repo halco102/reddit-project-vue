@@ -60,7 +60,6 @@ import { defineComponent } from "vue";
 //pinia
 import { useAuthenticationStore } from "@/User/store/authentication_store";
 import { mapState, mapActions } from "pinia";
-import { useSearchStore } from "@/Search/store/search-store";
 
 //components
 import UserLoginModal from "@/User/components/modal/UserLoginModal.vue";
