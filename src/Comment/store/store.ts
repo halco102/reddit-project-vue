@@ -188,6 +188,7 @@ export const useCommentStore = defineStore('comments', {
 
             customWebsocket.activate();
 
+
         },
         sendMessage: function (object: CommentType.CommentDto[] | string, path: string, commentsState?: CommentType.CommentDto[] | number) {
 

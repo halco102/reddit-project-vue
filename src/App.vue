@@ -1,5 +1,5 @@
 <template>
-  <div class="main">
+  <div>
     <NavigationBar />
     <router-view :posts="getAllPosts" />
   </div>
@@ -10,7 +10,6 @@ import { defineComponent } from 'vue';
 import NavigationBar from './components/NavigationBar.vue';
 import { mapState, mapActions } from 'pinia';
 import { usePostStore } from './Post/store/store';
-
 
 export default defineComponent({
   name: 'App',
@@ -34,6 +33,7 @@ export default defineComponent({
 </script>
 
 <style>
+/*
 #app html,
 body {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -41,22 +41,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   margin-top: 0px;
-  /*background-color: rgba(28, 28, 28, 0.9) !important;*/
-  /*background-color: #fff !important;*/
   width: 100%;
 }
 
 .main {
   overflow: hidden;
   width: 100%
-}
-
-.modal {
-  width: 300px;
-  padding: 30px;
-  box-sizing: border-box;
-  background-color: #fff;
-  font-size: 20px;
-  text-align: center;
-}
+}*/
 </style>

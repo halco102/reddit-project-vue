@@ -10,16 +10,15 @@ import * as PostType from "@/Post/types";
 
 //toast
 import { useToast } from 'vue-toastification';
+import CustomWebSocket from "@/service/CustomWebsocket";
 
-//stomp
-import { Client } from "@stomp/stompjs";
+
 
 const BASE_URL = process.env.VUE_APP_BASE_URL + '/api/v1/post';
-const ws = process.env.VUE_APP_WEBSOCKET;
-
-
-let customWebsocket: Client;
 const toast = useToast();
+
+//const globalWebsocket = CustomWebSocket.getInstance();
+
 
 
 export const usePostStore = defineStore('postStore', {
@@ -41,7 +40,7 @@ export const usePostStore = defineStore('postStore', {
             postLikeOrDislikeDtos: [],
             categories: [],
             createdAt: new Date(),
-            editedAt: null
+            //editedAt: null
          },
          request: {
             title: '',
@@ -98,7 +97,7 @@ export const usePostStore = defineStore('postStore', {
 
       async fetchPostById(id: number) {
          await axios.get(BASE_URL + '/' + id).then(response => {
-            
+
             this.post = response.data;
          }).catch(function (ex) {
             if (ex.response.state === 500) {
@@ -112,7 +111,6 @@ export const usePostStore = defineStore('postStore', {
 
          const json = JSON.stringify(request);
 
-         console.log("Json", json);
          const temp = new FormData();
          if (location != null) {
             temp.append('file', location);
@@ -129,7 +127,7 @@ export const usePostStore = defineStore('postStore', {
          }).then(response => {
 
             this.$state.posts.unshift(response.data);
-            this.sendMessage(this.$state.posts, '');
+            //this.sendMessage(this.$state.posts, '');
 
          }).catch(function (ex) {
 
@@ -276,57 +274,8 @@ export const usePostStore = defineStore('postStore', {
             })
 
       },
-      openWebsocket: function (): void {
 
-         customWebsocket = new Client({
-            brokerURL: ws,
-            connectHeaders: {},
-            debug: function (str) {
-               console.log(str)
-            },
-            reconnectDelay: 30000,
-            heartbeatIncoming: 4000,
-            heartbeatOutgoing: 4000,
-            onConnect: () => {
-               console.log("Subscribe when connected");
-               customWebsocket.subscribe('/topic/post', (msg) => {
-                  console.log("Message body ", JSON.parse(msg.body));
-                  this.$state.posts = JSON.parse(msg.body);
-               })
-            },
-
-
-         });
-
-         customWebsocket.activate();
-
-      },
-      //stomp
-      sendMessage: function (object: PostType.FrontPagePost[] | string, path: string): void {
-         let msgEvent: string;
-
-
-         if (typeof object === 'string') {
-            msgEvent = object;
-            console.log("msgEvent", msgEvent)
-            customWebsocket.publish({
-               destination: '/app/post/delete',
-               body: "POST_DELETED"
-            });
-            return;
-         }
-
-         customWebsocket.publish({
-            destination: '/app/post' + path,
-            body: JSON.stringify(object)
-         });
-      },
-      disconnectFromWs: function (): void {
-         console.log("Disconnecting post ws");
-         customWebsocket.deactivate();
-      },
-
-      sumLikesOrDislikesOnPost: function (post: PostType.FrontPagePost): number{
+      sumLikesOrDislikesOnPost: function (post: PostType.FrontPagePost): number {
 
 
          let result = 0;
@@ -385,7 +334,13 @@ export const usePostStore = defineStore('postStore', {
          }).then(response => {
             console.log("Response on update", response.data);
          })
-      }
+      },
+
+      //websocket
+      subscribeToTopic: async function (topic: string): Promise<void> {
+         console.log("sub")
+
+      },
 
    },
 })

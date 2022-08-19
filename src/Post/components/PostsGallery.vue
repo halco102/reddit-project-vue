@@ -1,6 +1,5 @@
 <template>
   <div class="main-div">
-
     <div class="wrapper">
       <div class="left-side">
         <div class="signup">
@@ -172,6 +171,7 @@ import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
 import { FrontPagePost } from '@/Post/types';
 import { PostedBy } from '@/User/types';
 
+
 export default defineComponent({
   name: "PostsGallery",
   components: {
@@ -188,7 +188,8 @@ export default defineComponent({
       "getNumberOfDislikes",
       'sortPostsByNumberOfLikesOrDislikes',
       'sumLikesOrDislikesOnPost',
-      'getPostsByCategoryName'
+      'getPostsByCategoryName',
+      'subscribeToTopic'
     ]),
     ...mapActions(useCategoryStore, ['fetchAllCategories']),
     getPostId: function (id: number) {
@@ -269,6 +270,9 @@ export default defineComponent({
     }
     this.fetchAllCategories();
   },
+  created() {
+    this.subscribeToTopic('post');
+  }
 });
 </script>
 

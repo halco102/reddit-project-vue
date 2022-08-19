@@ -11,6 +11,8 @@ import SearchGallery from '@/Search/components/SearchGallery.vue'
 import SearchPost from '@/Search/components/SearchPost.vue';
 import SearchUser from '@/Search/components/SearchUser.vue';
 
+import CustomWebSocket from "@/service/CustomWebsocket";
+
 
 
 
@@ -98,9 +100,7 @@ const router = createRouter({
 })
 
 router.beforeEach(() => {
-
     const auth = useAuthenticationStore();
-
     // first check the jwt
     auth.checkIfJwtIsValid();
 

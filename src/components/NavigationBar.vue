@@ -1,7 +1,68 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" :href="$router.resolve({ name: 'Home' }).href">Logo</a>
+  <nav class="flex min-w-max bg-slate-500 h-16 justify-between">
+    <div class="flex items-center mx-4">
+      <a :href="$router.resolve({ name: 'Home' }).href">
+        <img src="https://res.cloudinary.com/dzatojfyn/image/upload/v1660927409/redditLogo_psurpk.png"
+          class="w-14 h-14">
+      </a>
+
+      <!--Show post only when user logsin-->
+      <div class="px-4" v-if="getSuccessfullLogin">
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2">
+          Post
+        </button>
+      </div>
+    </div>
+
+    <!--Search bar-->
+    <div class="flex">
+      <form class="flex m-auto">
+        <router-link :to="{ name: 'SearchGallery', query: { 'q': searchQuery }, params: { name: searchQuery } }"
+          class="btn btn-outline-success" style="margin-right:0.5rem;">
+          <BIconSearch />
+        </router-link>
+        <input v-model="searchQuery" class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+      </form>
+    </div>
+
+    <!--other-->
+    <div class="flex justify-evenly items-center">
+
+      <!-- login/signup-->
+      <div class="flex mr-3" v-if="!getSuccessfullLogin">
+        <UserLoginModal />
+        <UserSignupModal />
+      </div>
+
+      <!-- when user is logged in show his avatar and notification bell-->
+      <div class="flex justify-envenlt items-center mr-20" v-else>
+        <router-link :to="{ path: '/user/' + getCurrentlyLoggedUserProfile.id }">
+          <div v-show="getCurrentlyLoggedUserProfile.id != 0" class="flex items-center">
+            <img :src="getCurrentlyLoggedUserProfile.imageUrl" class="w-14 h-14" />
+            <span class="mr-1 font-medium">{{
+                getCurrentlyLoggedUserProfile.username
+            }}</span>
+          </div>
+        </router-link>
+        <div class="px-4">
+          <BIconBell class="w-6 h-6" />
+        </div>
+        <div>
+          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2">
+            Logout
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </nav>
+
+  <!--
+
+  <nav class="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-900">
+    <div class="container flex flex-wrap justify-between items-center mx-auto">
+      <a class="flex items-center" :href="$router.resolve({ name: 'Home' }).href">Logo</a>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,19 +78,13 @@
           </li>
         </ul>
 
-        <!--search-->
         <form class="d-flex" style="margin:auto">
-        
-
-          <router-link :to="{ name: 'SearchGallery', query: { 'q': searchQuery }, params: {name : searchQuery} }"
+          <router-link :to="{ name: 'SearchGallery', query: { 'q': searchQuery }, params: { name: searchQuery } }"
             class="btn btn-outline-success" style="margin-right:0.5rem;">
             <BIconSearch />
           </router-link>
           <input v-model="searchQuery" class="form-control me-2" type="search" placeholder="Search"
             aria-label="Search" />
-
-
-
         </form>
 
         <div class="second-type-login-signup" v-if="!exit()">
@@ -40,18 +95,22 @@
         <router-link :to="{ path: '/user/' + getCurrentlyLoggedUserProfile.id }">
           <div v-show="getCurrentlyLoggedUserProfile.id != 0" class="username-img">
             <img :src="getCurrentlyLoggedUserProfile.imageUrl" width="50" height="40" />
-            <span class="navbar-text" style="margin-right: 2rem">{{
+            <span class="navbar-text" style="margin-right: 1rem">{{
                 getCurrentlyLoggedUserProfile.username
             }}</span>
+            <div class="notification-bell">
+              <BIconBell width="20px" height="20px" />
+            </div>
           </div>
         </router-link>
 
       </div>
 
-      <button v-show="getCurrentlyLoggedUserProfile.id != 0" class="btn btn-primary"
+      <button v-show="getCurrentlyLoggedUserProfile.id != 0" class="btn btn-primary" style="margin-right:1rem;"
         @click="logoutAndRefreshSite">Logout</button>
     </div>
   </nav>
+  -->
 </template>
 
 <script lang="ts">
@@ -64,7 +123,9 @@ import { mapState, mapActions } from "pinia";
 //components
 import UserLoginModal from "@/User/components/modal/UserLoginModal.vue";
 import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
-import { BIconSearch } from "bootstrap-icons-vue";
+import { BIconSearch, BIconBell } from "bootstrap-icons-vue";
+
+
 
 
 export default defineComponent({
@@ -72,7 +133,8 @@ export default defineComponent({
   components: {
     UserLoginModal,
     UserSignupModal,
-    BIconSearch
+    BIconSearch,
+    BIconBell
   },
   methods: {
 
@@ -95,8 +157,7 @@ export default defineComponent({
         return true;
       }
       return false;
-    }
-
+    },
   },
   computed: {
     ...mapState(useAuthenticationStore, ['getSuccessfullLogin', 'getCurrentlyLoggedUserProfile']),
@@ -104,9 +165,19 @@ export default defineComponent({
   data() {
     return {
       isClose: false,
-      searchQuery: ''
+      searchQuery: '',
     }
   },
+  watch: {
+    getSuccessfullLogin: function (val: boolean): void {
+      if (val) {
+        //this.openWebsocket();
+      }
+    }
+  },
+  created() {
+    //this.openWebsocket();
+  }
 
 });
 </script>
@@ -131,5 +202,11 @@ export default defineComponent({
 
 .signup-modal {
   margin-left: 10px;
+}
+
+.notification-bell {
+  margin: auto;
+  padding-right: 10px;
+
 }
 </style>
