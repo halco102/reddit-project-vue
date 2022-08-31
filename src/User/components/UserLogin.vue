@@ -1,37 +1,36 @@
 <template>
   <div>
     <Form @submit="onSubmit" :validation-schema="schema">
-      <div class="mb-3">
-        <Field name="emailOrUsername" v-slot="{ field, meta }" >
-        <label for="inserttEmailOrUsername" class="form-label">Email or username</label>
-        <input
-          v-bind="field"
-          :class="
+
+      <!-- Email or username txt-->
+      <div class="mb-6 grid">
+        <Field name="emailOrUsername" v-slot="{ field, meta }">
+          <label for="inserttEmailOrUsername" class="form-label">Email or username</label>
+          <input v-bind="field" :class="
             !meta.touched || meta.valid
-              ? 'form-control'
-              : 'form-control form-color-error'
-          "
-        />
+              ? 'rounded border-black bg-blue-200'
+              : 'grid form-color-error'
+          " />
         </Field>
-        <ErrorMessage name="emailOrUsername"/>
-      </div>
-      <div class="mb-3">
-        <Field name="password" v-slot="{ field, meta }" >
-        <label for="insertPassword" class="form-label">Password</label>
-        <input
-          v-bind="field"
-          :class="
-            !meta.touched || meta.valid
-              ? 'form-control'
-              : 'form-control form-color-error'
-          "
-          type="password"
-        />
-        </Field>
-        <ErrorMessage name="password"/>
+        <ErrorMessage name="emailOrUsername" />
       </div>
 
-      <button :class="disableButton ? 'btn btn-primary disabled':'btn btn-primary'">Submit</button>
+      <!--Password txt-->
+      <div class="mb-6">
+        <Field name="password" v-slot="{ field, meta }">
+          <label for="insertPassword" class="form-label">Password</label>
+          <input v-bind="field" :class="
+            !meta.touched || meta.valid
+              ? 'rounded border-black bg-blue-200'
+              : 'grid form-color-error'
+          " type="password" />
+        </Field>
+        <ErrorMessage name="password" />
+      </div>
+
+      <div class="container text-center">
+        <button :class="disableButton ? 'btn-blue btn-disabled' : 'btn-blue btn rounded-md'">Submit</button>
+      </div>
     </Form>
     <div class="clearfix" v-show="getIsLoginLoading">
       <div class="spinner-border float-end text-primary" role="status">
@@ -74,7 +73,7 @@ export default defineComponent({
     closeEvent: function () {
       this.$emit("close", this.getSuccessfullLogin);
     },
-    onSubmit: function(value : SignInRequest | any) {
+    onSubmit: function (value: SignInRequest | any) {
       console.log("VALUE", value)
       this.loginUser(value);
     },
@@ -83,7 +82,7 @@ export default defineComponent({
     getIsLoginLoading: function (value: boolean) {
       this.disableButton = value;
     },
-    getSuccessfullLogin: function(value : boolean) {
+    getSuccessfullLogin: function (value: boolean) {
       if (value) {
         this.closeEvent();
       }
@@ -94,7 +93,7 @@ export default defineComponent({
   },
   data() {
     const schema = yup.object({
-      emailOrUsername: yup.string().min(1).max(50).required(),
+      emailOrUsername: yup.string().min(1).max(50).required('Enter a valid email'),
       password: yup.string().min(8).required(),
     });
 
@@ -117,5 +116,9 @@ export default defineComponent({
 
 span {
   color: #f23648;
+}
+
+.form-label {
+  @apply mr-2 block text-gray-700 text-sm font-bold text-center mb-2
 }
 </style>

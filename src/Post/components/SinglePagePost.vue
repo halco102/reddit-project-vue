@@ -6,7 +6,7 @@
         <img :src="post.imageUrl" class="card-img-top" alt="..." />
         <div class="card-body">
           <h5 class="card-title">{{ post.title }}</h5>
-          <p class="card-text" style="color:black;">{{ post.text }}</p>
+          <p v-if="post.text !== null" class="card-text" style="color:black;">{{ post.text }}</p>
         </div>
       </div>
 

@@ -226,8 +226,8 @@ export default defineComponent({
     return { toast };
   },
   created() {
-    console.log("Open Stomp connection in Comments.vue");
-    this.openWebsocketConnection();
+    //console.log("Open Stomp connection in Comments.vue");
+    //this.openWebsocketConnection();
 
   },
   methods: {
@@ -332,6 +332,7 @@ export default defineComponent({
     },
   }, watch: {
     post: function () {
+      console.log("post", this.post!)
       this.setCommentsFromPost(this.post!.commentsDto);
     },
     getIsPostingComment: function (val: boolean) {

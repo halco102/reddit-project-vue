@@ -237,7 +237,7 @@ export default defineComponent({
   },
   mounted() {
     this.fetchAllCategories();
-  }
+  },
 });
 </script>
 

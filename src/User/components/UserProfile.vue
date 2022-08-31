@@ -132,52 +132,57 @@ export default defineComponent({
 
       this.getUserProfile
         .posts.map((res) => {
-          res.postLikeOrDislikeDtos.filter((k) => {
-            if (k.likeOrDislike) {
-              result++;
-            } else {
-              result--;
+          if (res.postLikeOrDislikeDtos !== null) {
+            res.postLikeOrDislikeDtos.filter((k) => {
+              if (k.likeOrDislike) {
+                result++;
+              } else {
+                result--;
+              }
             }
-          })
-        })
+          )
+    }})
 
-      return result;
+return result;
     }
   },
-  data() {
-    return {
-      likes: 0,
-      events: {
-        isPost: true,
-        isComment: false
-      }
-    };
-  },
-  computed: {
+data() {
+  return {
+    likes: 0,
+    events: {
+      isPost: true,
+      isComment: false
+    }
+  };
+},
+computed: {
     ...mapState(useUserStore, ["getUserProfile", "getLikesDislikesFromPost",]),
     ...mapState(usePostStore, ["getIsDeleted"]),
     ...mapState(useAuthenticationStore, ['getCurrentlyLoggedUserProfile'])
-  },
-  created() {
-    let convertStringToInt = +this.$route.params.userId;
-    this.getUserByIdOrUsername(convertStringToInt, null);
-    this.openUserWebsocket();
-  },
-  watch: {
-    getUserProfile: function () {
+},
+created() {
+  let convertStringToInt = +this.$route.params.userId;
+  this.getUserByIdOrUsername(convertStringToInt, null);
+  this.openUserWebsocket();
+},
+watch: {
+  getUserProfile: function () {
 
-      this.getUserProfile.posts.filter((x: any) =>
+    this.getUserProfile.posts.filter((x: any) => {
+      if (x.postLikeOrDislikeDtos !== null) {
         x.postLikeOrDislikeDtos
           .filter((y: any) => y.likeOrDislike === true)
           .map(() => this.likes++)
-      );
-
-    },
-    getIsDeleted: function () {
-      console.log("Post is deleted");
-      this.sendUserMessage(this.getUserProfile);
+      }
     }
+    );
+
   },
+  getIsDeleted: function () {
+    console.log("Post is deleted");
+    this.sendUserMessage(this.getUserProfile);
+  }
+},
 });
 </script>
 

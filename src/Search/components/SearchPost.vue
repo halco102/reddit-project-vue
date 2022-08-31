@@ -51,9 +51,9 @@ export default defineComponent({
         },
         returnPostedAtOrEdited: function (post: FrontPagePost) : string{
 
-            if (post.editedAt === null) {
-                return 'posted at ' + moment(post.createdAt).fromNow();
-            }
+            //if (post.editedAt === null) 
+                //return 'posted at ' + moment(post.createdAt).fromNow();
+            
 
             return 'edited at ' + moment(post.createdAt).fromNow();
         },
@@ -62,6 +62,7 @@ export default defineComponent({
         ...mapState(useSearchStore, ['getAllPosts'])
     },
     mounted() {
+        console.log("Search component");
         this.searchPostsOrUsersByName(this.name, SearchTypes.Search_Posts);
     },
     props: {

@@ -6,7 +6,7 @@ import axios from "axios";
 
 //types
 import * as UserType from "@/User/types";
-import { FrontPagePost } from "@/Post/types";
+import { FrontPagePost, UserPosts } from "@/Post/types";
 
 //stomp
 import { Client } from "@stomp/stompjs";
@@ -37,7 +37,7 @@ export const useUserStore = defineStore('userStore', {
                 imageUrl: '',
                 email: '',
                 createdAt: new Date(),
-                posts: [],
+                posts: [] as UserPosts[],
                 commentsPosts: [],
                 likedOrDislikedComments: [],
                 postLikeOrDislikeDtos: []
@@ -61,21 +61,19 @@ export const useUserStore = defineStore('userStore', {
 
         getUserByIdOrUsername: async function (id: number | null, username: string | null) {
 
-            console.log("ENV VAR", BASE_URL)
-
             if (id !== null) {
                 // fetch by id
-                const fetchById = await axios.get(BASE_URL + '/', { params: { id: id } });
+                const fetchById = await axios.get(BASE_URL + '/', { params: { id: id } }).then((res) => {
+                    this.userProfile = res.data;
+                }).catch(function (ex) {
+                    if (ex.status != 200) {
+                        alert(ex.statusText);
+                    }
+                });
 
-                if (fetchById.status === 200) {
-                    this.userProfile = fetchById.data;
-                } else {
-                    alert("Error on fetch by id");
-                }
             } else {
                 //fetch by username
                 const fetchByUsername = await axios.get(BASE_URL + '/', { params: { username: username } });
-                console.log("Fetch by username");
                 if (fetchByUsername.status === 200) {
                     this.userProfile = fetchByUsername.data;
                 } else {
@@ -131,6 +129,6 @@ export const useUserStore = defineStore('userStore', {
             //customWebsocket.disconnect(() => { console.log("Disconnected") });
         },
 
-        
+
     }
 })
