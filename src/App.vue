@@ -33,19 +33,22 @@ export default defineComponent({
 </script>
 
 <style>
-/*
-#app html,
-body {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  margin-top: 0px;
-  width: 100%;
+.btn {
+  @apply font-bold py-2 px-4 rounded;
 }
 
-.main {
-  overflow: hidden;
-  width: 100%
-}*/
+.btn-blue {
+  @apply bg-blue-500 text-white;
+}
+
+.btn-blue:hover {
+  /*@apply bg-blue-700;*/
+  @apply bg-orange-500
+
+}
+
+.btn-disabled {
+  @apply  text-white font-bold rounded py-2 px-4 opacity-50 cursor-not-allowed
+}
+
 </style>

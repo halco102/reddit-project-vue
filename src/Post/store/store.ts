@@ -10,7 +10,6 @@ import * as PostType from "@/Post/types";
 
 //toast
 import { useToast } from 'vue-toastification';
-import CustomWebSocket from "@/service/CustomWebsocket";
 
 
 

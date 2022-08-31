@@ -1,5 +1,152 @@
 <template>
-  <div class="main-div">
+
+  <div id="main" class="md:flex lg:flex sm:grid justify-items-center">
+
+    <div id="categories-signup/login" class="grid sm:my-4 md:ml-4 lg:ml-6 w-64 h-fit">
+      <!--Login and signup-->
+      <div class="mb-3 text-center border-solid border-2 border-black py-4 rounded">
+        <h3>
+          New to app? <br />
+          Signup here<br />
+        </h3>
+        <UserSignupModal />
+      </div>
+
+      <!--categories-->
+      <div class="sm:flex lg:grid border-solid border-2 rounded p-2 border-black">
+        <button class="btn btn-blue mb-2 sm:mx-2 sm:px-6" v-for="category in getAllCategories" :key="category.id"
+          @click.prevent="getPostsByCategoryName(category.name)">
+          <router-link :to="{ name: 'FilterCategories', query: { category: category.name } }">
+            <div class="flex justify-center">
+              <img :src="category.iconUrl" style="width: 50px" />
+              <div class="mr-1"><span>{{ category.name }}</span></div>
+            </div>
+          </router-link>
+        </button>
+      </div>
+
+    </div>
+
+    <div class="grid flex-1 justify-center ">
+
+      <!--Main-->
+      <div class="flex my-10 justify-center border-solid border-2 border-gray-300 rounded p-4 shadow-lg"
+        v-for="post in posts" :key="post.id">
+        <!--Left side for like and dislike-->
+        <div class="pr-1">
+          <!--Like and dislike buttons-->
+          <div class="grid items-center">
+            <!--Like button-->
+            <div class="">
+              <button @click.prevent="
+                postLikeOrDislikeForPost({
+                  postId: post.id,
+                  likeOrDislike: true,
+                })
+              " class="btn btn-ligh hover:bg-gray-500">
+                <BIconArrowUp
+                  :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserUpvoted(post.id) : 'text-gray-600'" />
+              </button>
+            </div>
+
+            <!--Number of likes or dislikes-->
+            <div>
+              <!--
+              <span :class="cssForNumberOfLikes(sumLikesOrDislikesOnPost(post))">{{
+                  sumLikesOrDislikesOnPost(post)
+              }}</span>
+              -->
+              <span v-if="sumLikesOrDislikesOnPost(post) > 0"
+                :class="sumLikesOrDislikesOnPost(post) > 0 ? 'text-blue-600 grid justify-center' : 'text-red-600 grid justify-center'">{{
+                    sumLikesOrDislikesOnPost(post)
+                }}</span>
+              <span v-else class="grid justify-center">
+                {{ 0 }}
+              </span>
+            </div>
+
+            <!--Dislike button-->
+            <div>
+              <button @click.prevent="
+                postLikeOrDislikeForPost({
+                  postId: post.id,
+                  likeOrDislike: false,
+                })
+              " class="btn btn-light hover:bg-gray-500">
+                <BIconArrowDown
+                  :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'text-gray-600'" />
+
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!--Posts-->
+        <div>
+          <router-link
+            class="sm:max-w-sm lg:max-w-lg md:max-w-md rounded overflow-hidden shadow-lg divide-y-2 mx-auto my-2"
+            :to="{ name: 'SinglePage', params: { id: post.id } }">
+            <img class="max-w-[600px] mb-3" :src="post.imageUrl" :alt="post.title">
+
+            <!--Categories-->
+            <div class="flex flex-wrap max-w-[600px]">
+              <div class="px-6 pt-4 pb-2 w-1/3" v-for="category in post.categories" :key="category.id">
+                <span
+                  class="inline-block bg-gray-200 hover:bg-gray-400 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                  <router-link :to="{ name: 'FilterCategories', query: { category: category.name } }"
+                    class="btn btn-ligh " @click.prevent="getPostsByCategoryName(category.name)">#{{
+                        category.name
+                    }}</router-link>
+                </span>
+              </div>
+            </div>
+
+            <!--Text-->
+            <div class="px-6 py-4">
+              <div class="font-bold text-xl mb-2">{{ post.title }}</div>
+              <p class="text-gray-700 text-base">
+                {{ post.text }}
+              </p>
+            </div>
+
+            <!--User avatar and chat bubble (in future share link icon)-->
+            <div class="flex justify-between pt-2">
+
+              <!--User-->
+              <router-link :to="{ path: '/user/' + post.postedBy.id }">
+                <a class="btn btn-light flex hover:bg-gray-400">
+                  <img class="w-12 h-12 border-solid border-2 border-gray-600 rounded-full"
+                    :src="post.postedBy.imageUrl" alt="" />
+                  <div class="flex">
+                    <span class="self-center p-1">{{ post.postedBy.username }}</span>
+                  </div>
+                </a>
+              </router-link>
+
+              <!--Chat button-->
+              <div class="w-fill">
+                <button v-if="post.allowComments" class="btn btn-light hover:bg-gray-400">
+                  <BIconChatFill /> {{ post.commentsDto.length }}
+                </button>
+              </div>
+
+            </div>
+
+          </router-link>
+
+        </div>
+
+        <!--left and right side same size 48px-->
+        <div id="ghost-div" class="w-[48px]"></div>
+      </div>
+
+
+    </div>
+  </div>
+
+
+  <!--Necu vise koristiti-->
+  <div class="main-div" v-if="1 < 0">
     <div class="wrapper">
       <div class="left-side">
         <div class="signup">
@@ -10,8 +157,7 @@
           <UserSignupModal />
         </div>
 
-        <div class="categories-border">
-          
+        <div class="grid">
           <button class="btn btn-light" v-for="category in getAllCategories" :key="category.id"
             @click.prevent="getPostsByCategoryName(category.name)">
             <router-link :to="{ name: 'FilterCategories', query: { category: category.name } }">
@@ -109,8 +255,8 @@
               <div class="categories">
                 <div class="category" v-for="category in post.categories" :key="category.id">
 
-                  <router-link :to="{ name: 'FilterCategories', query: { category: category.name } }" class="btn btn-light"
-                    @click.prevent="getPostsByCategoryName(category.name)">{{
+                  <router-link :to="{ name: 'FilterCategories', query: { category: category.name } }"
+                    class="btn btn-light" @click.prevent="getPostsByCategoryName(category.name)">{{
                         category.name
                     }}</router-link>
                 </div>
@@ -240,11 +386,11 @@ export default defineComponent({
 
     cssForNumberOfLikes: function (numberOfLikesOrDislikes: number): string {
       if (numberOfLikesOrDislikes > 0) {
-        return 'up-vote-arrow';
+        return 'text-blue-500';
       } else if (numberOfLikesOrDislikes < 0) {
-        return 'down-vote-arrow';
+        return 'text-red-500';
       } else {
-        return 'default-arrow';
+        return 'text-gray-600, text-center';
       }
     }
   },
@@ -432,9 +578,9 @@ h4 {
   border-radius: 5px;
 }
 
-.categories-border a{
+.categories-border a {
   text-decoration: none;
-  color:black;
+  color: black;
 }
 
 .categories-border button:hover {

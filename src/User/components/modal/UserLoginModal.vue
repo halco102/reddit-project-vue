@@ -3,10 +3,10 @@
   <div class="link-to-login">
 
     <vue-final-modal v-model="showModal"  classes="modal-container" content-class="modal-content">
-      <h3>Login</h3>
+      <h3 class="mb-3 font-sans font-bold">Login</h3>
       <UserLogin @close="closeModal"/>
     </vue-final-modal>
-    <button class="btn btn-primary" @click="showModal = true">Login</button>
+    <button class="btn btn-blue" @click="showModal = true">Login</button>
 
 
   </div>
@@ -58,8 +58,7 @@ h3{
   border: 1px solid #e2e8f0;
   border-radius: 0.25rem;
   background: #fff;
-  margin-left:23%;
-  margin-right:24.2%
+  padding: 2rem 5rem;
 }
 .modal__title {
   font-size: 1.5rem;

@@ -6,9 +6,9 @@
           class="w-14 h-14">
       </a>
 
-      <!--Show post only when user logsin-->
+      <!--Show post button only when user logsin-->
       <div class="px-4" v-if="getSuccessfullLogin">
-        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2">
+        <button class="btn btn-blue">
           Post
         </button>
       </div>
@@ -18,7 +18,7 @@
     <div class="flex">
       <form class="flex m-auto">
         <router-link :to="{ name: 'SearchGallery', query: { 'q': searchQuery }, params: { name: searchQuery } }"
-          class="btn btn-outline-success" style="margin-right:0.5rem;">
+          class="btn btn-outline-success mr-2">
           <BIconSearch />
         </router-link>
         <input v-model="searchQuery" class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
@@ -30,7 +30,7 @@
 
       <!-- login/signup-->
       <div class="flex mr-3" v-if="!getSuccessfullLogin">
-        <UserLoginModal />
+        <UserLoginModal class="mx-2" />
         <UserSignupModal />
       </div>
 
@@ -48,7 +48,7 @@
           <BIconBell class="w-6 h-6" />
         </div>
         <div>
-          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2">
+          <button class="btn btn-blue">
             Logout
           </button>
         </div>
@@ -57,60 +57,6 @@
     </div>
 
   </nav>
-
-  <!--
-
-  <nav class="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-900">
-    <div class="container flex flex-wrap justify-between items-center mx-auto">
-      <a class="flex items-center" :href="$router.resolve({ name: 'Home' }).href">Logo</a>
-
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link" :href="$router.resolve({ name: 'Home' }).href">Home</a>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link" :to="{ name: 'PostRequestPage' }">Post</router-link>
-          </li>
-        </ul>
-
-        <form class="d-flex" style="margin:auto">
-          <router-link :to="{ name: 'SearchGallery', query: { 'q': searchQuery }, params: { name: searchQuery } }"
-            class="btn btn-outline-success" style="margin-right:0.5rem;">
-            <BIconSearch />
-          </router-link>
-          <input v-model="searchQuery" class="form-control me-2" type="search" placeholder="Search"
-            aria-label="Search" />
-        </form>
-
-        <div class="second-type-login-signup" v-if="!exit()">
-          <UserLoginModal />
-          <UserSignupModal />
-        </div>
-
-        <router-link :to="{ path: '/user/' + getCurrentlyLoggedUserProfile.id }">
-          <div v-show="getCurrentlyLoggedUserProfile.id != 0" class="username-img">
-            <img :src="getCurrentlyLoggedUserProfile.imageUrl" width="50" height="40" />
-            <span class="navbar-text" style="margin-right: 1rem">{{
-                getCurrentlyLoggedUserProfile.username
-            }}</span>
-            <div class="notification-bell">
-              <BIconBell width="20px" height="20px" />
-            </div>
-          </div>
-        </router-link>
-
-      </div>
-
-      <button v-show="getCurrentlyLoggedUserProfile.id != 0" class="btn btn-primary" style="margin-right:1rem;"
-        @click="logoutAndRefreshSite">Logout</button>
-    </div>
-  </nav>
-  -->
 </template>
 
 <script lang="ts">
@@ -124,9 +70,6 @@ import { mapState, mapActions } from "pinia";
 import UserLoginModal from "@/User/components/modal/UserLoginModal.vue";
 import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
 import { BIconSearch, BIconBell } from "bootstrap-icons-vue";
-
-
-
 
 export default defineComponent({
   name: "NavigationBar",
@@ -183,30 +126,4 @@ export default defineComponent({
 </script>
 
 <style scope>
-.move-right {
-  float: right;
-}
-
-.username-img {
-  display: flex;
-}
-
-.second-type-login-signup {
-  display: flex;
-  margin-right: 10px;
-}
-
-.second-type-login-signup UserLoginModal {
-  margin: 10px;
-}
-
-.signup-modal {
-  margin-left: 10px;
-}
-
-.notification-bell {
-  margin: auto;
-  padding-right: 10px;
-
-}
 </style>
