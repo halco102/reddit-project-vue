@@ -1,181 +1,113 @@
 <template v-if="getAllCommentsByPostId.length != 0">
-  <div class="main-comment-div">
-    <div class="comments" v-if="post!.allowComments === true">
-      <div class="number-of-comments">
-        <p style="margin-top: 1rem">
-          Number of comments : {{ getNumberOfComments(getAllCommentsByPostId) }}
-        </p>
+
+
+  <!--Main-->
+  <div>
+
+    <!-- Number of comments-->
+    <div v-if="post!.allowComments">
+      <p>
+        Number of comments : {{ getNumberOfComments(getAllCommentsByPostId) }}
+      </p>
+    </div>
+
+    <!-- Show comments-->
+    <div v-if="post?.allowComments">
+
+      <!-- Main textbox for comments-->
+      <div class="m-auto">
+        <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" />
       </div>
 
-      <form v-on:submit.prevent="
-        postCommentThenReturnData(
-          writingComment,
-          post!.id,
-          getCurrentlyLoggedUserProfile.id,
-          null
-        )
-      " class="form-style">
-        <div class="mb-3">
-          <label for="exampleFormControlTextarea1" class="form-label">Comment</label>
 
+      <div v-for="com in getAllCommentsByPostId" :key="com.id" :class="com.parentId === null ?
+      'sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden   mx-auto my-6'
+      : 'sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden  mx-auto my-6  pl-10'">
+        <!-- Chat -->
+        <div class="grid">
+          <div class="flex">
 
-          <div class="text-area-emoji" @click="expandEmojiClick = !expandEmojiClick">
-            <textarea v-model="writingComment" class="form-control" id="exampleFormControlTextarea1"
-              style="border-color:black;" rows="3" placeholder="Write comment here..."></textarea>
-            <BIconEmojiSmile class="emoji-picker" style="width:30px; height:30px;" />
+            <!-- Users image-->
+            <div>
+              <img :src="com.userInfo.imageUrl" class="rounded-full w-10 h-10 mr-3 mb-3">
+            </div>
 
-            <VuemojiPicker @focusout="closeWhenOutOfFocus" v-if="expandEmojiClick" @emojiClick="handleEmojiClick"
-              :class="expandEmojiClick ? 'expand-emoji' : 'hide-emoji'" />
-          </div>
-
-
-        </div>
-        <button type="submit" class="btn btn-primary btn-primary-comment-form">
-          Post comment
-        </button>
-      </form>
-
-      <!-- Comments !-->
-      <div v-for="com in getAllCommentsByPostId" :key="com.id" class="card border-0" :class="
-        com.parentId === null ? 'card-comment-div' : 'reply-comment-card'
-      ">
-        <div class="commented-by" v-if="com.parentId === null">
-          <div class="user-div">
-            <img :src="com.userInfo.imageUrl" style="width: 25px; height: 25px; margin-right: 5px" />
-            <p>{{ com.userInfo.username }} : {{ com.text }}</p>
-          </div>
-          <div class="actions-for-comments">
-            <button type="submit" class="btn btn-primary bicon-reply-button" @click="
-              postLikeOrDislike({
-                commentId: com.id,
-                likeOrDislike: true,
-              })
-            ">
-              <BIconHandThumbsUpFill />
-            </button>
-            <span class="center-span">{{ getNumberOfLikes(com) }}</span>
-            <button type="submit" class="btn btn-primary bicon-reply-button" @click="
-              postLikeOrDislike({
-                commentId: com.id,
-                likeOrDislike: false,
-              })
-            ">
-              <BIconHandThumbsDownFill />
-            </button>
-            <span class="center-span">{{ getNumberOfDislikes(com) }}</span>
-            <button class="btn btn-primary bicon-reply-button" style="float: left" @click="toggle(com.id)">
-              <BIconReply />
-            </button>
-
-            <div class="delete-icon-wrapper" v-show="isCommentHolder(com.userInfo.id)">
-              <div class="delete-icon">
-                <button style="border: none; background: none">
-                  <BIconTrash @click.prevent="deleteCommentById(com.id, post!.id)" color="#0d6efd" width="25px"
-                    height="25px" />
-                </button>
+            <!-- Users username and chat text-->
+            <div class="grid flex-1 text-start pl-2">
+              <!--Username-->
+              <div class="font-semibold">
+                {{ com.userInfo.username }}
               </div>
-            </div>
-          </div>
-
-          <div class="reply-form" v-if="com.id === selectedItem && closeReplyTextArea">
-            <form v-on:submit.prevent="
-              postCommentThenReturnData(
-                writingReplyComment,
-                post!.id,
-                getCurrentlyLoggedUserProfile.id,
-                com.id
-              )
-            ">
-              <div class="mb-3">
-                <label style="color: white" for="exampleFormControlTextarea1" class="form-label">Comment</label>
-
-
-                <div class="text-area-emoji" @click="expandEmojiClick = !expandEmojiClick">
-                  <textarea v-model="writingReplyComment" class="form-control" id="exampleFormControlTextarea1"
-                    rows="3">
-                  </textarea>
-                  <BIconEmojiSmile class="emoji-picker" style="width:30px; height:30px;" />
-
-                  <VuemojiPicker @focusout="closeWhenOutOfFocus" v-if="expandEmojiClick"
-                    @emojiClick="handleEmojiClick" :class="expandEmojiClick ? 'expand-emoji' : 'hide-emoji'" />
-                </div>
-
+              <!--Chat text-->
+              <div>
+                {{ com.text }}
               </div>
-              <button type="submit" class="btn btn-primary allign-submit-button">
-                Post comment
-              </button>
-            </form>
-          </div>
-        </div>
+              <!-- Like/dislike and reply button, in some case bin for deleting comments-->
+              <div class="flex my-3">
 
-        <!-- reply -->
-        <div class="reply-comment" v-else>
-          <div class="commented-by">
-            <div class="user-div">
-              <img :src="com.userInfo.imageUrl" style="width: 25px; height: 25px; margin-right: 5px" />
-              <p>{{ com.userInfo.username }} : {{ com.text }}</p>
-            </div>
-            <div class="actions-for-comments">
-              <button type="submit" class="btn btn-primary bicon-reply-button" @click="
-                postLikeOrDislike({
-                  commentId: com.id,
-                  likeOrDislike: true,
-                })
-              ">
-                <BIconHandThumbsUpFill />
-              </button>
-              <span class="center-span">{{ getNumberOfLikes(com) }}</span>
-              <button type="submit" class="btn btn-primary bicon-reply-button" @click="
-                postLikeOrDislike({
-                  commentId: com.id,
-                  likeOrDislike: false,
-                })
-              ">
-                <BIconHandThumbsDownFill />
-              </button>
-              <span class="center-span">{{ getNumberOfDislikes(com) }}</span>
-              <button class="btn btn-primary bicon-reply-button" style="float: left" @click="toggle(com.id)">
-                <BIconReply />
-              </button>
-            </div>
-            <div class="reply-form" v-if="com.id === selectedItem && closeReplyTextArea">
-              <form v-on:submit.prevent="
-                postCommentThenReturnData(
-                  writingReplyComment,
-                  post!.id,
-                  getCurrentlyLoggedUserProfile.id,
-                  com.id
-                )
-              ">
-                <div class="mb-3">
-                  <label style="color: white" for="exampleFormControlTextarea1" class="form-label">Comment</label>
+                <!--Like and Dislike-->
+                <div class="mr-4 flex">
 
-                  <div class="text-area-emoji" @click="expandEmojiClick = !expandEmojiClick">
-                    <textarea v-model="writingReplyComment" class="form-control" id="exampleFormControlTextarea1"
-                      rows="3"></textarea>
-                    <BIconEmojiSmile class="emoji-picker" style="width:30px; height:30px;" />
+                  <!--Like button with number of likes-->
+                  <div class="mr-4">
+                    <button class="pr-2 hover:bg-gray-500 rounded-sm p-1" @click="postLikeOrDislike({
+                      commentId: com.id,
+                      likeOrDislike: true,
+                    })">
+                      <BIconHandThumbsUpFill />
+                    </button>
+                    <span>{{ getNumberOfLikes(com) }}</span>
+                  </div>
 
-                    <VuemojiPicker @focusout="closeWhenOutOfFocus" v-if="expandEmojiClick"
-                      @emojiClick="handleEmojiClickReply" :class="expandEmojiClick ? 'expand-emoji' : 'hide-emoji'" />
+                  <!--Dislike button with number of dislikes-->
+                  <div class=" mr-4">
+                    <button class="pr-2 hover:bg-gray-500 rounded-sm p-1" @click="postLikeOrDislike({
+                      commentId: com.id,
+                      likeOrDislike: false,
+                    })">
+                      <BIconHandThumbsDownFill />
+                    </button>
+                    <span>{{ getNumberOfDislikes(com) }}</span>
                   </div>
                 </div>
-                <button type="submit" class="btn btn-primary allign-submit-button">
-                  Post comment
+
+                <button class="hover:bg-gray-500 rounded-sm p-1" @click="toggle(com.id)">
+                  <BIconReply />
                 </button>
-              </form>
+
+                <!-- Trash icon for owner of the comment-->
+                <div class="flex-1 relative" v-if="getCurrentlyLoggedUserProfile.id !== 0">
+                  <button @click="deleteCommentById(com.id)">
+                    <BIconTrash class="absolute bottom-0 right-0" />
+                  </button>
+                </div>
+
+              </div>
+
             </div>
+
           </div>
+
+          <!--Show reply text area when button reply is clicked-->
+          <div v-if="(selectedItem !== 0 && selectedItem === com.id)">
+            <hr>
+            <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" :parentId="com.id" />
+          </div>
+
         </div>
+
+
         <hr>
       </div>
+    </div>
 
+    <!--Comments are not allowed-->
+    <div v-else class="mt-6">
+      <h3 class="font-bold">Comments are disabled</h3>
     </div>
-    <div class="comments" v-else>
-      <p>Comments are disabled</p>
-    </div>
-    <div>
-    </div>
+
   </div>
+
 </template>
 
 <script lang="ts">
@@ -188,7 +120,6 @@ import {
   BIconHandThumbsDownFill,
   BIconReply,
   BIconTrash,
-  BIconEmojiSmile
 } from "bootstrap-icons-vue";
 
 //pinia
@@ -201,7 +132,7 @@ import { useAuthenticationStore } from '@/User/store/authentication_store'
 import { FrontPagePost } from "@/Post/types";
 import { CommentDto } from '@/Comment/types';
 
-import { VuemojiPicker, EmojiClickEventDetail } from 'vuemoji-picker'
+import TextBoxVue from "./TextBox.vue";
 
 export default defineComponent({
   name: "CommentSection",
@@ -210,8 +141,7 @@ export default defineComponent({
     BIconHandThumbsDownFill,
     BIconReply,
     BIconTrash,
-    VuemojiPicker,
-    BIconEmojiSmile
+    TextBoxVue
   },
   props: {
     post: Object as PropType<FrontPagePost>,
@@ -225,18 +155,12 @@ export default defineComponent({
     const toast = useToast();
     return { toast };
   },
-  created() {
-    //console.log("Open Stomp connection in Comments.vue");
-    //this.openWebsocketConnection();
-
-  },
   methods: {
     closeWhenOutOfFocus: function (): void {
       console.log("Focus")
       this.expandEmojiClick = false;
     },
     ...mapActions(useCommentStore, [
-      "postCommentAction",
       "postLikeOrDislike",
       "resetState",
       "patchComments",
@@ -250,44 +174,14 @@ export default defineComponent({
     getNumberOfComments: function (comments: CommentDto[]): number {
       return comments.length;
     },
-    getUserInfo() {
-      console.log("Clicked");
-    },
-    postCommentThenReturnData: function (
-      text: string,
-      idOfPost: number,
-      idOfUser: number,
-      parentId: null | number
-    ) {
-      if (!this.checkIfUserIsLogged()) {
-        this.toast.warning("You have to log in to comment!");
+    toggle: function (item: number): void {
+
+      if (this.selectedItem === item) {
+        this.selectedItem = 0;
         return;
       }
 
-      if (text === '') {
-        this.toast.warning("Comment is empty");
-        return;
-      }
-
-      this.postCommentAction({
-        text: text,
-        postId: idOfPost,
-        userId: idOfUser,
-        parentId: parentId,
-      });
-
-      this.writingComment = '';
-      this.writingReplyComment = '';
-
-      //close text are in reply
-      this.closeReplyTextArea = true;
-
-    },
-    toggle: function (item: number) {
       this.selectedItem = item;
-
-      //enable form
-      this.closeReplyTextArea = !this.closeReplyTextArea;
     },
     checkIfUserIsLogged: function (): boolean {
       console.log(this.getCurrentlyLoggedUserProfile);
@@ -295,40 +189,6 @@ export default defineComponent({
         return true;
       }
       return false;
-    },
-    isReply: function (comment: FrontPagePost): boolean {
-
-      if (comment.commentsDto.filter((x) => x.parentId !== null)) {
-        console.log("ParentId not null ");
-        this.isReplyComment = true;
-        return true;
-      }
-
-      this.isReplyComment = false;
-      return false;
-    },
-    updateValue(value: string) {
-      this.writingComment = value;
-    },
-    isCommentHolder(commentUserId: number): boolean {
-      if (this.getCurrentlyLoggedUserProfile.id === commentUserId) {
-        return true;
-      }
-      return false;
-    },
-    handleEmojiClickReply: function (detail: EmojiClickEventDetail): void {
-
-      if (detail.unicode !== undefined) {
-        this.writingReplyComment += detail.unicode;
-      }
-
-    },
-    handleEmojiClick: function (detail: EmojiClickEventDetail): void {
-
-      if (detail.unicode !== undefined) {
-        this.writingComment += detail.unicode;
-      }
-
     },
   }, watch: {
     post: function () {
@@ -340,112 +200,20 @@ export default defineComponent({
         console.log("VALUE", val);
         this.fetchAllCommentsByPostId(this.post!.id);
       }
-    }
+    },
   },
   data() {
     return {
-      writingComment: "" as string,
-      writingReplyComment: "" as string,
       open: false as boolean,
-      isHidden: true as boolean,
-      isActive: false as boolean,
       selectedItem: 0 as number,
       currentCommentId: 0 as number,
       isReplyComment: false as boolean,
       expandEmojiClick: false as boolean,
-      closeReplyTextArea : false as boolean,
+      closeReplyTextArea: false as boolean,
     };
   },
 });
 </script>
 
 <style scoped>
-.main-comment-div p {
-  color: black;
-}
-
-.number-of-comments {
-  margin-bottom: 25px;
-}
-
-.comments {
-  display: flex;
-  flex-direction: column;
-  margin: 0px 31.1%;
-}
-
-.commented-by {
-  padding: 2vh;
-}
-
-.card-comment-div {
-  margin: 10px 0;
-}
-
-#user-button {
-  width: 150px;
-}
-
-.reply-comment-card {
-  margin-left: 50px;
-  margin-bottom: 15px;
-}
-
-.user-div {
-  display: flex;
-}
-
-.actions-for-comments a {
-  margin: 10px;
-}
-
-.actions-for-comments {
-  display: flex;
-}
-
-.form-style {
-  margin: 10px 0 10px 0;
-  display: grid;
-}
-
-.center-span {
-  margin-top: auto;
-  margin-bottom: auto;
-  margin-right: 1em;
-}
-
-.btn-primary-comment-form {
-  margin: 15px auto 5rem;
-}
-
-.bicon-reply-button {
-  margin: 10px 4px 10px 4px;
-}
-
-.delete-icon-wrapper {
-  margin-left: auto;
-  display: grid;
-  align-items: center;
-}
-
-.expand-emoji {
-  position: absolute;
-  right: -5rem;
-  z-index: 1;
-}
-
-.text-area-emoji {
-  position: relative;
-}
-
-.hide-emoji {
-  display: none;
-}
-
-.emoji-picker {
-  position: absolute;
-  right: 0;
-  top: 0;
-  padding: 5px;
-}
 </style>

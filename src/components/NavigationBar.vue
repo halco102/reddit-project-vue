@@ -14,19 +14,22 @@
       </div>
     </div>
 
-    <!--Search bar-->
-    <div class="flex">
-      <form class="flex m-auto">
-        <router-link :to="{ name: 'SearchGallery', query: { 'q': searchQuery }, params: { name: searchQuery } }"
-          class="btn btn-outline-success mr-2">
-          <BIconSearch />
-        </router-link>
-        <input v-model="searchQuery" class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-      </form>
-    </div>
+
 
     <!--other-->
     <div class="flex justify-evenly items-center">
+
+      <!--Search bar-->
+      <div class="flex">
+        <form class="flex m-auto">
+          <router-link :to="{ name: 'SearchGallery', query: { 'q': searchQuery }, params: { name: searchQuery } }"
+            class="btn btn-outline-success mr-2">
+            <BIconSearch />
+          </router-link>
+          <input v-model="searchQuery" class="form-control me-2" type="search" placeholder="Search"
+            aria-label="Search" />
+        </form>
+      </div>
 
       <!-- login/signup-->
       <div class="flex mr-3" v-if="!getSuccessfullLogin">
@@ -39,9 +42,11 @@
         <router-link :to="{ path: '/user/' + getCurrentlyLoggedUserProfile.id }">
           <div v-show="getCurrentlyLoggedUserProfile.id != 0" class="flex items-center">
             <img :src="getCurrentlyLoggedUserProfile.imageUrl" class="w-14 h-14" />
+            <!--
             <span class="mr-1 font-medium">{{
                 getCurrentlyLoggedUserProfile.username
             }}</span>
+            -->
           </div>
         </router-link>
         <div class="px-4">
