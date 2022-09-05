@@ -96,11 +96,11 @@
         </div>
 
         <!--Posts-->
-        <div class="sm:max-w-sm">
+        <div class="sm:max-w-sm lg:max-w-lg">
           <router-link
             class="sm:max-w-sm lg:max-w-lg md:max-w-md rounded overflow-hidden shadow-lg divide-y-2 mx-auto my-2"
             :to="{ name: 'SinglePage', params: { id: post.id } }">
-            <img class="lg:max-w-[600px] sm:sm:max-w-sm mb-3" :src="post.imageUrl" :alt="post.title">
+            <img class="lg:max-w-lg sm:sm:max-w-sm mb-3" :src="post.imageUrl" :alt="post.title">
 
             <!--Categories-->
             <div class="flex flex-wrap max-w-[600px]">
