@@ -72,10 +72,10 @@
         </div>
       </div>
 
-
+      <!--Submit button-->
       <div :class="getIsSignupLoading ? 'flex justify-center relative' : 'container text-center'">
         <button
-          :class="!getIsSignupLoading && isPasswordStrong ? 'btn-blue btn rounded-md' : 'btn-blue btn-disabled'">Submit</button>
+          :class="!getIsSignupLoading ? 'btn-blue btn rounded-md' : 'btn-blue btn-disabled'">Submit</button>
 
         <!--Loading -->
         <div role="status" v-show="getIsSignupLoading" class="mt-1 absolute right-0">
@@ -134,13 +134,10 @@ export default defineComponent({
     },
     isPasswordWeak: function (value: any): void {
 
-      console.log("Password check", value, this.isPasswordStrong)
 
       if (value.score <= 2) {
-        console.log("Weak password")
         this.isPasswordStrong = false;
       } else {
-        console.log("Strong password")
         this.isPasswordStrong = true;
       }
 
@@ -185,15 +182,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.form-color-error {
-  background-color: #fddfe2;
-  color: #f23648;
-}
-
-span {
-  color: #f23648;
-}
-
 .form-label {
   @apply mr-2 block text-gray-700 text-sm font-bold text-center mb-2
 }

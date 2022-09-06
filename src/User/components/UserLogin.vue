@@ -120,14 +120,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.form-color-error {
-  background-color: #fddfe2;
-  color: #f23648;
-}
-
-span {
-  color: #f23648;
-}
 
 .form-label {
   @apply mr-2 block text-gray-700 text-sm font-bold text-center mb-2
