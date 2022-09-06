@@ -16,7 +16,7 @@
 
       <!-- Main textbox for comments-->
       <div class="m-auto">
-        <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" />
+        <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id"/>
       </div>
 
 
@@ -91,7 +91,7 @@
           <!--Show reply text area when button reply is clicked-->
           <div v-if="(selectedItem !== 0 && selectedItem === com.id)">
             <hr>
-            <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" :parentId="com.id" />
+            <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" :parentId="com.id"/>
           </div>
 
         </div>
@@ -215,5 +215,3 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-</style>

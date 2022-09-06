@@ -43,7 +43,7 @@ export default defineComponent({
 
 .btn-blue:hover {
   /*@apply bg-blue-700;*/
-  @apply bg-orange-500
+  @apply bg-blue-700
 
 }
 

@@ -8,9 +8,12 @@
 
       <!--Show post button only when user logsin-->
       <div class="px-4" v-if="getSuccessfullLogin">
-        <button class="btn btn-blue">
-          Post
-        </button>
+        <router-link :to="{ name: 'PostRequestPage' }">
+          <button class="btn btn-blue">
+
+            Post
+          </button>
+        </router-link>
       </div>
     </div>
 
@@ -22,11 +25,13 @@
       <!--Search bar-->
       <div class="flex">
         <form class="flex m-auto">
-          <router-link :to="{ name: 'SearchGallery', query: { 'q': searchQuery }, params: { name: searchQuery } }"
-            class="btn btn-outline-success mr-2">
-            <BIconSearch />
-          </router-link>
-          <input v-model="searchQuery" class="form-control me-2" type="search" placeholder="Search"
+          <button class="font-bold py-2 px-4 rounded border-solid hover:bg-white border-2 mx-2">
+            <router-link :to="{ name: 'SearchGallery', query: { 'q': searchQuery }, params: { name: searchQuery } }"
+              class="">
+              <BIconSearch />
+            </router-link>
+          </button>
+          <input v-model="searchQuery" class="form-control me-2 rounded pl-2" type="search" placeholder="Search"
             aria-label="Search" />
         </form>
       </div>
