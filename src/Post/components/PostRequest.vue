@@ -1,85 +1,111 @@
 <template>
-  <div class="main" :class="enlargeImage ? 'enlarge-image' : ''" ref="request">
-    <div class="post-card">
-      <h3>Upload a post</h3>
-      <div class="card" style="width: 35rem">
-        <div class="card-body">
-          <Form @submit="onSubmit" :validation-schema="schema">
-            <div class="mb-3">
-              <Field name="title" v-slot="{ field, meta }">
-                <label for="insertText" class="form-label">Title</label>
+
+  <!--Main div-->
+  <div class="grid justify-center mt-10" :class="enlargeImage ? 'enlarge-image' : ''" ref="request">
+
+    <h3 class="font-bold text-center">Upload a post</h3>
+
+    <!--Card div-->
+    <div class="my-3 justify-center border-solid border-2 border-gray-300 rounded p-4 shadow-lg">
+      <div>
+        <!--Form-->
+        <Form @submit="onSubmit" :validation-schema="schema" class="p-6">
+          <!--Title-->
+          <div class="mb-6">
+            <Field name="title" v-slot="{ field, meta }">
+              <label for="insertText" class="block text-center">Title</label>
+              <input v-bind="field" :class="
+                !meta.touched || meta.valid
+                  ? 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:outline-blue-500 focus:border-blue-500 block w-full p-2.5'
+                  : 'bg-gray-50 border text-gray-900 text-sm rounded-lg outline-red-500 border-red-500 block w-full p-2.5 mb-1'
+              " placeholder="Title" />
+            </Field>
+            <ErrorMessage name="title" class="block text-center" />
+          </div>
+
+          <!--Description-->
+          <div class="mb-6">
+            <Field name="text" v-slot="{ field, meta }">
+              <label for="insertText" class="block text-center">Description</label>
+              <input v-bind="field" :class="
+                !meta.touched || meta.valid
+                  ? 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:outline-blue-500 focus:border-blue-500 block w-full p-2.5'
+                  : 'bg-gray-50 border text-gray-900 text-sm rounded-lg outline-red-500 border-red-500 block w-full p-2.5 mb-1'
+              " placeholder="Description" />
+            </Field>
+            <ErrorMessage name="text" class="block text-center" />
+          </div>
+
+
+
+          <!--Upload file-->
+          <div class="mb-6 grid justify-end">
+            <hr class="my-2">
+            <Field name="upload">
+              <label for="formFile" class="text-center mb-3">Upload image</label>
+              <input class="form-control" type="file" id="formFile" ref="fileUpload" @change="onChangeInput" />
+            </Field>
+            <ErrorMessage name="upload" class="block text-center" />
+            <hr class="my-2">
+          </div>
+
+          <!--Preview image-->
+          <div class="preview" v-if="preview">
+            <vue-final-modal v-model="enlargeImage" classes="modal-container" content-class="modal-content">
+              <img @click="enlargeImageFunction" class="" :src="preview" />
+            </vue-final-modal>
+            <img @click="enlargeImageFunction" class="" :src="preview" />
+          </div>
+
+          <!--Text area for image url-->
+          <div class="mb-6">
+            <fieldset :disabled="isDisabled">              
+              <Field name="imageUrl" v-slot="{ field, meta }">
+                <label for="imageUrl" class="block text-center">Image url</label>
                 <input v-bind="field" :class="
                   !meta.touched || meta.valid
-                    ? 'form-control'
-                    : 'form-control form-color-error'
-                " />
+                    ? 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:outline-blue-500 focus:border-blue-500 block w-full p-2.5'
+                    : 'bg-gray-50 border text-gray-900 text-sm rounded-lg outline-red-500 border-red-500 block w-full p-2.5 mb-1'
+                " placeholder="Image url" />
               </Field>
-              <ErrorMessage name="title" />
-            </div>
+
+              <ErrorMessage name="imageUrl" />
+            </fieldset>
+          </div>
+
+          <!-- Categories -->
+          <Multiselect v-model="categoryOptions" :options="getAllCategories.map(i => i.name)" mode="tags"
+            placeholder="Select categories" :close-on-select="false" :searchable="true" />
+          <ErrorMessage name="categoryOptions" class="block text-center" />
+
+
+          <!--Checkbox for comments-->
+          <div class="my-6">
             <div class="mb-3">
-              <Field name="text" v-slot="{ field, meta }">
-                <label for="insertText" class="form-label">Description</label>
-                <input v-bind="field" :class="
-                  !meta.touched || meta.valid
-                    ? 'form-control'
-                    : 'form-control form-color-error'
-                " />
-              </Field>
-              <ErrorMessage name="text" />
-            </div>
-
-            <div class="mb-3">
-              <Field name="upload">
-                <label for="formFile" class="form-label">Upload image</label>
-                <input class="form-control" type="file" id="formFile" ref="fileUpload" @change="onChangeInput" />
-              </Field>
-              <ErrorMessage name="upload" />
-            </div>
-
-            <div class="preview" v-if="preview">
-              <vue-final-modal v-model="enlargeImage" classes="modal-container" content-class="modal-content">
-                <img @click="enlargeImageFunction" class="enlarge-image" :src="preview" />
-              </vue-final-modal>
-              <img @click="enlargeImageFunction" class="default-image" :src="preview" />
-            </div>
-
-            <div class="mb-3">
-              <fieldset :disabled="isDisabled">
-                <label for="imageUrl" class="form-label">Image url</label>
-                <Field name="imageUrl" class="form-control" />
-                <ErrorMessage name="imageUrl" />
-              </fieldset>
-            </div>
-
-            <!-- Categories -->
-            <Multiselect v-model="categoryOptions" :options="getAllCategories.map(i => i.name)" mode="tags"
-              placeholder="Select categories" :close-on-select="false" :searchable="true" />
-            <ErrorMessage name="categoryOptions" />
-            
-
-
-            <div class="comment-checkbox-button">
-              <div class="mb-3">
-                <div class="form-check allign">
-                  <input class="form-check-input" type="checkbox" id="allowCommentsCheck" v-model="isAllowedComment" />
-                </div>
-                <label class="form-check-label" for="allowCommentsCheck">
-                  Allow comments
-                </label>
+              <div class="text-center">
+                <input class="w-4 h-4" type="checkbox" id="allowCommentsCheck" v-model="isAllowedComment" />
               </div>
-            </div>
-            <button :class="getIsLoading ? 'btn btn-primary disabled' : 'btn btn-primary'">Submit</button>
-          </Form>
-
-          <div class="clearfix" v-show="getIsLoading">
-            <div class="spinner-border float-end text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
+              <label class="text-center text-sm block" for="allowCommentsCheck">
+                Allow comments
+              </label>
             </div>
           </div>
+
+          <button
+            :class="getIsLoading ? 'btn btn-blue disabled m-auto block' : 'btn btn-blue m-auto block'">Submit</button>
+        </Form>
+
+        <!--Loading circle-->
+        <div class="clearfix" v-show="getIsLoading">
+          <div class="spinner-border float-end text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
         </div>
+
       </div>
     </div>
   </div>
+
 </template>
 
 <script lang="ts">
@@ -155,7 +181,7 @@ export default defineComponent({
             return false;
           },
           then: (rule: any) =>
-            rule.required("Image url is empty, upload image insted."),
+            rule.required("Image url is empty, upload image instead."),
         }),
     });
 
@@ -246,69 +272,6 @@ export default defineComponent({
 <style scoped>
 @import "@vueform/multiselect/themes/default.css";
 
-.enlarge-image {
-
-  width: 100%;
-  height: 100%;
-
-}
-
-.enlarge-image:hover {
-  cursor: zoom-out;
-}
-
-.default-image {
-  max-width: 33rem;
-  max-height: 100%;
-}
-
-.preview {
-  margin-bottom: 1vh;
-}
-
-.default-image:hover {
-  cursor: zoom-in;
-}
-
-.main h3 {
-  color: black;
-}
-
-.post-card {
-  display: grid;
-  justify-content: center;
-  margin: 2% 16%;
-  padding: 100px;
-}
-
-.post-card button {
-  width: 100px;
-}
-
-.form-check {
-  padding: 0px;
-}
-
-.allign {
-  display: flex;
-  justify-content: center;
-}
-
-.form-check-input {
-  padding: 10px;
-  margin-bottom: 4px;
-}
-
-::placeholder {
-  font-size: 1rem;
-  text-align: right;
-}
-
-.comment-checkbox-button {
-  margin-top: 1vh;
-  display: grid;
-  justify-content: center;
-}
 
 .form-color-error {
   background-color: #fddfe2;

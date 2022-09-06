@@ -84,7 +84,6 @@ export const usePostStore = defineStore('postStore', {
 
       async fetchAllPostToShow() {
 
-         console.log("Check URL", BASE_URL);
          await axios.get(BASE_URL).then(response => {
             this.posts = response.data;
          }).catch(function (ex) {

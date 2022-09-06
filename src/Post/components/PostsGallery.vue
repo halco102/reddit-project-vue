@@ -2,7 +2,7 @@
 
   <div id="main" class="md:flex lg:flex sm:grid justify-items-center">
 
-    <div id="categories-signup/login" class="grid sm:my-12 md:ml-22 lg:ml-32 w-64 h-fit lg:mt-16 justify-center lg:absolute  ">
+    <div id="categories-signup/login" class="grid sm:my-16 md:ml-26 lg:ml-26 xl:ml-32 w-64 h-fit lg:mt-16 justify-center xl:absolute lg:grid  ">
       <!--Login and signup-->
       <div class="mb-3 text-center border-solid border-2 border-black py-4 rounded sm:m-auto sm:mb-2 sm:p-6">
         <h3>
