@@ -85,7 +85,7 @@
 
             <!--Number of likes or dislikes-->
             <div>
-              <span v-if="sumLikesOrDislikesOnPost(post) > 0"
+              <span v-if="sumLikesOrDislikesOnPost(post) > 0 || sumLikesOrDislikesOnPost(post) < 0"
                 :class="sumLikesOrDislikesOnPost(post) > 0 ? 'text-blue-600 grid justify-center' : 'text-red-600 grid justify-center'">{{
                 sumLikesOrDislikesOnPost(post)
                 }}</span>

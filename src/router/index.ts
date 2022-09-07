@@ -100,6 +100,7 @@ const router = createRouter({
 
 router.beforeEach(() => {
     const auth = useAuthenticationStore();
+    
     // first check the jwt
     auth.checkIfJwtIsValid();
 
