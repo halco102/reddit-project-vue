@@ -32,7 +32,7 @@
                     </div>
 
                     <VuemojiPicker @emojiClick="handleEmojiClick " 
-                        class="lg:absolute lg:right-0 lg:mr-64 sm:grid sm:justify-center md:grid md:justify-center sm:mt-2 md:mt-2"
+                        class="lg:absolute lg:right-0 lg:mr-64 sm:grid sm:justify-center md:grid md:justify-center sm:mt-2 md:mt-2 lg:z-50 md:z-50"
                         v-if="toggleEmoji" />
 
                 </div>

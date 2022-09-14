@@ -90,14 +90,14 @@
 
           <!--Show reply text area when button reply is clicked-->
           <div v-if="(selectedItem !== 0 && selectedItem === com.id)">
-            <hr>
+            <hr class="border-1 border-gray-500">
             <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" :parentId="com.id"/>
           </div>
 
         </div>
 
 
-        <hr>
+        <hr class="border-1 border-gray-500">
       </div>
     </div>
 

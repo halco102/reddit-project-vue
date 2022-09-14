@@ -115,7 +115,7 @@ export default defineComponent({
       return false;
     },
     logoutAndRefreshSite: function (): void {
-      this.logout;
+      sessionStorage.removeItem('jwt');
       this.$router.go(0);
     },
     reRoute: function (name: string): boolean {

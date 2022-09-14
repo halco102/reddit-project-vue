@@ -3,7 +3,7 @@
 
     <!--Post card-->
     <div class="sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden shadow-lg  mx-auto my-6 ">
-      <img :src="post.imageUrl" class="w-full h-full my-4" alt="..." />
+      <img :src="post.imageUrl" class="w-full h-full my-4 rounded" alt="..." />
       <div class="my-4 p-6">
         <h5 class="text-md font-medium text-center">{{ post.title }}</h5>
         <p v-if="post.text !== null" class="">{{ post.text }}</p>

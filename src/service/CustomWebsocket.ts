@@ -14,41 +14,37 @@ export default class CustomWebSocket {
     private constructor() {
         // connect to websocket when creating instance
 
-            this.client = new Client({
-                brokerURL: this.ws,
-                connectHeaders: {},
-                debug: function (str) {
-                    console.log(str)
-                },
-                reconnectDelay: 30000,
-                heartbeatIncoming: 4000,
-                heartbeatOutgoing: 4000,
-                onConnect: () => {
-                    console.log("Open custom websocket");
-                },
-            });
+        this.client = new Client({
+            brokerURL: this.ws,
+            connectHeaders: {},
+            debug: function (str) {
+                console.log(str)
+            },
+            reconnectDelay: 30000,
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+            onConnect: () => {
+                console.log("Open custom websocket");
+            },
+        });
 
-            this.client.activate()
+        this.client.activate();
+
 
     }
 
     public static getInstance(): CustomWebSocket {
 
         if (!CustomWebSocket.instance) {
-            CustomWebSocket.instance = new CustomWebSocket()
+            CustomWebSocket.instance = new CustomWebSocket();
         }
-
+        
         return CustomWebSocket.instance;
     }
 
-    public getClient(): Client {
-        return this.client;
+    public  getClient(): Client {
+         return this.client;
     }
 
-    public async isConnected() : Promise<boolean> {
-        return new Promise((resolve) => {
-            resolve(this.client.connected);
-        })
-    }
 
 }

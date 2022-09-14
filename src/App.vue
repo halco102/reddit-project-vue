@@ -11,6 +11,8 @@ import NavigationBar from './components/NavigationBar.vue';
 import { mapState, mapActions } from 'pinia';
 import { usePostStore } from './Post/store/store';
 
+
+
 export default defineComponent({
   name: 'App',
   components: {
