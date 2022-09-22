@@ -6,13 +6,11 @@
         <router-link v-for="temp in user.commentsPosts" :key="temp.postId"
             :to="{ name: 'SinglePage', params: { id: temp.postId } }">
             <div>
-                <div class="content card-body-shaddow" v-for="com in temp.commentDto" :key="com.id">
-                    <div class="card" style="width: 35rem">
-                        <div class="card-body">
-                            <p class="card-text" style="color: black">
+                <div class="flex my-3 justify-center border-solid border-2 border-gray-300 rounded p-4 shadow-lg" v-for="com in temp.commentDto" :key="com.id">
+                    <div class="min-w-full">
+                            <p class="font-serif">
                                 {{ com.text }}
                             </p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -65,10 +63,3 @@ export default defineComponent({
     }
 });
 </script>
-
-<style scoped>
-.card-body-shaddow {
-    box-shadow: rgba(0, 0, 0, 0.15) 0px 25px 20px -20px;
-    margin-bottom: 2vh;
-}
-</style>

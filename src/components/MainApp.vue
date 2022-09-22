@@ -1,7 +1,5 @@
 <template>
-  <div>
     <router-view></router-view>
-  </div>
 </template>
 
 <script lang="ts">
@@ -24,8 +22,6 @@ export default defineComponent({
   methods: {
     ...mapActions(usePostStore, [
       "fetchAllPostToShow",
-      "openWebsocket",
-      'disconnectFromWs'
     ]),
   },
   computed: {
@@ -40,9 +36,6 @@ export default defineComponent({
       isUpdate: false,
     };
   },
-  created() {
-    this.openWebsocket();
-  },
   watch: {
     $route(to: _RouteLocationBase) {
       console.log(this.getCurrentlyLoggedUserProfile.id)
@@ -52,7 +45,6 @@ export default defineComponent({
           to.fullPath != "/post"
         ) {
           console.log("Disconnect", to.fullPath)
-          this.disconnectFromWs();
         }
       } else {
         if (to.fullPath == '/post') {

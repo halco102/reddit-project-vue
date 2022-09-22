@@ -1,24 +1,25 @@
 <template>
-  <div class="main">
+  <div class="grid justify-center my-10">
 
-    <!-- first show the user profile in its own div -->
+    <!--User profile with stats-->
+    <div>
+      <div class="flex justify-center mb-10">
 
-    <!-- user profile -->
-    <div class="user-profile">
-      <div>
-        <h5 style="text-align:left;">{{ getUserProfile.username }} profile</h5>
-        <div class="profile-content">
-          <img :src="getUserProfile.imageUrl" />
-          <div class="card-body">
-            <div class="additional-information">
-              <p>Email: {{ getUserProfile.email }}</p>
-              <p>Created at: {{ getUserProfile.createdAt }}</p>
-            </div>
-          </div>
+        <!--Image on left side-->
+        <div class="border rounded-full">
+          <img :src="getUserProfile.imageUrl" class="w-20 h-20" />
         </div>
+
+        <!--Email and date on right side-->
+        <div class="pl-4 pt-4">
+          <p class="font-serif">Email: {{ getUserProfile.email }}</p>
+          <p class="font-serif">Created at: {{ getUserProfile.createdAt }}</p>
+        </div>
+
       </div>
 
-      <div class="user-profile-stats">
+      <!--Under image and basic user info stats-->
+      <div class="lg:flex md:flex sm:grid sm:justify-center">
 
         <UserProfileStatsVue info="Number of posts" :number="getUserProfile.posts.length" />
 
@@ -29,21 +30,34 @@
       </div>
     </div>
 
-    <div class="user-profile-main">
 
-      <div class="user-content">
-        <div class="profile-bar">
-          <UserProfileBar @postOrComment="postOrComment" />
-        </div>
+    <!--User post and comments section-->
+    <div class="grid">
 
-        <router-view :user="getUserProfile" :posts="getUserProfile.posts" :isCurrentUser="isCurrentUser()">
-        </router-view>
+      <!--Router link to filter post or comments of user-->
+      <div class="flex justify-evenly my-6">
+
+        <router-link :to="{ name: 'FilterPosts', query: {filter: 'posts'} }">
+          <button @click="currentlyFocusedFilter(true, false)"
+            :class="events.isPost ? 'btn btn-ligh hover:bg-gray-500 bg-gray-500' : 'btn btn-ligh hover:bg-gray-500'">Posts</button>
+        </router-link>
+
+        <router-link :to="{ name: 'FilterComments', query : {filter: 'comments'} }">
+          <button @click="currentlyFocusedFilter(false,true)"
+            :class="events.isComment ? 'btn btn-ligh hover:bg-gray-500 bg-gray-500' : 'btn btn-ligh hover:bg-gray-500'">Comments</button>
+        </router-link>
 
       </div>
 
 
+      <!--Filtered items-->
+      <div class="grid justify-center">
+        <router-view :user="getUserProfile" :isCurrentUser="isCurrentUser()">
+        </router-view>
+      </div>
 
     </div>
+
 
 
   </div>
@@ -52,8 +66,8 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
+
 //components
-import UserProfileBar from "@/User/components/UserProfileBar.vue";
 import UserProfileStatsVue from "./UserProfileStats.vue";
 
 //pinia
@@ -69,15 +83,12 @@ export default defineComponent({
   name: "UserProfile",
   components: {
     UserProfileStatsVue,
-    UserProfileBar
   },
   methods: {
     ...mapActions(useUserStore, [
       "getUserByIdOrUsername",
       "getAllPostsFromUserByUserId",
-      "openUserWebsocket",
       'sendUserMessage',
-
     ]),
     ...mapActions(useAuthenticationStore, []),
     ...mapActions(usePostStore, ["deletePostById"]),
@@ -97,13 +108,13 @@ export default defineComponent({
     deletePost: function (id: number): void {
       this.deletePostById(id);
     },
-    postOrComment: function (val: any): void {
-      if (val.isPost) {
-        this.events.isPost = true;
-        this.events.isComment = false
-      } else {
+    currentlyFocusedFilter: function (post: boolean, comment: boolean): void {
+      if (this.events.isPost && comment) {
         this.events.isPost = false;
         this.events.isComment = true;
+      } else {
+        this.events.isPost = true;
+        this.events.isComment = false;
       }
     },
     isCurrentUser: function (): boolean {
@@ -132,13 +143,16 @@ export default defineComponent({
 
       this.getUserProfile
         .posts.map((res) => {
-          res.postLikeOrDislikeDtos.filter((k) => {
-            if (k.likeOrDislike) {
-              result++;
-            } else {
-              result--;
+          if (res.postLikeOrDislikeDtos !== null) {
+            res.postLikeOrDislikeDtos.filter((k) => {
+              if (k.likeOrDislike) {
+                result++;
+              } else {
+                result--;
+              }
             }
-          })
+            )
+          }
         })
 
       return result;
@@ -148,7 +162,7 @@ export default defineComponent({
     return {
       likes: 0,
       events: {
-        isPost: true,
+        isPost: false,
         isComment: false
       }
     };
@@ -161,83 +175,27 @@ export default defineComponent({
   created() {
     let convertStringToInt = +this.$route.params.userId;
     this.getUserByIdOrUsername(convertStringToInt, null);
-    this.openUserWebsocket();
+
   },
   watch: {
     getUserProfile: function () {
 
-      this.getUserProfile.posts.filter((x: any) =>
-        x.postLikeOrDislikeDtos
-          .filter((y: any) => y.likeOrDislike === true)
-          .map(() => this.likes++)
+      this.getUserProfile.posts.filter((x: any) => {
+        if (x.postLikeOrDislikeDtos !== null) {
+          x.postLikeOrDislikeDtos
+            .filter((y: any) => y.likeOrDislike === true)
+            .map(() => this.likes++)
+        }
+      }
       );
 
     },
     getIsDeleted: function () {
       console.log("Post is deleted");
       this.sendUserMessage(this.getUserProfile);
-    }
+    },
+
   },
 });
 </script>
 
-<style scoped>
-.main p {
-  color: black;
-}
-
-.user-profile-main {
-  display: grid;
-  justify-items: center;
-  margin-top: 10vh;
-}
-
-.user-content {
-  margin-right: 5vh;
-  text-align: center;
-  min-width: 30%;
-}
-
-.content {
-  margin-bottom: 1rem;
-}
-
-.user-profile {
-  text-align: center;
-  display: grid;
-  justify-items: center;
-  margin-top: 5vh;
-}
-
-.user-profile img {
-  display: block;
-  width: 100px;
-  height: 100px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.additional-information p {
-  color: black;
-  padding-left: 4rem;
-}
-
-.delete-icon-wrapper {
-  margin-left: 24.6%;
-  margin-right: 25%;
-}
-
-.profile-content {
-  display: flex;
-}
-
-.profile-content img {
-  border-style: solid;
-  border-radius: 55px;
-}
-
-.user-profile-stats {
-  display: flex;
-  margin: 1rem;
-}
-</style>

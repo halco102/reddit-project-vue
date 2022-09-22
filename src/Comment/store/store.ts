@@ -72,9 +72,10 @@ export const useCommentStore = defineStore('comments', {
                 onUploadProgress: (() => { this.isPostingComment = true })
             }).then(response => {
                 this.commentsDto.push(response.data);
-                this.sendMessage(this.commentsDto, '');
+                //this.sendMessage(this.commentsDto, '');
                 this.isPostingComment = false;
             }).catch(function (ex) {
+                console.log("Catch exception on postComment", ex)
                 if (ex.response.status === 401) {
                     toast.warning("Unaothorized")
                 } else if (ex.response.status === 400) {
@@ -156,12 +157,17 @@ export const useCommentStore = defineStore('comments', {
 
         getNumberOfLikes: function (comment: CommentType.CommentDto): number {
             let number = 0;
-            comment.likedOrDislikedComments.filter((x) => x.likedOrDisliked === true).map(() => number++);
+            comment.likedOrDislikedComments.filter((x) =>
+                x.likedOrDisliked === true
+            ).map(() => number++);
             return number;
         },
         getNumberOfDislikes: function (comment: CommentType.CommentDto): number {
             let number = 0;
-            comment.likedOrDislikedComments.filter((x) => x.likedOrDisliked === false).map(() => number++);
+            comment.likedOrDislikedComments.filter((x) =>
+                x.likedOrDisliked === false
+            ).map(() => number++)
+
             return number;
         },
         openWebsocketConnection: function () {
@@ -187,6 +193,7 @@ export const useCommentStore = defineStore('comments', {
             });
 
             customWebsocket.activate();
+
 
         },
         sendMessage: function (object: CommentType.CommentDto[] | string, path: string, commentsState?: CommentType.CommentDto[] | number) {

@@ -137,7 +137,7 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
         },
 
         logout: function (): void {
-            sessionStorage.removeItem('jwt');
+            sessionStorage.clear();
         },
 
         /*
@@ -150,7 +150,6 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
 
 
             const storageJwt: string | null = sessionStorage.getItem('jwt');
-
 
             if (storageJwt === null) {
                 this.isUserLoggedIn(this.isJwtValid);

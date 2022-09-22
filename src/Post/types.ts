@@ -34,7 +34,7 @@ export interface UserPosts {
     postLikeOrDislikeDtos: LikeOrDislikeRequest[],
     categories: SingleCategory[],
     createdAt: Date,
-    editedAt: Date | null
+    //editedAt: Date | null
  }
  
  export interface PostRequest {

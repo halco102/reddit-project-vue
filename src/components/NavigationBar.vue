@@ -1,56 +1,82 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" :href="$router.resolve({ name: 'Home' }).href">Logo</a>
+  <nav class="flex min-w-max bg-slate-500 h-16 justify-between">
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link" :href="$router.resolve({ name: 'Home' }).href">Home</a>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link" :to="{ name: 'PostRequestPage' }">Post</router-link>
-          </li>
-        </ul>
+    <!--Left side logo and post button-->
+    <div class="flex items-center mx-4">
 
-        <!--search-->
-        <form class="d-flex" style="margin:auto">
-        
+      <!--Logo-->
+      <a :href="$router.resolve({ name: 'Home' }).href">
+        <img src="https://res.cloudinary.com/dzatojfyn/image/upload/v1660927409/redditLogo_psurpk.png"
+          class="w-14 h-14">
+      </a>
 
-          <router-link :to="{ name: 'SearchGallery', query: { 'q': searchQuery }, params: {name : searchQuery} }"
-            class="btn btn-outline-success" style="margin-right:0.5rem;">
-            <BIconSearch />
-          </router-link>
-          <input v-model="searchQuery" class="form-control me-2" type="search" placeholder="Search"
-            aria-label="Search" />
-
-
-
-        </form>
-
-        <div class="second-type-login-signup" v-if="!exit()">
-          <UserLoginModal />
-          <UserSignupModal />
-        </div>
-
-        <router-link :to="{ path: '/user/' + getCurrentlyLoggedUserProfile.id }">
-          <div v-show="getCurrentlyLoggedUserProfile.id != 0" class="username-img">
-            <img :src="getCurrentlyLoggedUserProfile.imageUrl" width="50" height="40" />
-            <span class="navbar-text" style="margin-right: 2rem">{{
-                getCurrentlyLoggedUserProfile.username
-            }}</span>
-          </div>
+      <!--Show post button only when user logsin-->
+      <div class="px-4" v-if="getCurrentlyLoggedUserProfile.id !== 0">
+        <router-link :to="{ name: 'PostRequestPage' }">
+          <button class="btn btn-blue">
+            Post
+          </button>
         </router-link>
+      </div>
+    </div>
+
+    <!--other-->
+    <div class="flex justify-evenly items-center">
+
+      <!--Search bar-->
+      <div class="mx-2 block my-12">
+
+        <form class="flex m-auto">
+
+          <!--button of search icon-->
+          <button class="sm:hidden lg:block font-bold py-2 px-4 rounded border-solid hover:bg-white border-2 mx-2">
+            <router-link :to="{ name: 'SearchGallery', query: { 'q': searchQuery }, params: { name: searchQuery } }"
+              class="">
+              <BIconSearch />
+            </router-link>
+          </button>
+
+          <button class="lg:hidden md:hidden font-bold py-2 px-4 rounded border-solid  border-2 mx-2 hover:bg-orange-500" @click="toggleMobile">
+              <BIconSearch/>
+          </button>
+
+          <input v-model="searchQuery" class="rounded pl-2 sm:hidden lg:block md:block" type="search" placeholder="Search"
+            aria-label="Search" />
+        </form>
 
       </div>
 
-      <button v-show="getCurrentlyLoggedUserProfile.id != 0" class="btn btn-primary"
-        @click="logoutAndRefreshSite">Logout</button>
+
+      <!-- login/signup-->
+      <div class="lg:flex mr-3" v-if="getCurrentlyLoggedUserProfile.id === 0">
+        <UserLoginModal class="mx-2" />
+        <UserSignupModal />
+      </div>
+
+      <!-- when user is logged in show his avatar and notification bell-->
+      <div class="flex justify-envenlt items-center mr-20" v-else>
+        <router-link :to="{ path: '/user/' + getCurrentlyLoggedUserProfile.id }">
+          <div v-show="getCurrentlyLoggedUserProfile.id !== 0" class="flex items-center">
+            <img :src="getCurrentlyLoggedUserProfile.imageUrl" class="w-12 h-12 border rounded-full" />
+            <!--
+            <span class="mr-1 font-medium">{{
+                getCurrentlyLoggedUserProfile.username
+            }}</span>
+            -->
+          </div>
+        </router-link>
+        <div class="px-4">
+          <BIconBell class="w-6 h-6" />
+        </div>
+        <div>
+          <button class="btn btn-blue" @click="logoutAndRefreshSite">
+            Logout
+          </button>
+        </div>
+      </div>
+
     </div>
+
   </nav>
 </template>
 
@@ -64,7 +90,8 @@ import { mapState, mapActions } from "pinia";
 //components
 import UserLoginModal from "@/User/components/modal/UserLoginModal.vue";
 import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
-import { BIconSearch } from "bootstrap-icons-vue";
+import { BIconSearch, BIconBell } from "bootstrap-icons-vue";
+
 
 
 export default defineComponent({
@@ -72,7 +99,8 @@ export default defineComponent({
   components: {
     UserLoginModal,
     UserSignupModal,
-    BIconSearch
+    BIconSearch,
+    BIconBell,
   },
   methods: {
 
@@ -87,7 +115,7 @@ export default defineComponent({
       return false;
     },
     logoutAndRefreshSite: function (): void {
-      this.logout;
+      sessionStorage.removeItem('jwt');
       this.$router.go(0);
     },
     reRoute: function (name: string): boolean {
@@ -95,8 +123,10 @@ export default defineComponent({
         return true;
       }
       return false;
+    },
+    toggleMobile: function (): void {
+      this.toggle = !this.toggle;
     }
-
   },
   computed: {
     ...mapState(useAuthenticationStore, ['getSuccessfullLogin', 'getCurrentlyLoggedUserProfile']),
@@ -104,32 +134,24 @@ export default defineComponent({
   data() {
     return {
       isClose: false,
-      searchQuery: ''
+      searchQuery: '',
+      toggle: false
     }
   },
+  watch: {
+    getSuccessfullLogin: function (val: boolean): void {
+      if (val) {
+        console.log("succesfull relogin")
+        //this.openWebsocket();
+      }
+    }
+  },
+  created() {
+    //this.openWebsocket();
+  }
 
 });
 </script>
 
 <style scope>
-.move-right {
-  float: right;
-}
-
-.username-img {
-  display: flex;
-}
-
-.second-type-login-signup {
-  display: flex;
-  margin-right: 10px;
-}
-
-.second-type-login-signup UserLoginModal {
-  margin: 10px;
-}
-
-.signup-modal {
-  margin-left: 10px;
-}
 </style>
