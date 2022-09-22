@@ -13,8 +13,6 @@ import SearchUser from '@/Search/components/SearchUser.vue';
 
 
 
-
-
 const routes = [
     {
         path: '/',
@@ -26,7 +24,7 @@ const routes = [
                 name: "FilterCategories",
                 component: PostsGallery
             },
-        ]
+        ],
     },
     {
         path: '/search',
@@ -100,9 +98,11 @@ const router = createRouter({
 
 router.beforeEach(() => {
     const auth = useAuthenticationStore();
+
     // first check the jwt
     auth.checkIfJwtIsValid();
 
 })
+
 
 export default router

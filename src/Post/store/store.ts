@@ -10,13 +10,15 @@ import * as PostType from "@/Post/types";
 
 //toast
 import { useToast } from 'vue-toastification';
+import CustomWebSocket from "@/service/CustomWebsocket";
+import { ActivationState, IFrame } from "@stomp/stompjs";
 
 
 
 const BASE_URL = process.env.VUE_APP_BASE_URL + '/api/v1/post';
 const toast = useToast();
 
-//const globalWebsocket = CustomWebSocket.getInstance();
+const ws = CustomWebSocket.getInstance();
 
 
 
@@ -203,6 +205,7 @@ export const usePostStore = defineStore('postStore', {
       },
 
       getNumberOfLikes: function (post: PostType.FrontPagePost): number {
+         console.log("HELLO")
          let likes = 0;
          if (post.postLikeOrDislikeDtos.length !== 0) {
             post.postLikeOrDislikeDtos.filter((x) => x.likeOrDislike === true).map(() => likes++);
@@ -221,6 +224,7 @@ export const usePostStore = defineStore('postStore', {
       deletePostById: async function (id: number) {
 
 
+         console.log("Delete")
 
          await axios.delete(BASE_URL + '/' + id, {
             headers: {
@@ -275,19 +279,22 @@ export const usePostStore = defineStore('postStore', {
 
       sumLikesOrDislikesOnPost: function (post: PostType.FrontPagePost): number {
 
-
          let result = 0;
 
+         if(post.postLikeOrDislikeDtos.length !== 0) {
          post.postLikeOrDislikeDtos
             .map((l) => {
 
+               console.log("Map")
                if (l.likeOrDislike) {
                   result++;
                } else {
                   result--;
                }
             })
+         }
 
+         console.log(result)
          return result;
       },
 
@@ -335,9 +342,15 @@ export const usePostStore = defineStore('postStore', {
       },
 
       //websocket
-      subscribeToTopic: async function (topic: string): Promise<void> {
-         console.log("sub")
 
+      subscribeToTopic: function (topic: string) {
+         ws.getClient().onConnect = () => {
+            console.log("Connect");
+            ws.getClient().subscribe("/topic/" + topic, (msg) => {
+               console.log(msg.body)
+               this.$state.posts = JSON.parse(msg.body);
+            })
+         }
       },
 
    },

@@ -31,52 +31,56 @@
                 !meta.touched || meta.valid
                   ? 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:outline-blue-500 focus:border-blue-500 block w-full p-2.5'
                   : 'bg-gray-50 border text-gray-900 text-sm rounded-lg outline-red-500 border-red-500 block w-full p-2.5 mb-1'
-              " placeholder="Description" />
+              " placeholder="Description"  />
             </Field>
             <ErrorMessage name="text" class="block text-center" />
           </div>
 
-
+          <hr class="my-2 border border-gray-500">
 
           <!--Upload file-->
-          <div class="mb-6 grid justify-end">
-            <hr class="my-2">
-            <Field name="upload">
+          <div class="mb-6 grid justify-center">
+            <Field name="upload" class="">
               <label for="formFile" class="text-center mb-3">Upload image</label>
               <input class="form-control" type="file" id="formFile" ref="fileUpload" @change="onChangeInput" />
             </Field>
             <ErrorMessage name="upload" class="block text-center" />
-            <hr class="my-2">
-          </div>
-
-          <!--Preview image-->
-          <div class="preview" v-if="preview">
-            <vue-final-modal v-model="enlargeImage" classes="modal-container" content-class="modal-content">
-              <img @click="enlargeImageFunction" class="" :src="preview" />
-            </vue-final-modal>
-            <img @click="enlargeImageFunction" class="" :src="preview" />
           </div>
 
           <!--Text area for image url-->
           <div class="mb-6">
             <fieldset :disabled="isDisabled">
-              <Field name="imageUrl" v-slot="{ field, meta }">
+              <Field name="imageUrl" v-slot="{ field, meta }" ref="temp">
                 <label for="imageUrl" class="block text-center">Image url</label>
                 <input v-bind="field" :class="
                   !meta.touched || meta.valid
                     ? 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:outline-blue-500 focus:border-blue-500 block w-full p-2.5'
                     : 'bg-gray-50 border text-gray-900 text-sm rounded-lg outline-red-500 border-red-500 block w-full p-2.5 mb-1'
-                " placeholder="Image url" />
+                " :placeholder="isDisabled ? 'Disabled image url' : 'Image url'" ref="imageText" />
+
               </Field>
 
               <ErrorMessage name="imageUrl" />
             </fieldset>
           </div>
 
+
+          <!--Preview image-->
+          <div class="hover:cursor-zoom-in" v-if="preview">
+            <vue-final-modal v-model="enlargeImage" classes="modal-container" content-class="modal-content">
+              <img @click="enlargeImageFunction" class="w-full hover:cursor-zoom-out" :src="preview" />
+            </vue-final-modal>
+            <img @click="enlargeImageFunction" class="lg:max-w-2xl md:max-w-lg sm:max-w-sm" :src="preview" />
+          </div>
+
+          <hr class="my-2 border border-gray-500">
+
           <!-- Categories -->
-          <Multiselect v-model="categoryOptions" :options="getAllCategories.map(i => i.name)" mode="tags"
-            placeholder="Select categories" :close-on-select="false" :searchable="true" />
-          <ErrorMessage name="categoryOptions" class="block text-center" />
+          <div class="my-4">
+            <Multiselect v-model="categoryOptions" :options="getAllCategories.map(i => i.name)" mode="tags"
+              placeholder="Select categories" :close-on-select="false" :searchable="true" />
+            <ErrorMessage name="categoryOptions" class="block text-center" />
+          </div>
 
 
           <!--Checkbox for comments-->
@@ -118,7 +122,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 
 //pinia
 import { useAuthenticationStore } from "@/User/store/authentication_store";
@@ -184,26 +188,27 @@ export default defineComponent({
         .optional()
         .when("imageUrl", {
           is: (value: string) => {
-            if (value?.length === 0 || value == "undefined") {
+
+            if (value?.length === 0 || value === undefined) {
               return true;
             }
+
             return false;
           },
-          then: (rule: any) =>
-            rule.required("Image url is empty, upload image instead."),
+          then: yup.mixed().required("Image url is empty, upload image instead")
         }),
+
     });
 
     return {
       schema,
       locationOfFile: null as File | null,
       isDisabled: false,
-      imageUrl: "",
       isAllowedComment: false,
       disableButton: false,
       preview: '',
       enlargeImage: false,
-      categoryOptions: []
+      categoryOptions: [],
     };
   },
   computed: {
@@ -236,16 +241,15 @@ export default defineComponent({
         this.toast.warning("Sign in to post");
         return;
       }
+
     },
     onChangeInput: function (event: any): void {
       let temp: HTMLInputElement = event.target;
       this.locationOfFile = temp.files![0];
-      console.log("file", this.locationOfFile);
       this.isDisabled = true;
 
       //for preview
       this.preview = URL.createObjectURL(this.locationOfFile);
-      console.log("Preview", this.preview);
     },
     enlargeImageFunction: function () {
       this.enlargeImage = !this.enlargeImage;
@@ -282,14 +286,6 @@ export default defineComponent({
 @import "@vueform/multiselect/themes/default.css";
 
 
-.form-color-error {
-  background-color: #fddfe2;
-  color: #f23648;
-}
-
-span {
-  color: #f23648;
-}
 
 ::v-deep .modal-container {
   display: flex;

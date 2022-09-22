@@ -21,8 +21,8 @@
           @click.prevent="getPostsByCategoryName(category.name)">
           <router-link :to="{ name: 'FilterCategories', query: { category: category.name } }">
             <div class="flex justify-center">
-              <img :src="category.iconUrl" style="width: 50px" />
-              <div class="mr-1"><span>{{ category.name }}</span></div>
+              <img :src="category.iconUrl" class="lg:w-12 md:w-12 sm:w-10" />
+              <div class="lg:m-auto md:m-auto sm:my-auto sm:ml-1 sm:mr-auto"><span>{{ category.name }}</span></div>
             </div>
           </router-link>
         </button>
@@ -39,7 +39,7 @@
           <button id="dropdownDefault"
             :class="isToggleDropdown ?'btn btn-ligh hover:bg-gray-500 ml-auto sm:mb-1 lg:mb-0 bg-gray-500' : 'btn btn-ligh hover:bg-gray-500'"
             v-on:click="toggleDropDownMenu">
-            
+
             <BIconFilter class="w-7 h-7" />
           </button>
 
@@ -66,49 +66,9 @@
       <!--Main-->
       <div class="flex my-3 justify-center border-solid border-2 border-gray-300 rounded p-4 shadow-lg"
         v-for="post in posts" :key="post.id">
+
         <!--Left side for like and dislike-->
-        <div class="pr-1">
-          <!--Like and dislike buttons-->
-          <div class="grid items-center">
-            <!--Like button-->
-            <div class="">
-              <button @click.prevent="
-                postLikeOrDislikeForPost({
-                  postId: post.id,
-                  likeOrDislike: true,
-                })
-              " class="btn btn-ligh hover:bg-gray-500">
-                <BIconArrowUp
-                  :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserUpvoted(post.id) : 'text-gray-600'" />
-              </button>
-            </div>
-
-            <!--Number of likes or dislikes-->
-            <div>
-              <span v-if="sumLikesOrDislikesOnPost(post) > 0"
-                :class="sumLikesOrDislikesOnPost(post) > 0 ? 'text-blue-600 grid justify-center' : 'text-red-600 grid justify-center'">{{
-                sumLikesOrDislikesOnPost(post)
-                }}</span>
-              <span v-else class="grid justify-center">
-                {{ 0 }}
-              </span>
-            </div>
-
-            <!--Dislike button-->
-            <div>
-              <button @click.prevent="
-                postLikeOrDislikeForPost({
-                  postId: post.id,
-                  likeOrDislike: false,
-                })
-              " class="btn btn-light hover:bg-gray-500">
-                <BIconArrowDown
-                  :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'text-gray-600'" />
-
-              </button>
-            </div>
-          </div>
-        </div>
+        <LikeDislikeComponentVue :post="post" :getCurrentlyLoggedUserProfile="getCurrentlyLoggedUserProfile" />
 
         <!--Posts-->
         <div class="sm:max-w-sm lg:max-w-lg">
@@ -132,8 +92,8 @@
 
             <!--Text-->
             <div class="px-6 py-4">
-              <div class="font-bold text-xl mb-2">{{ post.title }}</div>
-              <p class="text-gray-700 text-base">
+              <div class="font-bold text-xl mb-2 text-center">{{ post.title }}</div>
+              <p class="text-gray-700 text-base break-words">
                 {{ post.text }}
               </p>
             </div>
@@ -185,10 +145,9 @@ import { useCategoryStore } from "../store/category-store";
 import {
   BIconChatFill,
   BIconFilter,
-  BIconArrowUp,
-  BIconArrowDown
 } from "bootstrap-icons-vue";
 import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
+import LikeDislikeComponentVue from "./LikeDislikeComponent.vue";
 
 //types
 import { FrontPagePost } from '@/Post/types';
@@ -198,11 +157,10 @@ import { PostedBy } from '@/User/types';
 export default defineComponent({
   name: "PostsGallery",
   components: {
-    BIconArrowUp,
-    BIconArrowDown,
     BIconChatFill,
     UserSignupModal,
     BIconFilter,
+    LikeDislikeComponentVue
   },
   methods: {
     ...mapActions(usePostStore, [
@@ -237,29 +195,6 @@ export default defineComponent({
       return result.likeOrDislike;
 
     },
-    checkIfUserUpvoted: function (postId: number): string {
-
-      let find = this.findLikeOrDislikedPost(postId);
-      //console.log("Upvote")
-
-      if (find !== undefined && this.getCurrentlyLoggedUserProfile.id) {
-        if (find)
-          return 'up-vote-arrow';
-      }
-
-      return 'default-arrow';
-
-    },
-    checkIfUserDownVoted: function (postId: number): string {
-      let find = this.findLikeOrDislikedPost(postId);
-
-      if (find !== undefined && this.getCurrentlyLoggedUserProfile.id !== 0) {
-        if (find === false)
-          return 'down-vote-arrow';
-      }
-      return 'default-arrow';
-
-    },
 
     cssForNumberOfLikes: function (numberOfLikesOrDislikes: number): string {
       if (numberOfLikesOrDislikes > 0) {
@@ -273,9 +208,9 @@ export default defineComponent({
     toggleDropDownMenu: function (): void {
       this.isToggleDropdown = !this.isToggleDropdown;
     },
-    temp: function() : void {
+    temp: function (): void {
       this.isToggleDropdown = false;
-    }
+    },
   },
   computed: {
     ...mapState(useAuthenticationStore, ["getCurrentlyLoggedUserProfile"]),
@@ -295,14 +230,17 @@ export default defineComponent({
     };
   },
   mounted() {
+
+
+    this.subscribeToTopic('post')
+
+
     if (this.getCurrentlyLoggedUserProfile.id != 0) {
       this.isClose = true;
     }
     this.fetchAllCategories();
+
   },
-  created() {
-    this.subscribeToTopic('post');
-  }
 });
 </script>
 

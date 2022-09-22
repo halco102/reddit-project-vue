@@ -21,7 +21,6 @@ const options: PluginOptions = {
 const app = createApp(App);
 app.use(pinia)
 app.use(router)
-//app.use(BootStrapVue3)
 app.use(Toast, options)
 app.use(VueFinalModal)
 app.mount('#app')

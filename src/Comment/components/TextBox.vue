@@ -22,7 +22,7 @@
                     <div class="relative lg:flex-1">
                         <!--Icon-->
                         <div class="absolute right-0 top-2 mr-2 flex">
-                            <BIconEmojiSmile class="w-5 h-5 hover:cursor-pointer" />
+                            <BIconEmojiSmile class="w-5 h-5 hover:cursor-pointer" @click="toggleEmojiMethod" />
                         </div>
 
                         <!--Textarea-->
@@ -31,9 +31,9 @@
                             placeholder="Your message..." v-model="txt"></textarea>
                     </div>
 
-                    <VuemojiPicker @emojiClick="handleEmojiClick"
-                        class="lg:absolute lg:right-0 lg:mr-64 sm:grid sm:justify-center md:grid md:justify-center sm:mt-2 md:mt-2"
-                        v-if="true" />
+                    <VuemojiPicker @emojiClick="handleEmojiClick " 
+                        class="lg:absolute lg:right-0 lg:mr-64 sm:grid sm:justify-center md:grid md:justify-center sm:mt-2 md:mt-2 lg:z-50 md:z-50"
+                        v-if="toggleEmoji" />
 
                 </div>
                 <!--Ovaj za vuemoji i text-->
@@ -74,7 +74,8 @@ export default defineComponent({
     },
     data() {
         return {
-            txt: ''
+            txt: '',
+            toggleEmoji: false
         }
     },
     setup() {
@@ -129,6 +130,9 @@ export default defineComponent({
                 this.txt += detail.unicode;
             }
         },
+        toggleEmojiMethod : function() : void {
+            this.toggleEmoji = !this.toggleEmoji;
+        }
     },
     props: {
         postId: {

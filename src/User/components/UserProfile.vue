@@ -11,7 +11,7 @@
         </div>
 
         <!--Email and date on right side-->
-        <div class="pl-4">
+        <div class="pl-4 pt-4">
           <p class="font-serif">Email: {{ getUserProfile.email }}</p>
           <p class="font-serif">Created at: {{ getUserProfile.createdAt }}</p>
         </div>
@@ -31,10 +31,11 @@
     </div>
 
 
-    <div class="grid w-fit">
+    <!--User post and comments section-->
+    <div class="grid">
 
       <!--Router link to filter post or comments of user-->
-      <div class="flex justify-around my-6">
+      <div class="flex justify-evenly my-6">
 
         <router-link :to="{ name: 'FilterPosts', query: {filter: 'posts'} }">
           <button @click="currentlyFocusedFilter(true, false)"
@@ -48,9 +49,10 @@
 
       </div>
 
+
       <!--Filtered items-->
       <div class="grid justify-center">
-        <router-view :user="getUserProfile" :posts="getUserProfile.posts" :isCurrentUser="isCurrentUser()">
+        <router-view :user="getUserProfile" :isCurrentUser="isCurrentUser()">
         </router-view>
       </div>
 
@@ -63,6 +65,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+
 
 //components
 import UserProfileStatsVue from "./UserProfileStats.vue";
@@ -85,9 +88,7 @@ export default defineComponent({
     ...mapActions(useUserStore, [
       "getUserByIdOrUsername",
       "getAllPostsFromUserByUserId",
-      "openUserWebsocket",
       'sendUserMessage',
-
     ]),
     ...mapActions(useAuthenticationStore, []),
     ...mapActions(usePostStore, ["deletePostById"]),
@@ -161,7 +162,7 @@ export default defineComponent({
     return {
       likes: 0,
       events: {
-        isPost: true,
+        isPost: false,
         isComment: false
       }
     };
@@ -174,7 +175,7 @@ export default defineComponent({
   created() {
     let convertStringToInt = +this.$route.params.userId;
     this.getUserByIdOrUsername(convertStringToInt, null);
-    this.openUserWebsocket();
+
   },
   watch: {
     getUserProfile: function () {
@@ -192,7 +193,8 @@ export default defineComponent({
     getIsDeleted: function () {
       console.log("Post is deleted");
       this.sendUserMessage(this.getUserProfile);
-    }
+    },
+
   },
 });
 </script>
