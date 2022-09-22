@@ -2,33 +2,8 @@
 
   <div id="main" class="md:flex lg:flex sm:grid justify-items-center">
 
-    <div id="categories-signup/login"
-      class="grid sm:my-16 md:ml-26 lg:ml-26 xl:ml-32 w-64 h-fit lg:mt-16 justify-center xl:absolute lg:grid  ">
-      <!--Login and signup-->
-      <div
-        class="mb-3 text-center border-solid border-2 border-black py-4 rounded sm:m-auto sm:mb-2 sm:p-6 lg:mx-0 lg:mb-2 md:mx-0 md:mb-2">
-        <h3>
-          New to app? <br />
-          Signup here<br />
-        </h3>
-        <UserSignupModal />
-      </div>
+    <LoginAndCategories :categories="getAllCategories" />
 
-      <!--categories-->
-      <div class="sm:flex md:grid lg:grid border-solid border-2 rounded p-2 border-black">
-        <button class="btn btn-blue mb-2 sm:mx-2 sm:px-6 sm:w-1/5 md:w-11/12 lg:w-11/12"
-          v-for="category in getAllCategories" :key="category.id"
-          @click.prevent="getPostsByCategoryName(category.name)">
-          <router-link :to="{ name: 'FilterCategories', query: { category: category.name } }">
-            <div class="flex justify-center">
-              <img :src="category.iconUrl" class="lg:w-12 md:w-12 sm:w-10" />
-              <div class="lg:m-auto md:m-auto sm:my-auto sm:ml-1 sm:mr-auto"><span>{{ category.name }}</span></div>
-            </div>
-          </router-link>
-        </button>
-      </div>
-
-    </div>
 
     <div class="grid flex-1 justify-center overflow-hidden">
 
@@ -146,8 +121,8 @@ import {
   BIconChatFill,
   BIconFilter,
 } from "bootstrap-icons-vue";
-import UserSignupModal from "@/User/components/modal/UserSignupModal.vue";
 import LikeDislikeComponentVue from "./LikeDislikeComponent.vue";
+import LoginAndCategories from '@/Post/components/LeftSide/LoginAndCategories.vue'
 
 //types
 import { FrontPagePost } from '@/Post/types';
@@ -158,9 +133,9 @@ export default defineComponent({
   name: "PostsGallery",
   components: {
     BIconChatFill,
-    UserSignupModal,
     BIconFilter,
-    LikeDislikeComponentVue
+    LikeDislikeComponentVue,
+    LoginAndCategories
   },
   methods: {
     ...mapActions(usePostStore, [
