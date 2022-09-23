@@ -38,21 +38,41 @@
 
       </div>
 
-      <!--Main-->
+      <div v-for="post in posts" :key="post.id">
+        <CustomCard :post="post" :hasLikeAndDislike="true" :currentlyLoggedUser="getCurrentlyLoggedUserProfile"
+          :hasCategories="true" :hasCardIcons="true">
+
+          <template #cardText>
+            <Text :title="'test'" :description="'testign'" />
+          </template>
+
+          <template #cardIcons>
+            <IconsForCard :post="post">
+              <template #commentIcon>
+                <ButtonComponent :disabled="false" >
+                  <template #icon>
+                    <BIconChatFill class="w-4 h-4" />
+                  </template>
+                </ButtonComponent>
+              </template>
+            </IconsForCard>
+          </template>
+
+        </CustomCard>
+      </div>
+      <!--Main
       <div class="flex my-3 justify-center border-solid border-2 border-gray-300 rounded p-4 shadow-lg"
         v-for="post in posts" :key="post.id">
 
-        <!--Left side for like and dislike-->
         <LikeDislikeComponentVue :post="post" :getCurrentlyLoggedUserProfile="getCurrentlyLoggedUserProfile" />
 
-        <!--Posts-->
         <div class="sm:max-w-sm lg:max-w-lg">
           <router-link
             class="sm:max-w-sm lg:max-w-lg md:max-w-md rounded overflow-hidden shadow-lg divide-y-2 mx-auto my-2"
             :to="{ name: 'SinglePage', params: { id: post.id } }">
+
             <img class="lg:max-w-lg sm:sm:max-w-sm mb-3" :src="post.imageUrl" :alt="post.title">
 
-            <!--Categories-->
             <div class="flex flex-wrap max-w-[600px]">
               <div class="px-6 pt-4 pb-2 w-1/3" v-for="category in post.categories" :key="category.id">
                 <span
@@ -65,7 +85,6 @@
               </div>
             </div>
 
-            <!--Text-->
             <div class="px-6 py-4">
               <div class="font-bold text-xl mb-2 text-center">{{ post.title }}</div>
               <p class="text-gray-700 text-base break-words">
@@ -73,36 +92,23 @@
               </p>
             </div>
 
-            <!--User avatar and chat bubble (in future share link icon)-->
-            <div class="flex justify-between pt-2">
 
-              <!--User-->
-              <router-link :to="{ path: '/user/' + post.postedBy.id }">
-                <a class="btn btn-light flex hover:bg-gray-400">
-                  <img class="w-10 h-10 border-solid border-2 border-gray-600 rounded-full"
-                    :src="post.postedBy.imageUrl" alt="" />
-                  <div class="flex">
-                    <span class="self-center p-1">{{ post.postedBy.username }}</span>
-                  </div>
-                </a>
-              </router-link>
 
-              <!--Chat button-->
-              <div class="w-fill">
+            <IconsForCard :post="post">
+              <template #icon>
                 <button v-if="post.allowComments" class="btn btn-light hover:bg-gray-400">
                   <BIconChatFill /> {{ post.commentsDto.length }}
                 </button>
-              </div>
-
-            </div>
+              </template>
+            </IconsForCard>
 
           </router-link>
 
-        </div>
-
-        <!--left and right side same size 48px-->
-        <div id="ghost-div" class="w-[48px]"></div>
       </div>
+-->
+
+      <!--left and right side same size 48px-->
+      <div id="ghost-div" class="w-[48px]"></div>
     </div>
   </div>
 </template>
@@ -115,6 +121,10 @@ import { usePostStore } from "@/Post/store/store";
 import { mapState, mapActions } from "pinia";
 import { useAuthenticationStore } from "@/User/store/authentication_store";
 import { useCategoryStore } from "../store/category-store";
+import IconsForCard from '@/Post/components/CardIcons.vue'
+import CustomCard from '@/components/CustomCard/Cards.vue'
+import Text from "@/components/CustomCard/Text.vue";
+import ButtonComponent from "@/components/ButtonComponent.vue";
 
 //components
 import {
@@ -134,8 +144,11 @@ export default defineComponent({
   components: {
     BIconChatFill,
     BIconFilter,
-    LikeDislikeComponentVue,
-    LoginAndCategories
+    LoginAndCategories,
+    CustomCard,
+    Text,
+    ButtonComponent,
+    IconsForCard
   },
   methods: {
     ...mapActions(usePostStore, [

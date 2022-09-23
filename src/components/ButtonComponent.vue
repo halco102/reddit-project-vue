@@ -1,14 +1,21 @@
 <template>
     <button class="font-bold py-2 px-4 rounded" @click="onClick">
-        {{title}}
+
+        <span v-if="title != undefined" :class="hasIcon ? 'my-auto ' : ''">
+            {{title}}
+        </span>
+
         <template v-if="hasIcon">
-            <span name="icon"></span>
+            <slot name="icon"></slot>
         </template>
+
     </button>
 </template>
 
 <script lang="ts">
+
 import { defineComponent, useSlots } from 'vue';
+
 
 export default defineComponent({
     name: 'ButtonComponent',
@@ -16,12 +23,13 @@ export default defineComponent({
         title: {
             type: String,
             default: '',
-            required: true
+            required: false
         },
         disabled: {
             type: Boolean || undefined,
             required: true
-        }
+        },
+        directionOfImage: String || undefined
     },
     setup() {
         const slot = useSlots();
@@ -38,6 +46,27 @@ export default defineComponent({
         onClick: function (): void {
             console.log("Clicked")
             this.$emit("onClick",);
+        }
+    },
+    mounted(){
+        switch(this.directionOfImage) {
+            case 'LEFT' :{
+                this.customCss += 'order-1'
+                break;
+            }
+            case 'RIGHT' : {
+                this.customCss += 'order-2';
+                break;
+            }
+            default: {
+                console.log("Wrong")
+                break;
+            }
+        }
+    },
+    data(){
+        return{
+            customCss: ''
         }
     }
 })
