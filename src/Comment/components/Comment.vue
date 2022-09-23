@@ -16,15 +16,17 @@
 
       <!-- Main textbox for comments-->
       <div class="m-auto">
-        <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id"/>
+        <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" />
       </div>
 
 
       <div v-for="com in getAllCommentsByPostId" :key="com.id" :class="com.parentId === null ?
       'sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden   mx-auto my-6'
       : 'sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden  mx-auto my-6  pl-10'">
+
+        <CommentIcons :comment="com" />
         <!-- Chat -->
-        <div class="grid">
+        <div class="grid" v-if="1>2">
           <div class="flex">
 
             <!-- Users image-->
@@ -42,47 +44,8 @@
               <div>
                 {{ com.text }}
               </div>
-              <!-- Like/dislike and reply button, in some case bin for deleting comments-->
-              <div class="flex my-3">
 
-                <!--Like and Dislike-->
-                <div class="mr-4 flex">
 
-                  <!--Like button with number of likes-->
-                  <div class="mr-4">
-                    <button class="pr-2 hover:bg-gray-500 rounded-sm p-1" @click="postLikeOrDislike({
-                      commentId: com.id,
-                      likeOrDislike: true,
-                    })">
-                      <BIconHandThumbsUpFill />
-                    </button>
-                    <span>{{ getNumberOfLikes(com) }}</span>
-                  </div>
-
-                  <!--Dislike button with number of dislikes-->
-                  <div class=" mr-4">
-                    <button class="pr-2 hover:bg-gray-500 rounded-sm p-1" @click="postLikeOrDislike({
-                      commentId: com.id,
-                      likeOrDislike: false,
-                    })">
-                      <BIconHandThumbsDownFill />
-                    </button>
-                    <span>{{ getNumberOfDislikes(com) }}</span>
-                  </div>
-                </div>
-
-                <button class="hover:bg-gray-500 rounded-sm p-1" @click="toggle(com.id)">
-                  <BIconReply />
-                </button>
-
-                <!-- Trash icon for owner of the comment-->
-                <div class="flex-1 relative" v-if="getCurrentlyLoggedUserProfile.id !== 0">
-                  <button @click="deleteCommentById(com.id)">
-                    <BIconTrash class="absolute bottom-0 right-0" />
-                  </button>
-                </div>
-
-              </div>
 
             </div>
 
@@ -91,7 +54,7 @@
           <!--Show reply text area when button reply is clicked-->
           <div v-if="(selectedItem !== 0 && selectedItem === com.id)">
             <hr class="border-1 border-gray-500">
-            <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" :parentId="com.id"/>
+            <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" :parentId="com.id" />
           </div>
 
         </div>
@@ -115,12 +78,7 @@ import { defineComponent, PropType } from "vue";
 import { useToast } from "vue-toastification";
 
 //components
-import {
-  BIconHandThumbsUpFill,
-  BIconHandThumbsDownFill,
-  BIconReply,
-  BIconTrash,
-} from "bootstrap-icons-vue";
+import CommentIcons from '../components/CommentIcons.vue'
 
 //pinia
 import { useCommentStore } from "@/Comment/store/store";
@@ -137,11 +95,8 @@ import TextBoxVue from "./TextBox.vue";
 export default defineComponent({
   name: "CommentSection",
   components: {
-    BIconHandThumbsUpFill,
-    BIconHandThumbsDownFill,
-    BIconReply,
-    BIconTrash,
-    TextBoxVue
+    TextBoxVue,
+    CommentIcons
   },
   props: {
     post: Object as PropType<FrontPagePost>,

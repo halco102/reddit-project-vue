@@ -4,15 +4,15 @@
         <div class="grid items-center">
             <!--Like button-->
             <div class="">
-                <button @click.prevent="
-                  postLikeOrDislikeForPost({
-                    postId: post.id,
-                    likeOrDislike: true,
-                  })
-                " class="btn btn-ligh hover:bg-gray-500">
-                    <BIconArrowUp
-                        :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserUpvoted(post.id) : 'text-gray-600'" />
-                </button>
+                <ButtonComponent :disabled="false" class="hover:bg-gray-500" @onClick="postLikeOrDislikeForPost({
+                  postId: post.id,
+                  likeOrDislike: true,
+                })">
+                    <template #icon>
+                        <BIconArrowUp
+                            :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserUpvoted(post.id) : 'text-gray-600'" />
+                    </template>
+                </ButtonComponent>
             </div>
 
             <!--Number of likes or dislikes-->
@@ -22,17 +22,16 @@
             </div>
 
             <!--Dislike button-->
-            <div>
-                <button @click.prevent="
-                  postLikeOrDislikeForPost({
-                    postId: post.id,
-                    likeOrDislike: false,
-                  })
-                " class="btn btn-light hover:bg-gray-500">
+            <ButtonComponent :disabled="false" class="hover:bg-gray-500" @onClick="postLikeOrDislikeForPost({
+              postId: post.id,
+              likeOrDislike: false,
+            })">
+                <template #icon>
                     <BIconArrowDown
                         :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post.id) : 'text-gray-600'" />
-
-                </button>
+                </template>
+            </ButtonComponent>
+            <div>
             </div>
         </div>
     </div>
@@ -45,6 +44,7 @@ import { mapActions } from 'pinia';
 import { usePostStore } from '../store/store';
 import { FrontPagePost, LikeOrDislikeRequest } from '../types';
 import { UserProfile } from '@/User/types';
+import ButtonComponent from '@/components/ButtonComponent.vue';
 
 import {
     BIconArrowUp,
@@ -56,6 +56,7 @@ export default defineComponent({
     components: {
         BIconArrowUp,
         BIconArrowDown,
+        ButtonComponent
     },
     methods: {
         ...mapActions(usePostStore, ['postLikeOrDislikeForPost']),
@@ -107,6 +108,12 @@ export default defineComponent({
             return 'text-gray-600, text-center';
 
         },
+        onButtonClicked: function (postId: number, likeDislike: boolean): void {
+            this.postLikeOrDislikeForPost({
+                postId: postId,
+                likeOrDislike: likeDislike,
+            })
+        }
     },
     props: {
         post: {

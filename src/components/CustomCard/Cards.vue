@@ -4,14 +4,14 @@
 
         <!--Like and dislike -->
         <div v-if="hasLikeAndDislike">
-            <LikeDislikeComponent :post="post" :getCurrentlyLoggedUserProfile="currentlyLoggedUser" />
+            <LikeDislikeComponent :post="post" :getCurrentlyLoggedUserProfile="currentlyLoggedUser!" />
         </div>
 
-        <div class="sm:max-w-sm lg:max-w-lg">
+        <div class="sm:max-w-sm xl:max-w-xl lg:max-w-lg" v-bind="$attrs">
 
             <!--Image-->
-            <div>
-                <img class="lg:max-w-lg sm:sm:max-w-sm mb-3" :src="post.imageUrl" :alt="post.title">
+            <div v-bind="$attrs">
+                <img  class="xl:max-w-xl lg:max-w-lg sm:sm:max-w-sm mb-6 p-6" :src="post.imageUrl" :alt="post.title">
             </div>
 
             <!--Categories-->
@@ -30,7 +30,6 @@
 
             <!--User profile and other icons if necessary-->
             <div v-if="hasCardIcons">
-                {{hasCardIcons}} yeas
                 <hr class=" border border-black w-full" />
                 <slot name="cardIcons"></slot>
             </div>
@@ -59,7 +58,7 @@ export default defineComponent({
             required: true
         },
         currentlyLoggedUser: {
-            type: Object as () => UserProfile,
+            type: Object as () => UserProfile | null,
             required: true
         },
         hasCategories: {

@@ -39,11 +39,16 @@
       </div>
 
       <div v-for="post in posts" :key="post.id">
+        <router-link :to="{ name: 'SinglePage', params: { id: post.id } }">
         <CustomCard :post="post" :hasLikeAndDislike="true" :currentlyLoggedUser="getCurrentlyLoggedUserProfile"
-          :hasCategories="true" :hasCardIcons="true">
+          :hasCategories="true" :hasCardIcons="true" class="mr-14">
 
           <template #cardText>
             <Text :title="'test'" :description="'testign'" />
+          </template>
+
+          <template #categories>
+            <GenreCard :categories="post.categories" />
           </template>
 
           <template #cardIcons>
@@ -51,7 +56,9 @@
               <template #commentIcon>
                 <ButtonComponent :disabled="false" >
                   <template #icon>
-                    <BIconChatFill class="w-4 h-4" />
+                    <router-link :to="{ name: 'SinglePage', params: { id: post.id } }">
+                      <BIconChatFill class="w-5 h-5" />
+                    </router-link>
                   </template>
                 </ButtonComponent>
               </template>
@@ -59,56 +66,9 @@
           </template>
 
         </CustomCard>
+        </router-link>
       </div>
-      <!--Main
-      <div class="flex my-3 justify-center border-solid border-2 border-gray-300 rounded p-4 shadow-lg"
-        v-for="post in posts" :key="post.id">
-
-        <LikeDislikeComponentVue :post="post" :getCurrentlyLoggedUserProfile="getCurrentlyLoggedUserProfile" />
-
-        <div class="sm:max-w-sm lg:max-w-lg">
-          <router-link
-            class="sm:max-w-sm lg:max-w-lg md:max-w-md rounded overflow-hidden shadow-lg divide-y-2 mx-auto my-2"
-            :to="{ name: 'SinglePage', params: { id: post.id } }">
-
-            <img class="lg:max-w-lg sm:sm:max-w-sm mb-3" :src="post.imageUrl" :alt="post.title">
-
-            <div class="flex flex-wrap max-w-[600px]">
-              <div class="px-6 pt-4 pb-2 w-1/3" v-for="category in post.categories" :key="category.id">
-                <span
-                  class="inline-block bg-gray-200 hover:bg-gray-400 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                  <router-link :to="{ name: 'FilterCategories', query: { category: category.name } }"
-                    class="btn btn-ligh " @click.prevent="getPostsByCategoryName(category.name)">#{{
-                    category.name
-                    }}</router-link>
-                </span>
-              </div>
-            </div>
-
-            <div class="px-6 py-4">
-              <div class="font-bold text-xl mb-2 text-center">{{ post.title }}</div>
-              <p class="text-gray-700 text-base break-words">
-                {{ post.text }}
-              </p>
-            </div>
-
-
-
-            <IconsForCard :post="post">
-              <template #icon>
-                <button v-if="post.allowComments" class="btn btn-light hover:bg-gray-400">
-                  <BIconChatFill /> {{ post.commentsDto.length }}
-                </button>
-              </template>
-            </IconsForCard>
-
-          </router-link>
-
-      </div>
--->
-
-      <!--left and right side same size 48px-->
-      <div id="ghost-div" class="w-[48px]"></div>
+    
     </div>
   </div>
 </template>
@@ -133,6 +93,7 @@ import {
 } from "bootstrap-icons-vue";
 import LikeDislikeComponentVue from "./LikeDislikeComponent.vue";
 import LoginAndCategories from '@/Post/components/LeftSide/LoginAndCategories.vue'
+import GenreCard from "./Categories/GenreCard.vue";
 
 //types
 import { FrontPagePost } from '@/Post/types';
@@ -148,7 +109,8 @@ export default defineComponent({
     CustomCard,
     Text,
     ButtonComponent,
-    IconsForCard
+    IconsForCard,
+    GenreCard
   },
   methods: {
     ...mapActions(usePostStore, [
