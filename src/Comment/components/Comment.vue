@@ -24,39 +24,11 @@
       'sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden   mx-auto my-6'
       : 'sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden  mx-auto my-6  pl-10'">
 
-        <CommentIcons :comment="com" />
-        <!-- Chat -->
-        <div class="grid" v-if="1>2">
-          <div class="flex">
+        <CommentSectionVue :commentObject="com" :postId="post.id" />
 
-            <!-- Users image-->
-            <div>
-              <img :src="com.userInfo.imageUrl" class="rounded-full w-10 h-10 mr-3 mb-3">
-            </div>
-
-            <!-- Users username and chat text-->
-            <div class="grid flex-1 text-start pl-2">
-              <!--Username-->
-              <div class="font-semibold">
-                {{ com.userInfo.username }}
-              </div>
-              <!--Chat text-->
-              <div>
-                {{ com.text }}
-              </div>
-
-
-
-            </div>
-
-          </div>
-
-          <!--Show reply text area when button reply is clicked-->
-          <div v-if="(selectedItem !== 0 && selectedItem === com.id)">
-            <hr class="border-1 border-gray-500">
-            <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" :parentId="com.id" />
-          </div>
-
+        <div v-if="(selectedItem !== 0 && selectedItem === com.id)">
+          <hr class="border-1 border-gray-500">
+          <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" :parentId="com.id" />
         </div>
 
 
@@ -65,7 +37,7 @@
     </div>
 
     <!--Comments are not allowed-->
-    <div v-else class="mt-6">
+    <div v-if="1>2" class="mt-6">
       <h3 class="font-bold">Comments are disabled</h3>
     </div>
 
@@ -78,7 +50,6 @@ import { defineComponent, PropType } from "vue";
 import { useToast } from "vue-toastification";
 
 //components
-import CommentIcons from '../components/CommentIcons.vue'
 
 //pinia
 import { useCommentStore } from "@/Comment/store/store";
@@ -91,12 +62,13 @@ import { FrontPagePost } from "@/Post/types";
 import { CommentDto } from '@/Comment/types';
 
 import TextBoxVue from "./TextBox.vue";
+import CommentSectionVue from "./CommentSection.vue";
 
 export default defineComponent({
   name: "CommentSection",
   components: {
     TextBoxVue,
-    CommentIcons
+    CommentSectionVue
   },
   props: {
     post: Object as PropType<FrontPagePost>,

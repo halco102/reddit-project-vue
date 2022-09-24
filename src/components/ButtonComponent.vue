@@ -38,13 +38,11 @@ export default defineComponent({
     },
     computed: {
         hasIcon: function (): boolean {
-            console.log(this.slot.icon);
             return !!this.slot.icon;
         },
     },
     methods: {
         onClick: function (): void {
-            console.log("Clicked")
             this.$emit("onClick",);
         }
     },

@@ -9,7 +9,7 @@
 
             <!--Like button with number of likes-->
             <div class="mr-4">
-                <ButtonComponent :disabled=false @onClick="postLikeOrDislike({
+                <ButtonComponent class="hover:bg-gray-500 rounded-sm" :disabled=false @onClick="postLikeOrDislike({
                   commentId: comment.id,
                   likeOrDislike: true,
                 })">
@@ -22,7 +22,7 @@
 
             <!--Dislike button with number of dislikes-->
             <div class=" mr-4">
-                <ButtonComponent :disabled=false @onClick="postLikeOrDislike({
+                <ButtonComponent class="hover:bg-gray-500 rounded-sm" :disabled=false @onClick="postLikeOrDislike({
                   commentId: comment.id,
                   likeOrDislike: false,
                 })">
@@ -34,9 +34,11 @@
             </div>
         </div>
 
-        <button class="hover:bg-gray-500 rounded-sm p-1" @click="activateToggle(comment.id)">
-            <BIconReply />
-        </button>
+        <ButtonComponent class="hover:bg-gray-500 rounded-sm p-1" :disabled="false" @onClick="activateToggle(comment.id)">
+            <template #icon>
+                <BIconReply />
+            </template>
+        </ButtonComponent>
 
         <!-- Trash icon for owner of the comment-->
         <div class="flex-1 relative" v-if="getCurrentlyLoggedUserProfile.id !== 0">
@@ -77,7 +79,7 @@ export default defineComponent({
         BIconReply,
         BIconTrash,
     },
-    computed:{
+    computed: {
         ...mapState(useAuthenticationStore, ['getCurrentlyLoggedUserProfile'])
     },
     props: {
@@ -92,7 +94,8 @@ export default defineComponent({
             "getNumberOfLikes",
             "getNumberOfDislikes",
         ]),
-        activateToggle: function(commentId : number) : void{
+        activateToggle: function (commentId: number): void {
+            console.log("Toggle", commentId);
             this.$emit('toggle', commentId);
         }
     }
