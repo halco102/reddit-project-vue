@@ -4,14 +4,14 @@
 
         <!--Like and dislike -->
         <div v-if="hasLikeAndDislike">
-            <LikeDislikeComponent :post="post" :getCurrentlyLoggedUserProfile="currentlyLoggedUser!" />
+            <LikeDislikeComponent2 :post="post" />
         </div>
 
         <div class="sm:max-w-sm xl:max-w-xl lg:max-w-lg" v-bind="$attrs">
 
             <!--Image-->
             <div v-bind="$attrs">
-                <img  class="xl:max-w-xl lg:max-w-lg sm:sm:max-w-sm mb-6 p-6" :src="post.imageUrl" :alt="post.title">
+                <img class="xl:max-w-xl lg:max-w-lg sm:sm:max-w-sm mb-6 p-6" :src="post.imageUrl" :alt="post.title">
             </div>
 
             <!--Categories-->
@@ -45,6 +45,8 @@ import { defineComponent, useSlots } from 'vue';
 import LikeDislikeComponent from '@/Post/components/LikeDislikeComponent.vue';
 import { FrontPagePost } from '@/Post/types';
 import { UserProfile } from '@/User/types';
+import LikeDislikeComponent2 from '@/Post/components/LikeDislike/IconAndNumber.vue'
+
 
 export default defineComponent({
     name: 'CustomCard',
@@ -67,7 +69,8 @@ export default defineComponent({
         }
     },
     components: {
-        LikeDislikeComponent,
+        //LikeDislikeComponent,
+        LikeDislikeComponent2
     },
     setup() {
         const slots = useSlots();

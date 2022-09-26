@@ -2,7 +2,7 @@
   <!--Side bar categories-->
   <div class="sm:flex md:grid lg:grid border-solid border-2 rounded p-2 border-black">
 
-    <ButtonComponent class="my-auto flex"
+    <ButtonComponent class="my-auto flex justify-around hover:bg-gray-400 "
       v-for="category in categories" :key="category.id" :title="category.name" :disabled="false">
       <template #icon>
         <img :src="category.iconUrl" class="w-12 h-12 ml-3" />

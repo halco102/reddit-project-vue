@@ -1,5 +1,7 @@
 <template>
-    <button class="font-bold py-2 px-4 rounded" @click="onClick">
+    <button
+        class="font-bold py-2 px-4 rounded disabled:opacity-50 hover:opacity-70 focus:ring-1 focus:ring-blue-500 active:opacity-80 "
+        :disabled="disabled" @click="onClick">
 
         <span v-if="title != undefined" :class="hasIcon ? 'my-auto ' : ''">
             {{title}}
@@ -46,13 +48,13 @@ export default defineComponent({
             this.$emit("onClick",);
         }
     },
-    mounted(){
-        switch(this.directionOfImage) {
-            case 'LEFT' :{
+    mounted() {
+        switch (this.directionOfImage) {
+            case 'LEFT': {
                 this.customCss += 'order-1'
                 break;
             }
-            case 'RIGHT' : {
+            case 'RIGHT': {
                 this.customCss += 'order-2';
                 break;
             }
@@ -62,8 +64,8 @@ export default defineComponent({
             }
         }
     },
-    data(){
-        return{
+    data() {
+        return {
             customCss: ''
         }
     }

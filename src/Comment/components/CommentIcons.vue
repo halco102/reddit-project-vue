@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <ButtonComponent class="hover:bg-gray-500 rounded-sm p-1" :disabled="false" @onClick="activateToggle(comment.id)">
+        <ButtonComponent class="hover:bg-gray-500 rounded-sm p-1" :class="activeElement !== 0 ? 'bg-blue-300' : ''" :disabled="false" @onClick="activateToggle(comment.id)">
             <template #icon>
                 <BIconReply />
             </template>
@@ -42,9 +42,9 @@
 
         <!-- Trash icon for owner of the comment-->
         <div class="flex-1 relative" v-if="getCurrentlyLoggedUserProfile.id !== 0">
-            <ButtonComponent :disabled="false" @click="deleteCommentById(comment.id)">
+            <ButtonComponent class="absolute bottom-0 right-0 hover:bg-gray-500" :disabled="false" @click="deleteCommentById(comment.id)">
                 <template #icon>
-                    <BIconTrash class="absolute bottom-0 right-0" />
+                    <BIconTrash />
                 </template>
             </ButtonComponent>
 
@@ -95,8 +95,17 @@ export default defineComponent({
             "getNumberOfDislikes",
         ]),
         activateToggle: function (commentId: number): void {
-            console.log("Toggle", commentId);
+            if(this.activeElement !== 0) {
+                this.activeElement = 0;
+            }else{
+                this.activeElement = commentId;
+            }
             this.$emit('toggle', commentId);
+        }
+    },
+    data(){
+        return{
+            activeElement: 0 as number
         }
     }
 

@@ -2,7 +2,12 @@
 
   <div id="main" class="md:flex lg:flex sm:grid justify-items-center">
 
-    <LoginAndCategories :categories="getAllCategories" />
+    <div class="sm:hidden lg:block">
+      <LoginAndCategories :categories="getAllCategories" />
+    </div>
+    <div class="lg:hidden md:hidden mt-10 border border-black rounded-sm ">
+      <CarouselVue :categories="getAllCategories" />
+    </div>
 
 
     <div class="grid flex-1 justify-center overflow-hidden">
@@ -40,35 +45,35 @@
 
       <div v-for="post in posts" :key="post.id">
         <router-link :to="{ name: 'SinglePage', params: { id: post.id } }">
-        <CustomCard :post="post" :hasLikeAndDislike="true" :currentlyLoggedUser="getCurrentlyLoggedUserProfile"
-          :hasCategories="true" :hasCardIcons="true" class="mr-14">
+          <CustomCard :post="post" :hasLikeAndDislike="true" :currentlyLoggedUser="getCurrentlyLoggedUserProfile"
+            :hasCategories="true" :hasCardIcons="true">
 
-          <template #cardText>
-            <Text :title="'test'" :description="'testign'" />
-          </template>
+            <template #cardText>
+              <Text :title="'test'" :description="'testign'" />
+            </template>
 
-          <template #categories>
-            <GenreCard :categories="post.categories" />
-          </template>
+            <template #categories>
+              <GenreCard :categories="post.categories" />
+            </template>
 
-          <template #cardIcons>
-            <IconsForCard :post="post">
-              <template #commentIcon>
-                <ButtonComponent :disabled="false" >
-                  <template #icon>
-                    <router-link :to="{ name: 'SinglePage', params: { id: post.id } }">
-                      <BIconChatFill class="w-5 h-5" />
-                    </router-link>
-                  </template>
-                </ButtonComponent>
-              </template>
-            </IconsForCard>
-          </template>
+            <template #cardIcons>
+              <IconsForCard :post="post">
+                <template #commentIcon>
+                  <ButtonComponent :disabled="false">
+                    <template #icon>
+                      <router-link :to="{ name: 'SinglePage', params: { id: post.id } }">
+                        <BIconChatFill class="w-5 h-5" />
+                      </router-link>
+                    </template>
+                  </ButtonComponent>
+                </template>
+              </IconsForCard>
+            </template>
 
-        </CustomCard>
+          </CustomCard>
         </router-link>
       </div>
-    
+
     </div>
   </div>
 </template>
@@ -86,14 +91,15 @@ import CustomCard from '@/components/CustomCard/Cards.vue'
 import Text from "@/components/CustomCard/Text.vue";
 import ButtonComponent from "@/components/ButtonComponent.vue";
 
+
 //components
 import {
   BIconChatFill,
   BIconFilter,
 } from "bootstrap-icons-vue";
-import LikeDislikeComponentVue from "./LikeDislikeComponent.vue";
 import LoginAndCategories from '@/Post/components/LeftSide/LoginAndCategories.vue'
 import GenreCard from "./Categories/GenreCard.vue";
+import CarouselVue from "@/components/Carousel.vue";
 
 //types
 import { FrontPagePost } from '@/Post/types';
@@ -110,7 +116,8 @@ export default defineComponent({
     Text,
     ButtonComponent,
     IconsForCard,
-    GenreCard
+    GenreCard,
+    CarouselVue,
   },
   methods: {
     ...mapActions(usePostStore, [

@@ -6,7 +6,7 @@
             New to app? <br />
             Signup here<br />
         </h3>
-        <UserSignupModal />
+        <!--<UserSignupModal />-->
     </div>
 
 </template>
@@ -20,7 +20,7 @@ import UserSignupModal from '@/User/components/modal/UserSignupModal.vue';
 export default defineComponent({
     name: 'LoginAndSignup',
     components: {
-        UserSignupModal
+        //UserSignupModal
     }
 })
 </script>
