@@ -9,44 +9,44 @@
 
             <!--Like button with number of likes-->
             <div class="mr-4">
-                <ButtonComponent class="hover:bg-gray-500 rounded-sm" :disabled=false @onClick="postLikeOrDislike({
+                <VButtonIcon :disabled=false :label="getNumberOfLikes(comment)" @onClick="postLikeOrDislike({
                   commentId: comment.id,
                   likeOrDislike: true,
                 })">
                     <template #icon>
-                        <BIconHandThumbsUpFill />
+                        <BIconHandThumbsUp />
                     </template>
-                </ButtonComponent>
-                <span>{{ getNumberOfLikes(comment) }}</span>
+                </VButtonIcon>
             </div>
 
             <!--Dislike button with number of dislikes-->
             <div class=" mr-4">
-                <ButtonComponent class="hover:bg-gray-500 rounded-sm" :disabled=false @onClick="postLikeOrDislike({
+                <VButtonIcon :disabled=false :label="getNumberOfDislikes(comment)" @onClick="postLikeOrDislike({
                   commentId: comment.id,
                   likeOrDislike: false,
                 })">
                     <template #icon>
-                        <BIconHandThumbsDownFill />
+                        <BIconHandThumbsDown />
                     </template>
-                </ButtonComponent>
-                <span>{{ getNumberOfDislikes(comment) }}</span>
+                </VButtonIcon>
             </div>
         </div>
 
-        <ButtonComponent class="hover:bg-gray-500 rounded-sm p-1" :class="activeElement !== 0 ? 'bg-blue-300' : ''" :disabled="false" @onClick="activateToggle(comment.id)">
+        <VButtonIcon :class="activeElement !== 0 ? 'bg-blue-300' : ''" :disabled="false"
+            @onClick="activateToggle(comment.id)">
             <template #icon>
                 <BIconReply />
             </template>
-        </ButtonComponent>
+        </VButtonIcon>
 
         <!-- Trash icon for owner of the comment-->
         <div class="flex-1 relative" v-if="getCurrentlyLoggedUserProfile.id !== 0">
-            <ButtonComponent class="absolute bottom-0 right-0 hover:bg-gray-500" :disabled="false" @click="deleteCommentById(comment.id)">
+            <VButtonIcon class="absolute bottom-0 right-0 hover:bg-gray-500" :disabled="false"
+                @click="deleteCommentById(comment.id)">
                 <template #icon>
                     <BIconTrash />
                 </template>
-            </ButtonComponent>
+            </VButtonIcon>
 
         </div>
 
@@ -56,28 +56,30 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 
-import ButtonComponent from '@/components/ButtonComponent.vue';
 import { useCommentStore } from "@/Comment/store/store";
 import { mapActions, mapState } from "pinia";
 import { useAuthenticationStore } from '@/User/store/authentication_store'
+import VButtonIcon from '@/components/VButtonIcon.vue'
 
 //components
 import {
-    BIconHandThumbsUpFill,
-    BIconHandThumbsDownFill,
+    BIconHandThumbsUp,
+    BIconHandThumbsDown,
     BIconReply,
     BIconTrash,
+
 } from "bootstrap-icons-vue";
 import { CommentDto } from '../types';
 
 export default defineComponent({
     name: 'CommentIcons',
     components: {
-        ButtonComponent,
-        BIconHandThumbsUpFill,
-        BIconHandThumbsDownFill,
+        BIconHandThumbsUp,
+        BIconHandThumbsDown,
         BIconReply,
         BIconTrash,
+        VButtonIcon
+
     },
     computed: {
         ...mapState(useAuthenticationStore, ['getCurrentlyLoggedUserProfile'])
@@ -95,16 +97,16 @@ export default defineComponent({
             "getNumberOfDislikes",
         ]),
         activateToggle: function (commentId: number): void {
-            if(this.activeElement !== 0) {
+            if (this.activeElement !== 0) {
                 this.activeElement = 0;
-            }else{
+            } else {
                 this.activeElement = commentId;
             }
             this.$emit('toggle', commentId);
         }
     },
-    data(){
-        return{
+    data() {
+        return {
             activeElement: 0 as number
         }
     }

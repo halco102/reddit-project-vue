@@ -1,8 +1,10 @@
 <template>
 
-    <button class="bg-none hover:bg-gray-400 p-2 rounded-sm" @click="onClick">
+    <button class="hover:bg-gray-500 p-2 rounded-sm flex place-items-center gap-2" @click="onClick">
 
         <slot name="icon"></slot>
+
+        <span v-if="label !== undefined">{{label}}</span>
 
     </button>
 
@@ -21,7 +23,10 @@ export default defineComponent({
             type: Boolean || undefined,
             required: true
         },
-        label: String
+        label: {
+            type: [Number, String],
+            required: false
+        }
     },
     setup() {
         const slot = useSlots();
