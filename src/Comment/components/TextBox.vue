@@ -7,7 +7,7 @@
             postCommentThenReturnData(
                 txt,
                 postId,
-                userId,
+                getCurrentlyLoggedUserProfile.id,
                 checkParentId()
             )
         ">
@@ -61,6 +61,7 @@ import { useCommentStore } from '../store/store';
 import { useToast } from 'vue-toastification';
 
 import { VuemojiPicker, EmojiClickEventDetail } from 'vuemoji-picker'
+import { useAuthenticationStore } from '@/User/store/authentication_store';
 
 //components
 import {
@@ -83,7 +84,8 @@ export default defineComponent({
         return { toast };
     },
     computed: {
-        ...mapState(useCommentStore, ['isPostingComment'])
+        ...mapState(useCommentStore, ['isPostingComment']),
+        ...mapState(useAuthenticationStore, ['getCurrentlyLoggedUserProfile'])
     },
     methods: {
         ...mapActions(useCommentStore, ['postCommentAction']),
@@ -96,7 +98,7 @@ export default defineComponent({
         ) {
 
 
-            if (this.userId === 0 || this.userId === undefined || this.userId === null) {
+            if (idOfUser === 0 || idOfUser === undefined || idOfUser === null) {
                 this.toast.warning("You have to log in to comment!");
                 return;
             }
@@ -141,7 +143,7 @@ export default defineComponent({
         },
         userId: {
             type: Number,
-            required: true
+            required: false
         },
         parentId: {
             type: Number,
