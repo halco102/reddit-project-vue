@@ -9,7 +9,7 @@
 
             <!--Like button with number of likes-->
             <div class="mr-4">
-                <VButtonIcon :disabled=false :label="getNumberOfLikes(comment)" @onClick="postLikeOrDislike({
+                <VButtonIcon :label="getNumberOfLikes(comment)" @onClick="postLikeOrDislike({
                   commentId: comment.id,
                   likeOrDislike: true,
                 })">
@@ -21,7 +21,7 @@
 
             <!--Dislike button with number of dislikes-->
             <div class=" mr-4">
-                <VButtonIcon :disabled=false :label="getNumberOfDislikes(comment)" @onClick="postLikeOrDislike({
+                <VButtonIcon :label="getNumberOfDislikes(comment)" @onClick="postLikeOrDislike({
                   commentId: comment.id,
                   likeOrDislike: false,
                 })">
@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        <VButtonIcon :class="activeElement !== 0 ? 'bg-blue-300' : ''" :disabled="false"
+        <VButtonIcon :class="{'focus:outline-none focus:ring focus:bg-gray-500' : activeElement !== 0}"
             @onClick="activateToggle(comment.id)">
             <template #icon>
                 <BIconReply />
@@ -41,8 +41,7 @@
 
         <!-- Trash icon for owner of the comment-->
         <div class="flex-1 relative" v-if="getCurrentlyLoggedUserProfile.id !== 0">
-            <VButtonIcon class="absolute bottom-0 right-0 hover:bg-gray-500" :disabled="false"
-                @click="deleteCommentById(comment.id)">
+            <VButtonIcon class="absolute bottom-0 right-0 hover:bg-gray-500" @click="deleteCommentById(comment.id)">
                 <template #icon>
                     <BIconTrash />
                 </template>
@@ -103,6 +102,9 @@ export default defineComponent({
                 this.activeElement = commentId;
             }
             this.$emit('toggle', commentId);
+        },
+        test: function (): void {
+            console.log("Test")
         }
     },
     data() {

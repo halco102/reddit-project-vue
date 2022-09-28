@@ -9,7 +9,7 @@
         <p class="text-sm break-words">
             {{description}}
         </p>
-        
+
     </div>
 </template>
 

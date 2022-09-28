@@ -44,34 +44,40 @@
       </div>
 
       <div v-for="post in posts" :key="post.id">
-        <router-link :to="{ name: 'SinglePage', params: { id: post.id } }">
-          <CustomCard :post="post" :hasLikeAndDislike="true" :currentlyLoggedUser="getCurrentlyLoggedUserProfile"
-            :hasCategories="true" :hasCardIcons="true">
+        <CustomCard :post="post" :hasLikeAndDislike="true" :currentlyLoggedUser="getCurrentlyLoggedUserProfile"
+          :hasCategories="true" :hasCardIcons="true">
 
-            <template #cardText>
+          <template #image>
+            <img class="xl:max-w-xl lg:max-w-lg sm:sm:max-w-sm mb-6 p-6 hover:cursor-pointer" :src="post.imageUrl"
+              :alt="post.title">
+          </template>
+
+          <template #cardText>
+            <div class="grid justify-center hover:bg-gray-300 hover:cursor-pointer">
               <Text :title="'test'" :description="'testign'" />
-            </template>
+            </div>
 
-            <template #categories>
-              <GenreCard :categories="post.categories" />
-            </template>
+          </template>
 
-            <template #cardIcons>
-              <IconsForCard :post="post">
-                <template #commentIcon>
-                  <ButtonComponent :disabled="false">
-                    <template #icon>
-                      <router-link :to="{ name: 'SinglePage', params: { id: post.id } }">
-                        <BIconChatFill class="w-5 h-5" />
-                      </router-link>
+          <template #categories>
+            <GenreCard :categories="post.categories" />
+          </template>
+
+          <template #cardIcons>
+            <IconsForCard :post="post">
+              <template #commentIcon>
+                <router-link class="my-auto" :to="{ name: 'SinglePage', params: { id: post.id } }">
+                  <VButtonIcon :disabled="false" class="hover:bg-gray-500">
+                    <template #icon v-if="post.allowComments">
+                      <BIconChatFill class="w-5 h-5" />
                     </template>
-                  </ButtonComponent>
-                </template>
-              </IconsForCard>
-            </template>
+                  </VButtonIcon>
+                </router-link>
+              </template>
+            </IconsForCard>
+          </template>
 
-          </CustomCard>
-        </router-link>
+        </CustomCard>
       </div>
 
     </div>
@@ -89,8 +95,7 @@ import { useCategoryStore } from "../store/category-store";
 import IconsForCard from '@/Post/components/CardIcons.vue'
 import CustomCard from '@/components/CustomCard/Cards.vue'
 import Text from "@/components/CustomCard/Text.vue";
-import ButtonComponent from "@/components/ButtonComponent.vue";
-
+import VButtonIcon from "@/components/VButtonIcon.vue";
 
 //components
 import {
@@ -114,10 +119,10 @@ export default defineComponent({
     LoginAndCategories,
     CustomCard,
     Text,
-    ButtonComponent,
     IconsForCard,
     GenreCard,
     CarouselVue,
+    VButtonIcon
   },
   methods: {
     ...mapActions(usePostStore, [

@@ -2,7 +2,12 @@
   <div class="grid justify-center">
 
     <!--Post card-->
-    <CustomCard class="grid justify-center" :hasLikeAndDislike="false" :hasCategories="false" :currentlyLoggedUser="null" :post="post" />
+    <CustomCard class="grid justify-center" :hasLikeAndDislike="false" :hasCategories="false"
+      :currentlyLoggedUser="null" :post="post">
+      <template #image>
+        <img :src="post.imageUrl" class="w-fit h-fit" />
+      </template>
+    </CustomCard>
 
     <!--Comment component-->
     <div class="text-center">

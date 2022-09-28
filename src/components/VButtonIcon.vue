@@ -1,6 +1,7 @@
 <template>
+    <!--this is gonna be used more for components that go in comments, like/dislike, side bar categories and userprofile in card component-->
 
-    <button class="hover:bg-gray-500 p-2 rounded-sm flex place-items-center gap-2" @click="onClick">
+    <button class="p-2 rounded-md flex place-items-center gap-2 " @click="onClick">
 
         <slot name="icon"></slot>
 
@@ -19,10 +20,6 @@ import { defineComponent, useSlots } from 'vue';
 export default defineComponent({
     name: 'VButtonIcon',
     props: {
-        disabled: {
-            type: Boolean || undefined,
-            required: true
-        },
         label: {
             type: [Number, String],
             required: false
@@ -40,7 +37,7 @@ export default defineComponent({
     },
     methods: {
         onClick: function (): void {
-            this.$emit("onClick",);
+            this.$emit("onClick");
         }
     },
     data() {
