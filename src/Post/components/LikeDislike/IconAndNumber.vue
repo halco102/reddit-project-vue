@@ -2,7 +2,10 @@
 
     <div class="flex flex-col gap-1">
 
-        <VButtonIcon :disabled="false">
+        <VButtonIcon class="hover:bg-gray-500" @onClick="postLikeOrDislikeForPost({
+          postId: post!.id,
+          likeOrDislike: true,
+        })">
             <template #icon>
                 <BIconArrowUp
                     :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserUpvoted(post!.id) : 'text-gray-600'" />
@@ -15,7 +18,10 @@
             {{sum}}
         </span>
 
-        <VButtonIcon :disabled="false">
+        <VButtonIcon class="hover:bg-gray-500" @onClick="postLikeOrDislikeForPost({
+          postId: post!.id,
+          likeOrDislike: false,
+        })">
             <template #icon>
                 <BIconArrowDown
                     :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post!.id) : 'text-gray-600'" />
@@ -34,8 +40,9 @@ import {
     BIconArrowDown
 } from "bootstrap-icons-vue";
 import { useAuthenticationStore } from '@/User/store/authentication_store';
-import { mapState } from 'pinia';
+import { mapState, mapActions } from 'pinia';
 import { FrontPagePost, LikeOrDislikeRequest } from '@/Post/types';
+import { usePostStore } from '@/Post/store/store';
 
 export default defineComponent({
     name: 'IconAndNumber',
@@ -48,6 +55,7 @@ export default defineComponent({
         ...mapState(useAuthenticationStore, ['getCurrentlyLoggedUserProfile'])
     },
     methods: {
+        ...mapActions(usePostStore, ['postLikeOrDislikeForPost']),
         checkIfUserUpvoted: function (postId: number): string {
 
             let find = this.findLikeOrDislikedPost(postId);
@@ -102,6 +110,10 @@ export default defineComponent({
     },
     props: {
         post: Object as () => FrontPagePost
+    },
+    updated() {
+        if (this.post !== undefined)
+            this.sumPostLikeOrDislike(this.post);
     },
     mounted() {
         if (this.post !== undefined)

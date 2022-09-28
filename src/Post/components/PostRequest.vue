@@ -1,16 +1,48 @@
 <template>
-
   <!--Main div-->
+  <div class="grid justify-center">
+
+    <!--text -->
+    <div>
+      <h3 class="font-bold text-center">Upload a post</h3>
+    </div>
+
+    <!--Title-->
+    <InputField type="text" :modelValue="title" name="title" placeholder="Title" label="Title*"
+      @update:model-value="(newValue : string) => (title = newValue)" :error="v$.title.$error"
+      :errorText="v$.title.$errors[0]?.$message?.toString()" />
+
+    <!--Description-->
+    <InputField type="text" :modelValue="description" name="description" placeholder="Description" label="Description"
+      @update:model-value="(newValue : string) => (description = newValue)" />
+
+
+    <div class="mb-6 grid justify-center">
+      <label for="formFile" class="text-center mb-3">Upload image</label>
+      <input class="" type="file" id="formFile" ref="fileUpload" @change="onChangeInput" />
+    </div>
+
+    <InputField type="text" :modelValue="url" name="url" placeholder="Url" label="Url"
+      @update:model-value="(newValue : string) => (url = newValue)" :error="v$.url.$error"
+      :errorText="v$.url.$errors[0]?.$message?.toString()" :disabled="lockImgUrl" />
+
+    <button @click="test">Click</button>
+
+
+
+  </div>
+
+  <!--Main div
   <div class="grid justify-center mt-10" :class="enlargeImage ? 'enlarge-image' : ''" ref="request">
 
     <h3 class="font-bold text-center">Upload a post</h3>
 
-    <!--Card div-->
+    <!~~Card div~~>
     <div class="my-3 justify-center border-solid border-2 border-gray-300 rounded p-4 shadow-lg">
       <div>
-        <!--Form-->
+
         <Form @submit="onSubmit" :validation-schema="schema" class="p-6">
-          <!--Title-->
+          <!~~Title~~>
           <div class="mb-6">
             <Field name="title" v-slot="{ field, meta }">
               <label for="insertText" class="block text-center">Title</label>
@@ -23,7 +55,7 @@
             <ErrorMessage name="title" class="block text-center" />
           </div>
 
-          <!--Description-->
+          <!~~Description~~>
           <div class="mb-6">
             <Field name="text" v-slot="{ field, meta }">
               <label for="insertText" class="block text-center">Description</label>
@@ -38,7 +70,7 @@
 
           <hr class="my-2 border border-gray-500">
 
-          <!--Upload file-->
+          <!~~Upload file~~>
           <div class="mb-6 grid justify-center">
             <Field name="upload" class="">
               <label for="formFile" class="text-center mb-3">Upload image</label>
@@ -47,7 +79,7 @@
             <ErrorMessage name="upload" class="block text-center" />
           </div>
 
-          <!--Text area for image url-->
+          <!~~Text area for image url~~>
           <div class="mb-6">
             <fieldset :disabled="isDisabled">
               <Field name="imageUrl" v-slot="{ field, meta }" ref="temp">
@@ -65,7 +97,7 @@
           </div>
 
 
-          <!--Preview image-->
+          <!~~Preview image~~>
           <div class="hover:cursor-zoom-in" v-if="preview">
             <vue-final-modal v-model="enlargeImage" classes="modal-container" content-class="modal-content">
               <img @click="enlargeImageFunction" class="w-full hover:cursor-zoom-out" :src="preview" />
@@ -75,7 +107,7 @@
 
           <hr class="my-2 border border-gray-500">
 
-          <!-- Categories -->
+          <!~~ Categories ~~>
           <div class="my-4">
             <Multiselect v-model="categoryOptions" :options="getAllCategories.map(i => i.name)" mode="tags"
               placeholder="Select categories" :close-on-select="false" :searchable="true" />
@@ -83,7 +115,7 @@
           </div>
 
 
-          <!--Checkbox for comments-->
+          <!~~ Checkbox for comments~~>
           <div class="my-6">
             <div class="mb-3">
               <div class="text-center">
@@ -99,7 +131,7 @@
             <button
               :class="getIsLoading ? 'btn btn-blue btn-disabled m-auto block' : 'btn btn-blue m-auto block'">Submit</button>
 
-            <!--Loading -->
+            <!~~Loading ~~>
             <div role="status" v-show="getIsLoading" class="mt-1 absolute right-0">
               <svg aria-hidden="true" class="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
                 viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -118,11 +150,12 @@
       </div>
     </div>
   </div>
+-->
 
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
 
 //pinia
 import { useAuthenticationStore } from "@/User/store/authentication_store";
@@ -134,9 +167,10 @@ import { useCategoryStore } from "../store/category-store";
 //toast
 import { useToast } from "vue-toastification";
 
-//vee validate
-import { Form, Field, ErrorMessage } from "vee-validate";
-import * as yup from "yup";
+//validate
+import { required, minLength, helpers, requiredIf } from '@vuelidate/validators'
+import { useVuelidate } from '@vuelidate/core'
+
 
 import Multiselect from '@vueform/multiselect'
 
@@ -144,17 +178,19 @@ import Multiselect from '@vueform/multiselect'
 import { PostRequest } from "../types";
 import { SingleCategory } from "../category-types";
 
+//components
+import InputField from "@/components/InputField.vue";
+
 
 
 export default defineComponent({
   name: "PostRequest",
   components: {
-    Field,
-    Form,
-    ErrorMessage,
-    Multiselect
+    //Multiselect,
+    InputField
   },
   data() {
+    /*
     const schema = yup.object().shape({
       categoryOptions: yup.array().test('check-if-value-is-empty', 'No category selected', () => {
 
@@ -199,9 +235,15 @@ export default defineComponent({
         }),
 
     });
+    */
 
     return {
-      schema,
+      title: '' as string,
+      description: '' as string,
+      url: '' as string,
+      lockImgUrl: false as boolean,
+
+
       locationOfFile: null as File | null,
       isDisabled: false,
       isAllowedComment: false,
@@ -219,11 +261,43 @@ export default defineComponent({
   setup() {
     const toast = useToast();
 
-    return { toast };
+    return { toast, v$: useVuelidate() };
+  },
+  validations() {
+    return {
+      title: { required },
+      locationOfFile: {
+        checkIfImageIsUploaded: this.checkIfImageIsUploaded()
+      },
+      url: {
+        requiredIfUploadIsEmpty: requiredIf(this.ifImageIsUploadedLockUrlAndClearInput()),
+        helpers: helpers.withMessage('Mush contain x', helpers.regex(/^$|\s+|(?:([^:/?#]+):)?(?:([^/?#]*))?([^?#]*\.(?:jpg|gif|png|wpeg|jpeg))(?:\?([^#]*))?(?:#(.*))?/))
+      }
+    }
   },
   methods: {
     ...mapActions(usePostStore, ["savePost"]),
     ...mapActions(useCategoryStore, ['fetchAllCategories']),
+    test: function (): void {
+      console.log("test", this.v$.url.$errors[0]?.$message?.toString())
+      this.v$.$validate();
+    },
+    ifImageIsUploadedLockUrlAndClearInput: function (): boolean {
+      if (this.locationOfFile !== null) {
+        //clear url
+        this.url = '';
+        this.lockImgUrl = true;
+        return true;
+      }
+      return false;
+    },
+    checkIfImageIsUploaded: function (): boolean {
+      console.log("check update");
+      if (this.locationOfFile !== null)
+        return true;
+      else
+        return false
+    },
     isRequired: function (value: string): boolean | string {
       return value ? true : "This field is required";
     },

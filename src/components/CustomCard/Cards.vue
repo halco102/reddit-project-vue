@@ -4,14 +4,14 @@
 
         <!--Like and dislike -->
         <div v-if="hasLikeAndDislike">
-            <LikeDislikeComponent2 :post="post" />
+            <LikeDislikeComponent :post="post" />
         </div>
 
-        <div class="sm:max-w-sm xl:max-w-xl lg:max-w-lg" v-bind="$attrs">
+        <div class="sm:max-w-sm xl:max-w-xl lg:max-w-lg">
 
             <!--Image-->
-            <div v-bind="$attrs">
-                <img class="xl:max-w-xl lg:max-w-lg sm:sm:max-w-sm mb-6 p-6" :src="post.imageUrl" :alt="post.title">
+            <div @click="pushSinglePageRouter(post.id)" v-if="hasImage">
+                <slot name=image></slot>
             </div>
 
             <!--Categories-->
@@ -21,11 +21,9 @@
             </div>
 
             <!--Title and description-->
-            <div v-if="hasCardText">
+            <div v-if="hasCardText" @click="pushSinglePageRouter(post.id)" v-bind="$attrs">
                 <hr class=" border border-black w-full" />
-                <div class="grid justify-center">
-                    <slot name="cardText"></slot>
-                </div>
+                <slot name="cardText"></slot>
             </div>
 
             <!--User profile and other icons if necessary-->
@@ -42,10 +40,9 @@
 <script lang="ts">
 import { defineComponent, useSlots } from 'vue';
 
-import LikeDislikeComponent from '@/Post/components/LikeDislikeComponent.vue';
 import { FrontPagePost } from '@/Post/types';
 import { UserProfile } from '@/User/types';
-import LikeDislikeComponent2 from '@/Post/components/LikeDislike/IconAndNumber.vue'
+import LikeDislikeComponent from '@/Post/components/LikeDislike/IconAndNumber.vue'
 
 
 export default defineComponent({
@@ -69,8 +66,7 @@ export default defineComponent({
         }
     },
     components: {
-        //LikeDislikeComponent,
-        LikeDislikeComponent2
+        LikeDislikeComponent
     },
     setup() {
         const slots = useSlots();
@@ -83,7 +79,15 @@ export default defineComponent({
         },
         hasCardIcons: function (): boolean {
             return !!this.slots.cardIcons;
+        },
+        hasImage: function (): boolean {
+            return !!this.slots.image;
         }
+    },
+    methods: {
+        pushSinglePageRouter: function (postId: number): void {
+            this.$router.push({ name: 'SinglePage', params: { id: postId } });
+        },
     }
 })
 </script>

@@ -3,11 +3,12 @@
     <div class="flex justify-between p-4">
         <!--User profile-->
         <router-link :to="{ path: '/user/' + post!.postedBy.id }">
-            <ButtonComponent :title="post!.postedBy.username" :disabled="false" :directionOfImage="'LEFT'" class="flex">
+            <VButtonIcon :label="post!.postedBy.username" class="hover:bg-gray-500">
                 <template #icon>
-                    <img class="border-gray-600 w-12 h-12" :src="post!.postedBy.imageUrl" alt="" />
+                    <img class="w-12 h-12 border-2 rounded-full border-gray-500" :src="post!.postedBy.imageUrl"
+                        alt="" />
                 </template>
-            </ButtonComponent>
+            </VButtonIcon>
         </router-link>
 
         <template v-if="hasIcon">
@@ -20,13 +21,13 @@
 <script lang="ts">
 import { defineComponent, useSlots } from 'vue';
 import { FrontPagePost } from '../types';
-import ButtonComponent from '@/components/ButtonComponent.vue';
+import VButtonIcon from '@/components/VButtonIcon.vue';
 
 
 export default defineComponent({
     name: 'IconsForCard',
     components: {
-        ButtonComponent
+        VButtonIcon
     },
     setup() {
         const slots = useSlots();
@@ -43,7 +44,7 @@ export default defineComponent({
             type: Object as () => FrontPagePost,
             required: true
         }
-    }
+    },
 })
 
 </script>

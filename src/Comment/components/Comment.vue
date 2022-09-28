@@ -37,7 +37,7 @@
     </div>
 
     <!--Comments are not allowed-->
-    <div v-if="1>2" class="mt-6">
+    <div v-if="!post?.allowComments" class="mt-6">
       <h3 class="font-bold">Comments are disabled</h3>
     </div>
 

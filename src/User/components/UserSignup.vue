@@ -33,14 +33,13 @@
 import { defineComponent } from "vue";
 import { v4 as uuidv4 } from "uuid";
 
-import { InputType } from '@/components/InputField.vue';
 
 //components
 import PasswordMeter from 'vue-simple-password-meter';
 import InputField from "@/components/InputField.vue";
 
 import { useVuelidate } from '@vuelidate/core'
-import { required, email, sameAs, minValue } from '@vuelidate/validators'
+import { required, email, sameAs } from '@vuelidate/validators'
 import ButtonComponent from "@/components/ButtonComponent.vue";
 
 
