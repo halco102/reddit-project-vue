@@ -65,10 +65,10 @@
 
           <template #cardIcons>
             <IconsForCard :post="post">
-              <template #commentIcon>
+              <template #commentIcon v-if="post.allowComments">
                 <router-link class="my-auto" :to="{ name: 'SinglePage', params: { id: post.id } }">
-                  <VButtonIcon :disabled="false" class="hover:bg-gray-500">
-                    <template #icon v-if="post.allowComments">
+                  <VButtonIcon :disabled="false" class="hover:bg-gray-500" :label="post.commentsDto.length">
+                    <template #icon>
                       <BIconChatFill class="w-5 h-5" />
                     </template>
                   </VButtonIcon>

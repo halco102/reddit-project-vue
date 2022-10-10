@@ -1,10 +1,10 @@
 <template>
     <div>
         <label v-if="label" for="testing"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300 text-center">{{label}}</label>
+            class="block mb-2 text-sm font-medium text-gray-900  text-center">{{label}}</label>
 
         <div class="flex flex-col">
-            <input :type="type === 'password' ? 'password' : 'username'" class="bg-gray-50 border border-gray-300
+            <input :type="type" class="bg-gray-50 border border-gray-300
                  text-gray-900 text-sm rounded-lg focus:ring-blue-500 
                 focus:border-blue-500 block w-full p-2.5
                   dark:text-white
@@ -28,7 +28,7 @@ import { useVuelidate } from '@vuelidate/core'
 import { v4 as uuidv4 } from "uuid";
 import ErrorComponent from './vuelidate/ErrorComponent.vue';
 
-export type InputType = 'password' | 'text';
+export type InputType = 'password' | 'text' | 'file';
 
 export default defineComponent({
     name: 'InputField',
