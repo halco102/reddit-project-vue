@@ -56,10 +56,6 @@ export default defineComponent({
             type: Object as () => FrontPagePost,
             required: true
         },
-        currentlyLoggedUser: {
-            type: Object as () => UserProfile | null,
-            required: true
-        },
         hasCategories: {
             type: Boolean || undefined,
             required: false

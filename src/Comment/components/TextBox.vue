@@ -14,7 +14,8 @@
             <!--Text area-->
             <div class="my-4">
 
-                <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Comment</label>
+                <label for="message"
+                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Comment</label>
 
                 <div class="lg:flex md:grid sm:grid">
 
@@ -31,7 +32,7 @@
                             placeholder="Your message..." v-model="txt"></textarea>
                     </div>
 
-                    <VuemojiPicker @emojiClick="handleEmojiClick " 
+                    <VuemojiPicker @emojiClick="handleEmojiClick "
                         class="lg:absolute lg:right-0 lg:mr-64 sm:grid sm:justify-center md:grid md:justify-center sm:mt-2 md:mt-2 lg:z-50 md:z-50"
                         v-if="toggleEmoji" />
 
@@ -132,7 +133,7 @@ export default defineComponent({
                 this.txt += detail.unicode;
             }
         },
-        toggleEmojiMethod : function() : void {
+        toggleEmojiMethod: function (): void {
             this.toggleEmoji = !this.toggleEmoji;
         }
     },

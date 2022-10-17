@@ -11,7 +11,6 @@ import * as PostType from "@/Post/types";
 //toast
 import { useToast } from 'vue-toastification';
 import CustomWebSocket from "@/service/CustomWebsocket";
-import { ActivationState, IFrame } from "@stomp/stompjs";
 
 
 
@@ -348,8 +347,7 @@ export const usePostStore = defineStore('postStore', {
          ws.getClient().onConnect = () => {
             console.log("Connect");
             ws.getClient().subscribe("/topic/" + topic, (msg) => {
-               console.log(msg.body)
-               this.$state.posts = JSON.parse(msg.body);
+               console.log('Post msg', msg.body)
             })
          }
       },

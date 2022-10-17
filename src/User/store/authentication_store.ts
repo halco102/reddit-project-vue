@@ -10,6 +10,9 @@ import { useToast } from "vue-toastification";
 //types
 import * as UserType from "@/User/types";
 import * as authenticationTypes from "../authenticationTypes";
+import CustomWebSocket from "@/service/CustomWebsocket";
+const ws = CustomWebSocket.getInstance();
+
 
 
 const BASE_URL = process.env.VUE_APP_BASE_URL + '/api/v1/user';
@@ -39,7 +42,9 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
             successfullSignup: false,
             succesfullLogin: false,
             isJwtValid: false,
-            signutUser: false
+            signutUser: false,
+            notifications: [],
+            isNewNotification: false
         }
     },
     getters: {
@@ -61,6 +66,12 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
         getIsJwtValid(state): boolean {
             return state.isJwtValid;
         },
+        getAllNotifications(state): UserType.Notification[] {
+            return state.notifications;
+        },
+        getIsNewNotification(state): boolean {
+            return state.isNewNotification;
+        }
 
     },
     actions: {
@@ -183,8 +194,33 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
 
         },
 
+        subscribeToTopic: function () {
 
+            ws.getClient().subscribe('/users/' + this.$state.userProfile.username + '/queue/notification', (msg) => {
+                console.log("Get notification", JSON.parse(msg.body));
+                //this.notifications.unshift(JSON.parse(msg.body));
+                this.notifications.unshift(JSON.parse(msg.body));
+                this.isNewNotification = true;
+            })
 
+        },
+
+        checkedNewNotification: function (): void {
+            this.isNewNotification = false;
+        },
+
+        fetchAllNotifications: async function () {
+            await axios.get('http://localhost:8082/api/v1/notification',
+                {
+                    headers: {
+                        'Authorization': 'Bearer ' + sessionStorage.getItem('jwt')
+                    }
+                }
+            ).then(response => {
+                console.log("Fetch notification", response.data);
+                this.$state.notifications = response.data;
+            })
+        }
 
     }
 

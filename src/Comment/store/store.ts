@@ -12,14 +12,15 @@ import { useToast } from 'vue-toastification';
 //stomp
 import { Client } from "@stomp/stompjs";
 
+import CustomWebSocket from '@/service/CustomWebsocket';
+
 
 const BASE_URL = process.env.VUE_APP_BASE_URL + '/api/v1/comment';
 const ws = process.env.VUE_APP_WEBSOCKET;
 
 
-let customWebsocket: Client;
-
 const toast = useToast();
+const wsConnection = CustomWebSocket.getInstance();
 
 
 export const useCommentStore = defineStore('comments', {
@@ -144,7 +145,7 @@ export const useCommentStore = defineStore('comments', {
                         this.$state.commentsDto.splice(index, 1);
                     }
                 })
-                this.sendMessage('COMMENT_DELETED', '', postId)
+                //this.sendMessage('COMMENT_DELETED', '', postId)
             })
         },
         resetState: function () {
@@ -170,32 +171,12 @@ export const useCommentStore = defineStore('comments', {
 
             return number;
         },
-        openWebsocketConnection: function () {
-
-            customWebsocket = new Client({
-                brokerURL: ws,
-                connectHeaders: {},
-                debug: function (str) {
-                    console.log(str)
-                },
-                reconnectDelay: 30000,
-                heartbeatIncoming: 4000,
-                heartbeatOutgoing: 4000,
-                onConnect: () => {
-                    console.log("Subscribe to comment when connected");
-                    customWebsocket.subscribe('/topic/comment', (msg) => {
-                        console.log("Message body ", JSON.parse(msg.body));
-                        this.$state.commentsDto = JSON.parse(msg.body);
-                    })
-                },
-
-
-            });
-
-            customWebsocket.activate();
-
-
+        subscribeToTopic: function (topic: string) {
+            wsConnection.getClient().subscribe("/topic/" + topic, (msg: any) => {
+                this.$state.commentsDto.unshift(JSON.parse(msg.body));
+            })
         },
+        /*
         sendMessage: function (object: CommentType.CommentDto[] | string, path: string, commentsState?: CommentType.CommentDto[] | number) {
 
             let msgEvent: string;
@@ -213,17 +194,12 @@ export const useCommentStore = defineStore('comments', {
                 return;
             }
 
-            customWebsocket.publish({
+            wsConnection.publish({
                 destination: '/app/comment' + path,
                 body: JSON.stringify(object)
             })
 
-        },
-        disconnectFromWs: function () {
-            console.log("Disconnect from ws");
-            customWebsocket.forceDisconnect();
-        },
-
+        },*/
         setCommentsFromPost: function (comments: CommentType.CommentDto[]): void {
             this.$state.commentsDto = comments;
         },
@@ -240,6 +216,7 @@ export const useCommentStore = defineStore('comments', {
                         toast.warning("Something went wrong");
                     }
                 })
+
 
         }
 

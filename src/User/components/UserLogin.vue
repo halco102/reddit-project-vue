@@ -67,7 +67,7 @@ export default defineComponent({
     }
   },
   methods: {
-    ...mapActions(useAuthenticationStore, ["loginUser",]),
+    ...mapActions(useAuthenticationStore, ["loginUser"]),
 
     loginUserToApp: function (): void {
 
@@ -90,9 +90,10 @@ export default defineComponent({
     },
     getSuccessfullLogin: function (value: boolean) {
       if (value) {
+        console.log("Watch", value)
         this.closeEvent();
       }
-    }
+    },
   },
   computed: {
     ...mapState(useAuthenticationStore, ["getIsLoginLoading", 'getSuccessfullLogin']),

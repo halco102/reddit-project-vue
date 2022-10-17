@@ -71,7 +71,10 @@ export default defineComponent({
     CommentSectionVue
   },
   props: {
-    post: Object as PropType<FrontPagePost>,
+    post: {
+      type: Object as PropType<FrontPagePost>,
+      required: true
+    },
   },
   computed: {
     ...mapState(useUserStore, ["userProfile"]),
@@ -93,10 +96,10 @@ export default defineComponent({
       "patchComments",
       "getNumberOfLikes",
       "getNumberOfDislikes",
-      "openWebsocketConnection",
       "deleteCommentById",
       'fetchAllCommentsByPostId',
-      'setCommentsFromPost'
+      'setCommentsFromPost',
+      'subscribeToTopic'
     ]),
     getNumberOfComments: function (comments: CommentDto[]): number {
       return comments.length;
@@ -121,6 +124,8 @@ export default defineComponent({
     post: function () {
       console.log("post", this.post!)
       this.setCommentsFromPost(this.post!.commentsDto);
+      this.subscribeToTopic('comment/' + this.post.id);
+
     },
     getIsPostingComment: function (val: boolean) {
       if (val === false) {
@@ -138,7 +143,7 @@ export default defineComponent({
       expandEmojiClick: false as boolean,
       closeReplyTextArea: false as boolean,
     };
-  },
+  }
 });
 </script>
 

@@ -5,7 +5,7 @@
 
         <slot name="icon"></slot>
 
-        <span v-if="label !== undefined">{{label}}</span>
+        <span v-if="label !== undefined" :class="[customLabelCss, customLabelCss !== undefined]">{{label}}</span>
 
     </button>
 
@@ -22,6 +22,10 @@ export default defineComponent({
     props: {
         label: {
             type: [Number, String],
+            required: false
+        },
+        customLabelCss: {
+            type: String,
             required: false
         }
     },
@@ -40,10 +44,5 @@ export default defineComponent({
             this.$emit("onClick");
         }
     },
-    data() {
-        return {
-            customCss: ''
-        }
-    }
 })
 </script>

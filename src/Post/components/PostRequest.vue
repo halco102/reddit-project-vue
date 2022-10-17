@@ -57,6 +57,12 @@
           placeholder="Select categories" :close-on-select="false" :searchable="true" />
       </div>
 
+      <!--Check button-->
+      <div class="grid justify-center my-4">
+        <input type="checkbox" name="allowComments" v-model="isAllowedComment" class="w-4 h-4 mx-auto block">
+        <label>Allow comments</label>
+      </div>
+
       <!--Submit Button-->
       <div class="justify-center flex">
         <ButtonComponent title="Submit" :disabled="getIsLoading" @onClick="submitRequest" />
@@ -135,7 +141,7 @@ export default defineComponent({
       preview: null as string | null,
       enlargeImage: false,
       categoryOptions: [],
-      showModal: false
+      showModal: false,
     };
   },
   computed: {

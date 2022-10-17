@@ -12,7 +12,7 @@
                 <VButtonIcon :label="getNumberOfLikes(comment)" @onClick="postLikeOrDislike({
                   commentId: comment.id,
                   likeOrDislike: true,
-                })">
+                })" class="hover:bg-gray-500">
                     <template #icon>
                         <BIconHandThumbsUp />
                     </template>
@@ -24,7 +24,7 @@
                 <VButtonIcon :label="getNumberOfDislikes(comment)" @onClick="postLikeOrDislike({
                   commentId: comment.id,
                   likeOrDislike: false,
-                })">
+                })" class="hover:bg-gray-500">
                     <template #icon>
                         <BIconHandThumbsDown />
                     </template>
@@ -32,7 +32,8 @@
             </div>
         </div>
 
-        <VButtonIcon :class="{'focus:outline-none focus:ring focus:bg-gray-500' : activeElement !== 0}"
+        <VButtonIcon class="hover:bg-gray-500"
+            :class="{'focus:outline-none focus:ring focus:bg-gray-500' : activeElement !== 0}"
             @onClick="activateToggle(comment.id)">
             <template #icon>
                 <BIconReply />
