@@ -122,14 +122,14 @@ export default defineComponent({
     },
   }, watch: {
     post: function () {
-      console.log("post", this.post!)
       this.setCommentsFromPost(this.post!.commentsDto);
-      this.subscribeToTopic('comment/' + this.post.id);
+
+      if (this.post.allowComments)
+        this.subscribeToTopic('comment/' + this.post.id);
 
     },
     getIsPostingComment: function (val: boolean) {
       if (val === false) {
-        console.log("VALUE", val);
         this.fetchAllCommentsByPostId(this.post!.id);
       }
     },

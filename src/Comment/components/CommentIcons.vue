@@ -95,6 +95,7 @@ export default defineComponent({
             "postLikeOrDislike",
             "getNumberOfLikes",
             "getNumberOfDislikes",
+            'deleteCommentById'
         ]),
         activateToggle: function (commentId: number): void {
             if (this.activeElement !== 0) {
@@ -104,9 +105,6 @@ export default defineComponent({
             }
             this.$emit('toggle', commentId);
         },
-        test: function (): void {
-            console.log("Test")
-        }
     },
     data() {
         return {
