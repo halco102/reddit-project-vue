@@ -11,7 +11,6 @@ import * as PostType from "@/Post/types";
 //toast
 import { useToast } from 'vue-toastification';
 import CustomWebSocket from "@/service/CustomWebsocket";
-import { ActivationState, IFrame } from "@stomp/stompjs";
 
 
 
@@ -150,6 +149,7 @@ export const usePostStore = defineStore('postStore', {
       */
       async postLikeOrDislikeForPost(request: PostType.LikeOrDislikeRequest) {
 
+         console.log("Post like or dislike")
          const json = JSON.stringify(request);
 
          await axios.post(BASE_URL + '/like-dislike', json, {
@@ -281,17 +281,17 @@ export const usePostStore = defineStore('postStore', {
 
          let result = 0;
 
-         if(post.postLikeOrDislikeDtos.length !== 0) {
-         post.postLikeOrDislikeDtos
-            .map((l) => {
+         if (post.postLikeOrDislikeDtos.length !== 0) {
+            post.postLikeOrDislikeDtos
+               .map((l) => {
 
-               console.log("Map")
-               if (l.likeOrDislike) {
-                  result++;
-               } else {
-                  result--;
-               }
-            })
+                  console.log("Map")
+                  if (l.likeOrDislike) {
+                     result++;
+                  } else {
+                     result--;
+                  }
+               })
          }
 
          console.log(result)
@@ -347,8 +347,7 @@ export const usePostStore = defineStore('postStore', {
          ws.getClient().onConnect = () => {
             console.log("Connect");
             ws.getClient().subscribe("/topic/" + topic, (msg) => {
-               console.log(msg.body)
-               this.$state.posts = JSON.parse(msg.body);
+               console.log('Post msg', msg.body)
             })
          }
       },

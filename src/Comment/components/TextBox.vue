@@ -7,14 +7,15 @@
             postCommentThenReturnData(
                 txt,
                 postId,
-                userId,
+                getCurrentlyLoggedUserProfile.id,
                 checkParentId()
             )
         ">
             <!--Text area-->
             <div class="my-4">
 
-                <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Comment</label>
+                <label for="message"
+                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Comment</label>
 
                 <div class="lg:flex md:grid sm:grid">
 
@@ -31,7 +32,7 @@
                             placeholder="Your message..." v-model="txt"></textarea>
                     </div>
 
-                    <VuemojiPicker @emojiClick="handleEmojiClick " 
+                    <VuemojiPicker @emojiClick="handleEmojiClick "
                         class="lg:absolute lg:right-0 lg:mr-64 sm:grid sm:justify-center md:grid md:justify-center sm:mt-2 md:mt-2 lg:z-50 md:z-50"
                         v-if="toggleEmoji" />
 
@@ -61,6 +62,7 @@ import { useCommentStore } from '../store/store';
 import { useToast } from 'vue-toastification';
 
 import { VuemojiPicker, EmojiClickEventDetail } from 'vuemoji-picker'
+import { useAuthenticationStore } from '@/User/store/authentication_store';
 
 //components
 import {
@@ -83,7 +85,8 @@ export default defineComponent({
         return { toast };
     },
     computed: {
-        ...mapState(useCommentStore, ['isPostingComment'])
+        ...mapState(useCommentStore, ['isPostingComment']),
+        ...mapState(useAuthenticationStore, ['getCurrentlyLoggedUserProfile'])
     },
     methods: {
         ...mapActions(useCommentStore, ['postCommentAction']),
@@ -96,7 +99,7 @@ export default defineComponent({
         ) {
 
 
-            if (this.userId === 0 || this.userId === undefined || this.userId === null) {
+            if (idOfUser === 0 || idOfUser === undefined || idOfUser === null) {
                 this.toast.warning("You have to log in to comment!");
                 return;
             }
@@ -130,7 +133,7 @@ export default defineComponent({
                 this.txt += detail.unicode;
             }
         },
-        toggleEmojiMethod : function() : void {
+        toggleEmojiMethod: function (): void {
             this.toggleEmoji = !this.toggleEmoji;
         }
     },
@@ -141,7 +144,7 @@ export default defineComponent({
         },
         userId: {
             type: Number,
-            required: true
+            required: false
         },
         parentId: {
             type: Number,

@@ -12,14 +12,15 @@ import { useToast } from 'vue-toastification';
 //stomp
 import { Client } from "@stomp/stompjs";
 
+import CustomWebSocket from '@/service/CustomWebsocket';
+
 
 const BASE_URL = process.env.VUE_APP_BASE_URL + '/api/v1/comment';
 const ws = process.env.VUE_APP_WEBSOCKET;
 
 
-let customWebsocket: Client;
-
 const toast = useToast();
+const wsConnection = CustomWebSocket.getInstance();
 
 
 export const useCommentStore = defineStore('comments', {
@@ -133,18 +134,15 @@ export const useCommentStore = defineStore('comments', {
             }).then(() => {
                 console.log("Send event to everyone", this.$state.commentsDto);
                 this.$state.commentsDto.forEach((element, index) => {
-                    console.log('Element', element, ' posalni id', id);
                     if (element.id === id) {
                         console.log("Izbrisi ", element.id)
                         this.$state.commentsDto.splice(index, 1);
                     }
 
                     if (element.parentId === id) {
-                        console.log("Child izbrisi", element.parentId)
                         this.$state.commentsDto.splice(index, 1);
                     }
                 })
-                this.sendMessage('COMMENT_DELETED', '', postId)
             })
         },
         resetState: function () {
@@ -170,60 +168,16 @@ export const useCommentStore = defineStore('comments', {
 
             return number;
         },
-        openWebsocketConnection: function () {
-
-            customWebsocket = new Client({
-                brokerURL: ws,
-                connectHeaders: {},
-                debug: function (str) {
-                    console.log(str)
-                },
-                reconnectDelay: 30000,
-                heartbeatIncoming: 4000,
-                heartbeatOutgoing: 4000,
-                onConnect: () => {
-                    console.log("Subscribe to comment when connected");
-                    customWebsocket.subscribe('/topic/comment', (msg) => {
-                        console.log("Message body ", JSON.parse(msg.body));
-                        this.$state.commentsDto = JSON.parse(msg.body);
-                    })
-                },
-
-
-            });
-
-            customWebsocket.activate();
-
-
-        },
-        sendMessage: function (object: CommentType.CommentDto[] | string, path: string, commentsState?: CommentType.CommentDto[] | number) {
-
-            let msgEvent: string;
-
-
-            if (typeof object === 'string') {
-                console.log("SEIGJAEIOGJAEGIOJAEOGIJAEGIO")
-                console.log("String");
-                msgEvent = object;
-                console.log("msgEvent", msgEvent)
-                customWebsocket.publish({
-                    destination: '/app/comment/delete',
-                    body: JSON.stringify(commentsState)
-                });
-                return;
-            }
-
-            customWebsocket.publish({
-                destination: '/app/comment' + path,
-                body: JSON.stringify(object)
+        subscribeToTopic: function (topic: string) {
+            wsConnection.getClient().subscribe("/topic/" + topic, (msg: any) => {
+                console.log(topic.split('comment/')[1]);
+                if (msg.body === 'COMMENT_DELETED') {
+                    const num: number = +topic.split('comment/')[1];
+                    this.fetchAllCommentsByPostId(num);
+                } else
+                    this.$state.commentsDto.unshift(JSON.parse(msg.body));
             })
-
         },
-        disconnectFromWs: function () {
-            console.log("Disconnect from ws");
-            customWebsocket.forceDisconnect();
-        },
-
         setCommentsFromPost: function (comments: CommentType.CommentDto[]): void {
             this.$state.commentsDto = comments;
         },
@@ -240,6 +194,7 @@ export const useCommentStore = defineStore('comments', {
                         toast.warning("Something went wrong");
                     }
                 })
+
 
         }
 

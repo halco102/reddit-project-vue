@@ -1,35 +1,20 @@
 <template>
-  <div>
-    <Form @submit="onSubmit" :validation-schema="schema">
+  <div class="flex flex-col gap-6">
 
-      <!-- Email or username txt-->
-      <div class="mb-6 grid">
-        <Field name="emailOrUsername" v-slot="{ field, meta }">
-          <label for="inserttEmailOrUsername" class="form-label">Email or username</label>
-          <input v-bind="field" :class="
-            !meta.touched || meta.valid
-              ? 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:outline-blue-500 focus:border-blue-500 block w-full p-2.5'
-              : 'bg-gray-50 border text-gray-900 text-sm rounded-lg outline-red-500 border-red-500 block w-full p-2.5 mb-1'
-          " />
-        </Field>
-        <ErrorMessage name="emailOrUsername" />
-      </div>
+    <!--Email or username-->
+    <InputField type="text" :modelValue="emailOrUsername" :name="'usernameOrUsername'" placeholder="Username or email"
+      label="Username or email" @update:model-value="(newValue : string) => (emailOrUsername = newValue)"
+      :error="v$.emailOrUsername.$error" :errorText="v$.emailOrUsername.$errors[0]?.$message?.toString()" />
 
-      <!--Password txt-->
-      <div class="mb-6">
-        <Field name="password" v-slot="{ field, meta }">
-          <label for="insertPassword" class="form-label">Password</label>
-          <input v-bind="field" :class="
-            !meta.touched || meta.valid
-              ? 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:outline-blue-500 focus:border-blue-500 block w-full p-2.5'
-              : 'bg-gray-50 border text-gray-900 text-sm rounded-lg outline-red-500 border-red-500 block w-full p-2.5 mb-1'
-          " type="password" />
-        </Field>
-        <ErrorMessage name="password" />
-      </div>
+    <!--Password-->
+    <InputField type="password" :modelValue="password" :name="'password'" placeholder="Password" label="Password"
+      @update:model-value="(newValue : string) => (password = newValue)" :error="v$.password.$error"
+      :errorText="v$.password.$errors[0]?.$message?.toString()" />
 
-      <div :class="getIsLoginLoading ? 'flex justify-center relative' : 'container text-center'">
-        <button :class="disableButton ? 'btn-blue btn-disabled' : 'btn-blue btn rounded-md'">Submit</button>
+    <div class="px-4 grid justify-center relative">
+      <div class="flex">
+        <ButtonComponent title="Log in" :disabled="!!v$.$errors.length 
+        || getIsLoginLoading" @onClick="loginUserToApp" />
 
         <!--Loading -->
         <div role="status" v-show="getIsLoginLoading" class="mt-1 absolute right-0">
@@ -45,9 +30,7 @@
           <span class="sr-only">Loading...</span>
         </div>
       </div>
-    </Form>
-
-
+    </div>
 
   </div>
 </template>
@@ -60,33 +43,45 @@ import { v4 as uuidv4 } from "uuid";
 //pinia
 import { mapActions, mapState } from "pinia";
 
-//validate
-import { Form, Field, ErrorMessage } from "vee-validate";
-import * as yup from "yup";
 
 //types
-import { SignInRequest } from '@/User/types';
 import { useAuthenticationStore } from "../store/authentication_store";
+
+import { useVuelidate } from '@vuelidate/core'
+import { required, minLength } from '@vuelidate/validators'
+
+import InputField from '@/components/InputField.vue'
+import ButtonComponent from '@/components/ButtonComponent.vue'
 
 let id = null;
 
 export default defineComponent({
   name: "UserLoginForm",
   components: {
-    Form,
-    Field,
-    ErrorMessage
+    InputField,
+    ButtonComponent
+  },
+  setup() {
+    return {
+      v$: useVuelidate()
+    }
   },
   methods: {
-    ...mapActions(useAuthenticationStore, ["loginUser",]),
-    loginUserMethod: function (siginRequest: SignInRequest) {
-      this.loginUser(siginRequest);
+    ...mapActions(useAuthenticationStore, ["loginUser"]),
+
+    loginUserToApp: function (): void {
+
+      this.v$.$validate();
+
+      if (!this.v$.$invalid)
+        this.loginUser({
+          emailOrUsername: this.emailOrUsername,
+          password: this.password
+        })
     },
+
     closeEvent: function () {
       this.$emit("close", this.getSuccessfullLogin);
-    },
-    onSubmit: function (value: SignInRequest | any) {
-      this.loginUser(value);
     },
   },
   watch: {
@@ -95,23 +90,30 @@ export default defineComponent({
     },
     getSuccessfullLogin: function (value: boolean) {
       if (value) {
+        console.log("Watch", value)
         this.closeEvent();
       }
-    }
+    },
   },
   computed: {
     ...mapState(useAuthenticationStore, ["getIsLoginLoading", 'getSuccessfullLogin']),
   },
   data() {
-    const schema = yup.object({
-      emailOrUsername: yup.string().min(1).max(50).required('Enter a valid email'),
-      password: yup.string().min(8).required(),
-    });
 
     return {
-      schema,
-      disableButton: false
+      emailOrUsername: '' as string,
+      password: '' as string,
+      disableButton: false as boolean
     };
+  },
+  validations() {
+    return {
+      emailOrUsername: { required },
+      password: {
+        required,
+        minLength: minLength(8)
+      }
+    }
   },
   beforeMount() {
     id = uuidv4();
@@ -119,9 +121,3 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-
-.form-label {
-  @apply mr-2 block text-gray-700 text-sm font-bold text-center mb-2
-}
-</style>

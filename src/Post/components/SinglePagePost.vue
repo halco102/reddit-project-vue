@@ -2,13 +2,12 @@
   <div class="grid justify-center">
 
     <!--Post card-->
-    <div class="sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden shadow-lg  mx-auto my-6 ">
-      <img :src="post.imageUrl" class="w-full h-full my-4 rounded" alt="..." />
-      <div class="my-4 p-6">
-        <h5 class="text-md font-medium text-center">{{ post.title }}</h5>
-        <p v-if="post.text !== null" class="">{{ post.text }}</p>
-      </div>
-    </div>
+    <CustomCard class="grid justify-center" :hasLikeAndDislike="false" :hasCategories="false"
+      :currentlyLoggedUser="null" :post="post">
+      <template #image>
+        <img :src="post.imageUrl" class="w-fit h-fit" />
+      </template>
+    </CustomCard>
 
     <!--Comment component-->
     <div class="text-center">
@@ -30,12 +29,14 @@ import { mapActions, mapState } from "pinia";
 
 //components
 import CommentSection from "@/Comment/components/Comment.vue";
+import CustomCard from "@/components/CustomCard/Cards.vue";
 
 
 export default defineComponent({
   name: "App",
   components: {
     CommentSection,
+    CustomCard
   },
   created() {
     let toNumber: number = parseInt(this.id!);

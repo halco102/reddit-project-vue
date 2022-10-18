@@ -58,4 +58,14 @@ export interface UserState {
     postForLikeDislike: FrontPagePost[],
 }
 
+export interface Notification {
+    userInfo: PostedBy,
+    notifications: PostNotification
+}
 
+
+export interface PostNotification {
+    id: number,
+    title: string,
+    imageUrl: string
+}

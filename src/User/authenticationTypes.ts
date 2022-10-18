@@ -1,4 +1,4 @@
-import { UserProfile } from "./types"
+import { Notification, UserProfile } from "./types"
 
 export interface SignupRequest {
     username: string,
@@ -15,13 +15,16 @@ export interface UserLoginResponse {
     jwt: string
 }
 
+
 export interface Authentication {
-    userLoginResponse : UserLoginResponse,
+    userLoginResponse: UserLoginResponse,
     userProfile: UserProfile,
     isSignupLoading: boolean,
     isLoginLoading: boolean,
     successfullSignup: boolean,
     succesfullLogin: boolean,
     isJwtValid: boolean,
-    signutUser: boolean
+    signutUser: boolean,
+    notifications: Notification[],
+    isNewNotification: boolean
 }

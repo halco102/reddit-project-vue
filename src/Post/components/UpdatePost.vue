@@ -94,7 +94,7 @@ import { mapActions, mapState } from "pinia";
 import { useCategoryStore } from "../store/category-store";
 
 //components
-import NavigationBarVue from "@/components/NavigationBar.vue";
+import NavigationBarVue from '@/components/navigation_bar/NavigationBar.vue';
 import { SingleCategory } from "../category-types";
 
 
@@ -126,7 +126,7 @@ export default defineComponent({
             return objects;
         },
 
-        onSubmit: function (val: UpdatePost | any) : void{
+        onSubmit: function (val: UpdatePost | any): void {
 
             if (val.text === undefined) {
                 val.text = '';
@@ -134,7 +134,7 @@ export default defineComponent({
 
             val.allowComments = this.isAllowedComment;
             val.categories = this.findCategoryObjectByName(this.categoryOptions);
-            
+
             this.updatePostById(this.postId, val);
 
         },

@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import NavigationBar from './components/NavigationBar.vue';
+import NavigationBar from './components/navigation_bar/NavigationBar.vue';
 import { mapState, mapActions } from 'pinia';
 import { usePostStore } from './Post/store/store';
 
@@ -46,11 +46,9 @@ export default defineComponent({
 .btn-blue:hover {
   /*@apply bg-blue-700;*/
   @apply bg-blue-700
-
 }
 
 .btn-disabled {
-  @apply  text-white font-bold rounded py-2 px-4 opacity-50 cursor-not-allowed
+  @apply text-white font-bold rounded py-2 px-4 opacity-50 cursor-not-allowed
 }
-
 </style>
