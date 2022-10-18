@@ -210,7 +210,7 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
         },
 
         fetchAllNotifications: async function () {
-            await axios.get('http://localhost:8082/api/v1/notification',
+            await axios.get(process.env.VUE_APP_BASE_URL + '/api/v1/notification',
                 {
                     headers: {
                         'Authorization': 'Bearer ' + sessionStorage.getItem('jwt')
