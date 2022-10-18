@@ -40,8 +40,7 @@ export default defineComponent({
         }
     },
     methods: {
-        activateToogle: function (item : number): void {
-            console.log("Idemo", this.selectedItem);
+        activateToogle: function (item: number): void {
             if (this.selectedItem === item) {
                 this.selectedItem = 0;
                 return;
