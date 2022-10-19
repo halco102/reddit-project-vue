@@ -10,9 +10,10 @@ import * as CommentType from '@/Comment/types'
 import { useToast } from 'vue-toastification';
 
 //stomp
-import { Client } from "@stomp/stompjs";
+import { IMessage } from "@stomp/stompjs";
 
 import CustomWebSocket from '@/service/CustomWebsocket';
+import { LikeDislikeCommentsNotification } from "@/service/WebSocketTypes";
 
 
 const BASE_URL = process.env.VUE_APP_BASE_URL + '/api/v1/comment';
@@ -169,13 +170,21 @@ export const useCommentStore = defineStore('comments', {
             return number;
         },
         subscribeToTopic: function (topic: string) {
-            wsConnection.getClient().subscribe("/topic/" + topic, (msg: any) => {
-                console.log(topic.split('comment/')[1]);
+            wsConnection.getClient().subscribe("/topic/" + topic, (msg: IMessage) => {
                 if (msg.body === 'COMMENT_DELETED') {
                     const num: number = +topic.split('comment/')[1];
                     this.fetchAllCommentsByPostId(num);
-                } else
-                    this.$state.commentsDto.unshift(JSON.parse(msg.body));
+                } else {
+                    const toJson: CommentType.CommentDto | LikeDislikeCommentsNotification = JSON.parse(msg.body);
+                    if ('eventName' in toJson) {
+                        console.log("Update comment value");
+                        const comment = this.$state.commentsDto.findIndex(item => item.id === toJson.commentDto.id);
+                        this.$state.commentsDto[comment] = toJson.commentDto;
+                    } else {
+                        this.$state.commentsDto.unshift(toJson);
+                    }
+                }
+
             })
         },
         setCommentsFromPost: function (comments: CommentType.CommentDto[]): void {

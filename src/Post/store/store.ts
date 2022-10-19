@@ -11,6 +11,7 @@ import * as PostType from "@/Post/types";
 //toast
 import { useToast } from 'vue-toastification';
 import CustomWebSocket from "@/service/CustomWebsocket";
+import { LikeDislikePostNotification } from "@/service/WebSocketTypes";
 
 
 
@@ -341,16 +342,41 @@ export const usePostStore = defineStore('postStore', {
          })
       },
 
+
+
       //websocket
 
       subscribeToTopic: function (topic: string) {
-         ws.getClient().onConnect = () => {
-            console.log("Connect");
-            ws.getClient().subscribe("/topic/" + topic, (msg) => {
-               console.log('Post msg', msg.body)
-            })
+
+
+         console.log(topic);
+
+         if (ws.getClient().connected === undefined || ws.getClient().connected === false) {
+            ws.getClient().onConnect = () => {
+               this.__subscribeToWsMethod(topic);
+            }
+
+         } else {
+            this.__subscribeToWsMethod(topic);
          }
       },
 
+      __subscribeToWsMethod: function (topic: string): void {
+         ws.getClient().subscribe("/topic/" + topic, (msg) => {
+            const toJson: PostType.FrontPagePost | LikeDislikePostNotification = JSON.parse(msg.body);
+            if ('eventName' in toJson) {
+               if (toJson.eventName === 'LIKE_OR_DISLIKE_POST') {
+                  console.log("Update post value");
+                  const post = this.$state.posts.findIndex(post => post.id === toJson.postDto.id);
+                  this.$state.posts[post] = toJson.postDto;
+               } else {
+                  alert("No such event");
+               }
+            } else {
+               console.log("Normal add of post", toJson);
+               this.$state.posts.unshift(toJson);
+            }
+         })
+      }
    },
 })

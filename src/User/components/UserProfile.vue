@@ -3,7 +3,7 @@
 
     <!--User profile with stats-->
     <div>
-      <div class="flex justify-center mb-10">
+      <div class="flex justify-center mb-10 gap-4">
 
         <!--Image on left side-->
         <div class="border rounded-full">
@@ -14,6 +14,15 @@
         <div class="pl-4 pt-4">
           <p class="font-serif">Email: {{ getUserProfile.email }}</p>
           <p class="font-serif">Created at: {{ getUserProfile.createdAt }}</p>
+        </div>
+
+        <!--Follow icon-->
+        <div class="my-auto">
+          <VButtonIcon @onClick="followUser(getUserProfile.id)" class="hover:bg-gray-300">
+            <template #icon>
+              <img src="@/assets/icons8-follow-64.png" />
+            </template>
+          </VButtonIcon>
         </div>
 
       </div>
@@ -75,6 +84,7 @@ import { useUserStore } from "@/User/store/store";
 import { usePostStore } from "@/Post/store/store";
 import { mapActions, mapState } from "pinia";
 import { useAuthenticationStore } from "../store/authentication_store";
+import VButtonIcon from '@/components/VButtonIcon.vue'
 
 //types
 import { PostedBy } from '@/User/types';
@@ -83,12 +93,14 @@ export default defineComponent({
   name: "UserProfile",
   components: {
     UserProfileStatsVue,
+    VButtonIcon
   },
   methods: {
     ...mapActions(useUserStore, [
       "getUserByIdOrUsername",
       "getAllPostsFromUserByUserId",
       'sendUserMessage',
+      'followUser'
     ]),
     ...mapActions(useAuthenticationStore, []),
     ...mapActions(usePostStore, ["deletePostById"]),

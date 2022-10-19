@@ -129,6 +129,15 @@ export const useUserStore = defineStore('userStore', {
             //customWebsocket.disconnect(() => { console.log("Disconnected") });
         },
 
+        followUser: async function (userId: number) {
+            await axios.post(BASE_URL + '/follow/' + userId, '', {
+                headers: {
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
+                }
+            }).then(response => {
+                this.user = response.data;
+            })
+        }
 
     }
 })

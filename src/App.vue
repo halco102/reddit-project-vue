@@ -11,6 +11,7 @@ import NavigationBar from './components/navigation_bar/NavigationBar.vue';
 import { mapState, mapActions } from 'pinia';
 import { usePostStore } from './Post/store/store';
 
+import CustomWebsocket from '@/service/CustomWebsocket'
 
 
 export default defineComponent({
@@ -28,6 +29,8 @@ export default defineComponent({
   },
   beforeMount() {
     this.fetchAllPostToShow();
+    const ws = CustomWebsocket.getInstance();
+
   },
 
 });

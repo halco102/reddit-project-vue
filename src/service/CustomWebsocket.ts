@@ -38,12 +38,16 @@ export default class CustomWebSocket {
         if (!CustomWebSocket.instance) {
             CustomWebSocket.instance = new CustomWebSocket();
         }
-        
+
         return CustomWebSocket.instance;
     }
 
-    public  getClient(): Client {
-         return this.client;
+    public getClient(): Client {
+        return this.client;
+    }
+
+    public unsubscribeFromTopic(topic: string): void {
+        this.client.unsubscribe('/topic/' + topic);
     }
 
 
