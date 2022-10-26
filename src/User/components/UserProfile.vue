@@ -17,10 +17,11 @@
         </div>
 
         <!--Follow icon-->
-        <div class="my-auto">
-          <VButtonIcon @onClick="followUser(getUserProfile.id)" class="hover:bg-gray-300">
+        <div class="my-auto" v-if="getCurrentlyLoggedUserProfile.id !== getUserProfile.id">
+          <VButtonIcon @onClick="followUnfollowUser(getUserProfile.id)" class="hover:bg-gray-300">
             <template #icon>
-              <img src="@/assets/icons8-follow-64.png" />
+              <FollowIcon class="w-8 h-8" v-if="!userIsFollowed" />
+              <UnfollowIcon class="w-8 h-8" v-else />
             </template>
           </VButtonIcon>
         </div>
@@ -46,13 +47,13 @@
       <!--Router link to filter post or comments of user-->
       <div class="flex justify-evenly my-6">
 
-        <router-link :to="{ name: 'FilterPosts', query: {filter: 'posts'} }">
+        <router-link :to="{ name: 'FilterPosts', query: { filter: 'posts' } }">
           <button @click="currentlyFocusedFilter(true, false)"
             :class="events.isPost ? 'btn btn-ligh hover:bg-gray-500 bg-gray-500' : 'btn btn-ligh hover:bg-gray-500'">Posts</button>
         </router-link>
 
-        <router-link :to="{ name: 'FilterComments', query : {filter: 'comments'} }">
-          <button @click="currentlyFocusedFilter(false,true)"
+        <router-link :to="{ name: 'FilterComments', query: { filter: 'comments' } }">
+          <button @click="currentlyFocusedFilter(false, true)"
             :class="events.isComment ? 'btn btn-ligh hover:bg-gray-500 bg-gray-500' : 'btn btn-ligh hover:bg-gray-500'">Comments</button>
         </router-link>
 
@@ -85,24 +86,27 @@ import { usePostStore } from "@/Post/store/store";
 import { mapActions, mapState } from "pinia";
 import { useAuthenticationStore } from "../store/authentication_store";
 import VButtonIcon from '@/components/VButtonIcon.vue'
+import FollowIcon from "@/User/components/FollowIcon.vue";
+import UnfollowIcon from "./UnfollowIcon.vue";
 
 //types
-import { PostedBy } from '@/User/types';
+import { PostedBy, UserProfile } from '@/User/types';
 
 export default defineComponent({
   name: "UserProfile",
   components: {
     UserProfileStatsVue,
-    VButtonIcon
+    VButtonIcon,
+    FollowIcon,
+    UnfollowIcon
   },
   methods: {
     ...mapActions(useUserStore, [
       "getUserByIdOrUsername",
       "getAllPostsFromUserByUserId",
-      'sendUserMessage',
-      'followUser'
     ]),
-    ...mapActions(useAuthenticationStore, []),
+    ...mapActions(useAuthenticationStore, ['followUser',
+      'unfollowUser']),
     ...mapActions(usePostStore, ["deletePostById"]),
     getPostedBy: function (): PostedBy {
       console.log("GetPostedBy", this.getUserProfile);
@@ -168,6 +172,19 @@ export default defineComponent({
         })
 
       return result;
+    },
+    checkIfCurrentUserFollowsProfile: function (profileId: number): void {
+
+      if (this.getCurrentlyLoggedUserProfile.id !== 0)
+        this.userIsFollowed = this.getCurrentlyLoggedUserProfile.followingDtos.some(object => object.id === profileId);
+
+
+    },
+    followUnfollowUser: function (profileId: number): void {
+      if (this.userIsFollowed)
+        this.unfollowUser(profileId);
+      else
+        this.followUser(profileId);
     }
   },
   data() {
@@ -176,7 +193,8 @@ export default defineComponent({
       events: {
         isPost: false,
         isComment: false
-      }
+      },
+      userIsFollowed: false
     };
   },
   computed: {
@@ -190,7 +208,7 @@ export default defineComponent({
 
   },
   watch: {
-    getUserProfile: function () {
+    getUserProfile: function (profile: UserProfile) {
 
       this.getUserProfile.posts.filter((x: any) => {
         if (x.postLikeOrDislikeDtos !== null) {
@@ -201,11 +219,11 @@ export default defineComponent({
       }
       );
 
+      this.checkIfCurrentUserFollowsProfile(profile.id);
     },
-    getIsDeleted: function () {
-      console.log("Post is deleted");
-      this.sendUserMessage(this.getUserProfile);
-    },
+    getCurrentlyLoggedUserProfile: function (): void {
+      this.checkIfCurrentUserFollowsProfile(this.getUserProfile.id);
+    }
 
   },
 });
