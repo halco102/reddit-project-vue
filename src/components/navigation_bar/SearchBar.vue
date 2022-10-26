@@ -9,8 +9,8 @@
             </template>
         </VButtonIcon>
 
-        <input v-model="searchQuery" class="px-2 outline-none rounded-full" type="search" placeholder="Search"
-            aria-label="Search" @keyup.enter="startSearch" />
+        <input v-model="searchQuery" class="px-2 outline-none rounded-full" v-bind="$attrs" type="search"
+            placeholder="Search" aria-label="Search" @keyup.enter="startSearch" />
     </div>
 
 </template>
