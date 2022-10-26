@@ -1,13 +1,13 @@
 <template>
 
-  <div class="link-to-login">
+  <div>
 
-    <vue-final-modal v-model="showModal"  classes="modal-container" content-class="modal-content">
+    <vue-final-modal v-model="showModal" classes="modal-container" content-class="modal-content">
       <h3 class="mb-3 font-sans font-bold">Login</h3>
-      <UserLogin @close="closeModal"/>
+      <UserLogin />
     </vue-final-modal>
-    <button class="btn btn-blue" @click="showModal = true">Login</button>
 
+    <ButtonComponent :disabled="false" @onClick="openLoginModal" title="Login" class="w-[84px]" />
 
   </div>
 </template>
@@ -17,39 +17,44 @@ import { defineComponent } from "vue";
 import UserLogin from "@/User/components/UserLogin.vue";
 import { useAuthenticationStore } from "@/User/store/authentication_store";
 import { mapState } from "pinia";
+import ButtonComponent from "@/components/ButtonComponent.vue";
 
 export default defineComponent({
   name: "UserLoginModal",
   components: {
-    UserLogin
+    UserLogin,
+    ButtonComponent
   },
   computed: {
     ...mapState(useAuthenticationStore, ["userLoginResponse"]),
   },
   methods: {
-    closeModal : function(value : boolean) : void{
-      this.showModal = !value;
+    openLoginModal: function (): void {
+      this.showModal = !this.showModal;
+      this.keepDropDownOpen();
+    },
+    keepDropDownOpen: function (): void {
+      this.$emit('open', this.showModal);
     }
   },
-  data(){
+  data() {
     return {
       showModal: false
     }
   },
+  updated() {
+    this.keepDropDownOpen();
+  }
 });
 </script>
 
 <style scoped>
-
-h3{
-  text-align:center;
-}
-
 ::v-deep .modal-container {
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 ::v-deep .modal-content {
   display: flex;
   flex-direction: column;
@@ -60,6 +65,7 @@ h3{
   background: #fff;
   padding: 2rem 5rem;
 }
+
 .modal__title {
   font-size: 1.5rem;
   font-weight: 700;

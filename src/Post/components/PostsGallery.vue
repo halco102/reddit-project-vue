@@ -53,8 +53,8 @@
           </template>
 
           <template #cardText>
-            <div class="grid justify-center hover:bg-gray-300 hover:cursor-pointer">
-              <Text :title="'test'" :description="'testign'" />
+            <div class="grid hover:bg-gray-300 hover:cursor-pointer">
+              <Text class="text-center break-words" :title="post.title" :description="post.text" />
             </div>
 
           </template>
@@ -109,6 +109,7 @@ import CarouselVue from "@/components/Carousel.vue";
 //types
 import { FrontPagePost } from '@/Post/types';
 import { PostedBy } from '@/User/types';
+import CustomWebSocket from "@/service/CustomWebsocket";
 
 
 export default defineComponent({
@@ -192,17 +193,18 @@ export default defineComponent({
     };
   },
   mounted() {
-
-
-    this.subscribeToTopic('post')
-
-
     if (this.getCurrentlyLoggedUserProfile.id != 0) {
       this.isClose = true;
     }
+
     this.fetchAllCategories();
 
-  },
+
+    setTimeout(() => {
+      this.subscribeToTopic('post');
+    }, 1000);
+    this.subscribeToTopic('post/like-dislike');
+  }
 });
 </script>
 

@@ -8,15 +8,17 @@
         <div class="flex flex-col gap-4 rounded-md absolute -right-6 bg-gray-400 border border-gray-400 p-2 mt-3 overflow-auto max-h-72"
             v-else>
             <div class="w-52 hover:bg-gray-200 rounded-md" v-for="notification in notifications"
-                :key="notification.notifications.id">
+                :key="notification.userInfo.id">
                 <router-link class="cursor-pointer"
-                    :to="{name: 'SinglePage', params: {id: notification.notifications.id}}">
+                    :to="{ name: 'SinglePage', params: { id: notification.notifications?.id !== null ? notification.notifications?.id : 0 } }">
                     <div class="flex">
                         <img :src="notification.userInfo.imageUrl"
                             class="w-14 h-14 my-auto border rounded-full mx-2 bg-white" />
                         <div class="text-sm px-2 ">
-                            <p><b>{{notification.userInfo.username}}</b> posted
-                                <b>{{notification.notifications.title}}</b>
+                            <p><b>{{ notification.userInfo.username }}</b> posted
+                                <b>{{ notification.notifications?.title !== null ? notification.notifications?.title :
+                                        'User deleted this post :( '
+                                }}</b>
                                 check it
                                 out
                             </p>

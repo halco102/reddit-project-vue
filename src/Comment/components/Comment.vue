@@ -124,8 +124,12 @@ export default defineComponent({
     post: function () {
       this.setCommentsFromPost(this.post!.commentsDto);
 
-      if (this.post.allowComments)
+      if (this.post.allowComments) {
         this.subscribeToTopic('comment/' + this.post.id);
+
+        //also subscribe to like or dislike topic
+        this.subscribeToTopic('comment/' + this.post.id + '/like-dislike');
+      }
 
     },
     getIsPostingComment: function (val: boolean) {

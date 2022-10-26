@@ -43,7 +43,9 @@ export interface UserProfile {
     posts: UserPosts[],
     commentsPosts: CommentsPost[],
     likedOrDislikedComments: CommentLikeOrDislikeResponse[],
-    postLikeOrDislikeDtos: LikeOrDislikeRequest[]
+    postLikeOrDislikeDtos: LikeOrDislikeRequest[],
+    followersDtos: FollowersDto[],
+    followingDtos: FollowingDto[]
 }
 
 export interface CommentsPost {
@@ -60,7 +62,7 @@ export interface UserState {
 
 export interface Notification {
     userInfo: PostedBy,
-    notifications: PostNotification
+    notifications?: PostNotification
 }
 
 
@@ -69,3 +71,22 @@ export interface PostNotification {
     title: string,
     imageUrl: string
 }
+
+interface Follow {
+    username: string,
+    email: string,
+    createdAt: Date,
+    imageUrl: string
+}
+
+export interface FollowersDto extends Follow {
+    id: number
+}
+
+export interface FollowingDto extends Follow {
+    id: number
+}
+
+
+//export type FollowersDto = Follow
+//export type FollowingDto = Follow

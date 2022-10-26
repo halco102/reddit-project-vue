@@ -14,6 +14,8 @@
         </VButtonIcon>
       </a>
 
+
+
       <!--Show post button only when user logsin-->
       <div class="px-4" v-if="getCurrentlyLoggedUserProfile.id !== 0">
         <router-link :to="{ name: 'PostRequestPage' }">
@@ -23,9 +25,8 @@
       </div>
     </div>
 
-
     <!--other-->
-    <div class="flex justify-evenly items-center gap-2">
+    <div class="lg:flex justify-evenly items-center gap-2 md:hidden sm:hidden">
 
       <VnavigationSearchBar />
 
@@ -40,6 +41,34 @@
       <VuserNotification :userProfile="getCurrentlyLoggedUserProfile" v-else />
 
     </div>
+
+    <div class="lg:hidden md:visible sm:visible my-auto flex gap-2" v-if="getCurrentlyLoggedUserProfile.id !== 0">
+      <div>
+        <VButtonIcon class="hover:bg-white" :label="getAllNotifications.length" :customLabelCss="newNotification()"
+          @onClick="openCloseDropDown()" v-if="getCurrentlyLoggedUserProfile.id !== 0">
+          <template #icon>
+            <BIconBell class="w-10 h-10" />
+          </template>
+        </VButtonIcon>
+      </div>
+      <div class="p-4">
+        <VnavigationSearchBar />
+
+      </div>
+    </div>
+
+    <div class="lg:hidden my-auto relative ">
+      <BIconList class="w-10 h-10" @click="toogleDropDownMenu" />
+
+      <div class="absolute p-4 bg-gray-400 bg-opacity-70 right-0 flex flex-col gap-4 rounded-md w-44"
+        v-if="toggleDropDown">
+        <UserLoginModal @open="checkIfModalIsOpen" class="grid justify-center" />
+        <UserSignupModal @open="checkIfModalIsOpen" class="grid justify-center" />
+        <hr class="border border-black w-full">
+      </div>
+
+    </div>
+
 
   </nav>
 </template>
@@ -58,7 +87,7 @@ import ButtonComponent from "@/components/ButtonComponent.vue";
 import VButtonIcon from "@/components/VButtonIcon.vue";
 import VnavigationSearchBar from '@/components/navigation_bar/SearchBar.vue'
 import VuserNotification from "./UserNotification.vue";
-
+import { BIconList, BIconBell } from 'bootstrap-icons-vue';
 
 
 export default defineComponent({
@@ -69,20 +98,14 @@ export default defineComponent({
     ButtonComponent,
     VButtonIcon,
     VnavigationSearchBar,
-    VuserNotification
+    VuserNotification,
+    BIconList,
+    BIconBell
   },
   methods: {
 
     //...mapActions(usePostStore, ['searchPostByName']),
-    ...mapActions(useAuthenticationStore, ['logout']),
-
-    exit: function (): boolean {
-
-      if (this.getCurrentlyLoggedUserProfile.id != 0) {
-        return true;
-      }
-      return false;
-    },
+    ...mapActions(useAuthenticationStore, ['logout', 'checkedNewNotification']),
     logoutAndRefreshSite: function (): void {
       sessionStorage.removeItem('jwt');
       this.$router.go(0);
@@ -93,18 +116,36 @@ export default defineComponent({
       }
       return false;
     },
-    toggleMobile: function (): void {
-      this.toggle = !this.toggle;
-    }
+    toogleDropDownMenu: function () {
+      this.toggleDropDown = !this.toggleDropDown;
+    },
+    toogleLoginSignupModal: function (): boolean {
+      return true;
+    },
+    checkIfModalIsOpen: function (val: boolean): boolean {
+      console.log("EMIT", val);
+      return val;
+    },
+    openCloseDropDown: function (): void {
+      this.bellNotification = !this.bellNotification;
+      this.checkedNewNotification();
+    },
+    newNotification: function (): string {
+      if (this.getIsNewNotification) {
+        return 'text-red-500';
+      } else
+        return ''
+    },
   },
   computed: {
-    ...mapState(useAuthenticationStore, ['getSuccessfullLogin', 'getCurrentlyLoggedUserProfile']),
+    ...mapState(useAuthenticationStore, ['getSuccessfullLogin', 'getCurrentlyLoggedUserProfile', 'getIsNewNotification', 'getAllNotifications']),
   },
   data() {
     return {
       isClose: false,
       searchQuery: '',
-      toggle: false
+      toggleDropDown: false,
+      bellNotification: false
     }
   },
   watch: {
