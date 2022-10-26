@@ -53,8 +53,8 @@
           </template>
 
           <template #cardText>
-            <div class="grid justify-center hover:bg-gray-300 hover:cursor-pointer">
-              <Text :title="post.title" :description="post.text" />
+            <div class="grid hover:bg-gray-300 hover:cursor-pointer">
+              <Text class="text-center break-words" :title="post.title" :description="post.text" />
             </div>
 
           </template>
