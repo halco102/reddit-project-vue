@@ -1,33 +1,31 @@
 <template>
   <div class="signup-modal">
-    <vue-final-modal
-      v-model="showModal"
-      classes="modal-container"
-      content-class="modal-content"
-    >
+    <vue-final-modal v-model="showModal" classes="modal-container" content-class="modal-content">
       <h3 class="mb-3 font-sans font-bold">Signup</h3>
-      <UserSignup @signedUp="isUserSignedUp"/>
+      <UserSignup @signedUp="isUserSignedUp" />
     </vue-final-modal>
-    <button class="btn btn-blue" @click="showModal = true">Signup</button>
+    <ButtonComponent title="Signup" @onClick="showModal = true" :disabled=false class="w-[84px]" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import UserSignup from "@/User/components/UserSignup.vue";
+import ButtonComponent from "@/components/ButtonComponent.vue";
 
 export default defineComponent({
   name: "UserSignupModal",
   components: {
     UserSignup,
+    ButtonComponent
   },
-  data(){
-    return{
+  data() {
+    return {
       showModal: false
     }
   },
   methods: {
-    isUserSignedUp: function(value : boolean) : void {
+    isUserSignedUp: function (value: boolean): void {
       this.showModal = !value;
     }
   }
@@ -41,8 +39,8 @@ signup-modal {
 }
 
 
-h3{
-  text-align:center;
+h3 {
+  text-align: center;
 }
 
 ::v-deep .modal-container {
@@ -50,6 +48,7 @@ h3{
   justify-content: center;
   align-items: center;
 }
+
 ::v-deep .modal-content {
   display: flex;
   flex-direction: column;
@@ -60,9 +59,9 @@ h3{
   background: #fff;
   padding: 2rem 5rem;
 }
+
 .modal__title {
   font-size: 1.5rem;
   font-weight: 700;
 }
-
 </style>
