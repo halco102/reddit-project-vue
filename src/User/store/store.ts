@@ -40,7 +40,9 @@ export const useUserStore = defineStore('userStore', {
                 posts: [] as UserPosts[],
                 commentsPosts: [],
                 likedOrDislikedComments: [],
-                postLikeOrDislikeDtos: []
+                postLikeOrDislikeDtos: [],
+                followersDtos: [] as UserType.FollowersDto[],
+                followingDtos: [] as UserType.FollowingDto[]
             },
             postForLikeDislike: [],
         }
@@ -115,29 +117,10 @@ export const useUserStore = defineStore('userStore', {
 
             customWebsocket.activate();
         },
-        //stomp
-        sendUserMessage: function (object: UserType.UserProfile | string): void {
-
-            console.log("Send object");
-            customWebsocket.publish({
-                destination: '/app/user/update',
-                body: JSON.stringify(object)
-            });
-        },
         disconnectFromWs: function (): void {
             console.log("Disconnecting post ws");
             //customWebsocket.disconnect(() => { console.log("Disconnected") });
         },
-
-        followUser: async function (userId: number) {
-            await axios.post(BASE_URL + '/follow/' + userId, '', {
-                headers: {
-                    'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
-                }
-            }).then(response => {
-                this.user = response.data;
-            })
-        }
 
     }
 })

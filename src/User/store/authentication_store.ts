@@ -35,7 +35,9 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
                 posts: [],
                 commentsPosts: [],
                 likedOrDislikedComments: [],
-                postLikeOrDislikeDtos: []
+                postLikeOrDislikeDtos: [],
+                followersDtos: [] as UserType.FollowersDto[],
+                followingDtos: [] as UserType.FollowingDto[]
             },
             isSignupLoading: false,
             isLoginLoading: false,
@@ -220,9 +222,29 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
                 console.log("Fetch notification", response.data);
                 this.$state.notifications = response.data;
             })
+        },
+
+        followUser: async function (userId: number) {
+            await axios.post(BASE_URL + '/follow/' + userId, '', {
+                headers: {
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
+                }
+            }).then(response => {
+                this.userProfile = response.data;
+            })
+        },
+        unfollowUser: async function name(userId: number) {
+            await axios.post(BASE_URL + '/unfollow/' + userId, '', {
+                headers: {
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
+                }
+            }).then(reponse => {
+                this.userProfile = reponse.data;
+            })
         }
 
-    }
+    },
+
 
 })
 
