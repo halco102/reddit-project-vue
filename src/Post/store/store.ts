@@ -233,16 +233,15 @@ export const usePostStore = defineStore('postStore', {
             }
          }).then(() => {
 
+            console.log("Delete post with id", id);
+
             this.$state.posts.forEach((element, index) => {
                if (element.id === id) {
+                  console.log("Element in state", element, 'index', index);
                   this.$state.posts.splice(index, 1);
                }
             })
-
-
-            //this.sendMessage('POST_DELETED', '/delete');
             this.isDeleted = true;
-
 
          }).catch(function (ex) {
             if (ex.response.status === 404) {
