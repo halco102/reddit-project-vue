@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-fit p-4 mb-3">
+    <div class="max-w-full p-4 mb-3">
         <!--Title-->
         <h1 class="font-bold text-lg">
             {{title}}
