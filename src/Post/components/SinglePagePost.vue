@@ -7,6 +7,13 @@
       <template #image>
         <img :src="post.imageUrl" class="w-fit h-fit" />
       </template>
+
+      <template #cardText>
+        <div class="grid hover:bg-gray-300 hover:cursor-pointer">
+          <Text class="text-center break-words" :title="post.title" :description="post.text" />
+        </div>
+      </template>
+
     </CustomCard>
 
     <!--Comment component-->
@@ -30,13 +37,15 @@ import { mapActions, mapState } from "pinia";
 //components
 import CommentSection from "@/Comment/components/Comment.vue";
 import CustomCard from "@/components/CustomCard/Cards.vue";
+import Text from '@/components/CustomCard/Text.vue'
 
 
 export default defineComponent({
   name: "App",
   components: {
     CommentSection,
-    CustomCard
+    CustomCard,
+    Text
   },
   created() {
     let toNumber: number = parseInt(this.id!);
