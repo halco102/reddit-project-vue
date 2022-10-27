@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # reddit-vue-app
 
 ## Project setup
@@ -38,9 +38,6 @@ https://demo-reddit-admir-halilovic.herokuapp.com/
 
 The old version contains bootstrap that I removed in the 'new version'. Started learning tailwind and I am now implementing it in the newer version.
 Also refactoring code like websockets, ts in components ...
-
-
->>>>>>> 3a368997493d2df185f9d1662ed4d3ca7139e03f
 
 The project is not yet finished there are some bugs I have to fix and add new features (it will probably have a stable version next week 31.10.2022 (I am working alone on Backend(java, Spring) and Frontend (vue3) ))
 
