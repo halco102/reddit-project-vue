@@ -3,8 +3,9 @@
 
         <!--User image-->
         <router-link :to="{ path: '/user/' + userProfile?.id }">
-            <div>
-                <img :scr="userProfile.imageUrl" class="w-12 h-12 border rounded-full" />
+            <div class="flex gap-2 hover:bg-gray-200 rounded-md">
+                <span class="my-auto">{{ userProfile.username }}</span>
+                <img :src="userProfile.imageUrl" class="w-12 h-12 border rounded-full" />
             </div>
         </router-link>
 
