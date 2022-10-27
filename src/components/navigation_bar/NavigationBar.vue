@@ -43,13 +43,17 @@
     </div>
 
     <div class="lg:hidden md:visible sm:visible my-auto flex gap-2" v-if="getCurrentlyLoggedUserProfile.id !== 0">
-      <div>
-        <VButtonIcon class="hover:bg-white" :label="getAllNotifications.length" :customLabelCss="newNotification()"
-          @onClick="openCloseDropDown()" v-if="getCurrentlyLoggedUserProfile.id !== 0">
+      <div class="my-auto relative">
+        <VButtonIcon :disabled=false class="hover:bg-white" :class="{
+          'border rounded-md border-black bg-white':
+            bellNotification
+        }" @onClick="openCloseDropDown()">
           <template #icon>
-            <BIconBell class="w-10 h-10" />
+            <BIconBell class="w-6 h-6" />
           </template>
         </VButtonIcon>
+
+        <BellWithDropDown :notifications="getAllNotifications" :toggle="bellNotification" />
       </div>
       <div class="p-4">
         <VnavigationSearchBar />
@@ -88,6 +92,7 @@ import VButtonIcon from "@/components/VButtonIcon.vue";
 import VnavigationSearchBar from '@/components/navigation_bar/SearchBar.vue'
 import VuserNotification from "./UserNotification.vue";
 import { BIconList, BIconBell } from 'bootstrap-icons-vue';
+import BellWithDropDown from '@/components/VdropDownComponent.vue';
 
 
 export default defineComponent({
@@ -100,7 +105,8 @@ export default defineComponent({
     VnavigationSearchBar,
     VuserNotification,
     BIconList,
-    BIconBell
+    BIconBell,
+    BellWithDropDown
   },
   methods: {
 
@@ -127,6 +133,7 @@ export default defineComponent({
       return val;
     },
     openCloseDropDown: function (): void {
+      console.log("Toogle")
       this.bellNotification = !this.bellNotification;
       this.checkedNewNotification();
     },
