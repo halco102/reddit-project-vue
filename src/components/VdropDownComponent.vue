@@ -14,13 +14,21 @@
                     <div class="flex">
                         <img :src="notification.userInfo.imageUrl"
                             class="w-14 h-14 my-auto border rounded-full mx-2 bg-white" />
-                        <div class="text-sm px-2 ">
+
+                        <div class="text-sm px-2 " v-if="notification.notifications?.title !== null">
                             <p><b>{{ notification.userInfo.username }}</b> posted
-                                <b>{{ notification.notifications?.title !== null ? notification.notifications?.title :
-                                        'User deleted this post :( '
+                                <b>{{ notification.notifications?.title
                                 }}</b>
                                 check it
                                 out
+                            </p>
+                        </div>
+
+                        <div class="text-sm px-2 " v-else>
+                            <p><b>{{ notification.userInfo.username }}</b>
+                                <b>
+                                    'deleted this post &#128550;'
+                                </b>
                             </p>
                         </div>
                     </div>
