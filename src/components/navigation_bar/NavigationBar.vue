@@ -42,6 +42,7 @@
 
     </div>
 
+
     <div class="lg:hidden md:visible sm:visible my-auto flex gap-2" v-if="getCurrentlyLoggedUserProfile.id !== 0">
       <div class="my-auto relative">
         <VButtonIcon :disabled=false class="hover:bg-white" :class="{
@@ -66,9 +67,21 @@
 
       <div class="absolute p-4 bg-gray-400 bg-opacity-70 right-0 flex flex-col gap-4 rounded-md w-44"
         v-if="toggleDropDown">
-        <UserLoginModal @open="checkIfModalIsOpen" class="grid justify-center" />
-        <UserSignupModal @open="checkIfModalIsOpen" class="grid justify-center" />
-        <hr class="border border-black w-full">
+
+        <div class="flex flex-col gap-4" v-if="getCurrentlyLoggedUserProfile.id === 0">
+          <UserLoginModal @open="checkIfModalIsOpen" class="grid justify-center" />
+          <UserSignupModal @open="checkIfModalIsOpen" class="grid justify-center" />
+        </div>
+
+        <div v-else class="flex flex-col gap-4 justify-center">
+          <router-link :to="{ path: '/user/' + getCurrentlyLoggedUserProfile.id }">
+            <div class="flex gap-2 hover:bg-gray-200 rounded-md">
+              <span class="my-auto">{{ getCurrentlyLoggedUserProfile.username }}</span>
+              <img :src="getCurrentlyLoggedUserProfile.imageUrl" class="w-12 h-12 border rounded-full" />
+            </div>
+          </router-link>
+          <ButtonComponent :disabled=false title="Logout" @onClick="logoutAndRefreshSite" />
+        </div>
       </div>
 
     </div>
