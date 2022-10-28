@@ -10,8 +10,8 @@
             <!--Like button with number of likes-->
             <div class="mr-4">
                 <VButtonIcon :label="getNumberOfLikes(comment)" @onClick="postLikeOrDislike({
-                  commentId: comment.id,
-                  likeOrDislike: true,
+                    commentId: comment.id,
+                    likeOrDislike: true,
                 })" class="hover:bg-gray-500">
                     <template #icon>
                         <BIconHandThumbsUp />
@@ -22,8 +22,8 @@
             <!--Dislike button with number of dislikes-->
             <div class=" mr-4">
                 <VButtonIcon :label="getNumberOfDislikes(comment)" @onClick="postLikeOrDislike({
-                  commentId: comment.id,
-                  likeOrDislike: false,
+                    commentId: comment.id,
+                    likeOrDislike: false,
                 })" class="hover:bg-gray-500">
                     <template #icon>
                         <BIconHandThumbsDown />
@@ -33,7 +33,7 @@
         </div>
 
         <VButtonIcon class="hover:bg-gray-500"
-            :class="{'focus:outline-none focus:ring focus:bg-gray-500' : activeElement !== 0}"
+            :class="{ 'focus:outline-none focus:ring focus:bg-gray-500': activeElement !== 0 }"
             @onClick="activateToggle(comment.id)">
             <template #icon>
                 <BIconReply />
@@ -41,7 +41,8 @@
         </VButtonIcon>
 
         <!-- Trash icon for owner of the comment-->
-        <div class="flex-1 relative" v-if="getCurrentlyLoggedUserProfile.id !== 0">
+        <div class="flex-1 relative"
+            v-if="getCurrentlyLoggedUserProfile.id !== 0 && getCurrentlyLoggedUserProfile.id === comment.userInfo.id">
             <VButtonIcon class="absolute bottom-0 right-0 hover:bg-gray-500" @click="deleteCommentById(comment.id)">
                 <template #icon>
                     <BIconTrash />
