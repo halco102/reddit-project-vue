@@ -12,12 +12,12 @@
       <div class="my-6 flex flex-col gap-4">
         <!--Title-->
         <InputField type="text" :modelValue="title" name="title" placeholder="Title" label="Title*"
-          @update:model-value="(newValue : string) => (title = newValue)" :error="v$.title.$error"
+          @update:model-value="(newValue: string) => (title = newValue)" :error="v$.title.$error"
           :errorText="v$.title.$errors[0]?.$message?.toString()" />
 
         <!--Description-->
         <InputField type="text" :modelValue="description" name="description" placeholder="Description"
-          label="Description" @update:model-value="(newValue : string) => (description = newValue)" />
+          label="Description" @update:model-value="(newValue: string) => (description = newValue)" />
 
         <hr class="border border-black" />
       </div>
@@ -31,19 +31,20 @@
           <input
             class="block w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
             id="file_input" type="file" @change="onChangeInput" />
-          <ErrorComponent :errorName="'file'" :errorText="v$.title.$errors[0]?.$message?.toString()" />
+          <ErrorComponent :errorName="'file'" :errorText="v$.locationOfFile.$errors[0]?.$message?.toString()" />
         </div>
 
         <InputField type="text" :modelValue="url" name="url" placeholder="Url" label="Url"
-          @update:model-value="(newValue : string) => (url = newValue)" :error="v$.url.$error"
+          @update:model-value="(newValue: string) => (url = newValue)" :error="v$.url.$error"
           :errorText="v$.url.$errors[0]?.$message?.toString()" :disabled="lockImgUrl" />
 
         <!--If image is uploaded or url is put show preview-->
-        <div v-if="(url.length > 0 && checkRegex())  || locationOfFile !== null" class="max-w-lg">
-          <img :src="preview === null ? url : preview" v-if=!showModal class="cursor-zoom-in" @click="showModal=true" />
+        <div v-if="(url.length > 0 && checkRegex()) || locationOfFile !== null" class="max-w-lg">
+          <img :src="preview === null ? url : preview" v-if=!showModal class="cursor-zoom-in"
+            @click="showModal = true" />
 
           <vue-final-modal v-model="showModal" classes="modal-container" content-class="modal-content" v-else>
-            <img :src="preview === null ? url : preview" class="cursor-zoom-out" @click="showModal=false" />
+            <img :src="preview === null ? url : preview" class="cursor-zoom-out" @click="showModal = false" />
           </vue-final-modal>
 
         </div>
@@ -55,6 +56,8 @@
       <div class="my-4">
         <Multiselect v-model="categoryOptions" :options="getAllCategories.map(i => i.name)" mode="tags"
           placeholder="Select categories" :close-on-select="false" :searchable="true" />
+        <ErrorComponent :errorName="'categoryOptions'" v-if="v$.categoryOptions.$errors.length > 0"
+          :errorText="'Select one or more categories'" />
       </div>
 
       <!--Check button-->
@@ -64,7 +67,7 @@
       </div>
 
       <!--Submit Button-->
-      <div class="justify-center flex">
+      <div class="justify-center flex relative">
         <ButtonComponent title="Submit" :disabled="getIsLoading" @onClick="submitRequest" />
 
         <!--Loading -->
@@ -163,6 +166,9 @@ export default defineComponent({
       url: {
         requiredIfUploadIsEmpty: requiredIf(this.ifImageIsUploadedLockUrlAndClearInput()),
         helpers: helpers.withMessage('Must contain jpg, gif, png, wpeg, jpeg', helpers.regex(/^$|\s+|(?:([^:/?#]+):)?(?:([^/?#]*))?([^?#]*\.(?:jpg|gif|png|wpeg|jpeg))(?:\?([^#]*))?(?:#(.*))?/))
+      },
+      categoryOptions: {
+        required
       }
     }
   },
@@ -186,13 +192,11 @@ export default defineComponent({
       return true;
     },
     checkIfImageIsUploaded: function (): boolean {
-      console.log("check update");
       if (this.url.length > 0 && this.locationOfFile === null) {
         return false;
       }
       else
         return true;
-
     },
     isRequired: function (value: string): boolean | string {
       return value ? true : "This field is required";
