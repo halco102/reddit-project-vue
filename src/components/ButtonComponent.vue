@@ -1,11 +1,10 @@
 <template>
-    <!--This button component is gonna be used for login and signup (for now)-->
     <button
-        class="font-bold text-white bg-blue-500 py-2 px-4 rounded disabled:opacity-50 hover:opacity-70 focus:ring-1 focus:ring-blue-500 active:opacity-80 "
-        :disabled="disabled" @click="onClick">
+        class="font-bold  py-2 px-4 rounded disabled:opacity-50 hover:opacity-70 focus:ring-1 focus:ring-blue-500 active:opacity-80 "
+        :disabled="disabled" @click="onClick" :class="customBackground">
 
-        <span v-if="title != undefined" :class="{'my-auto' : hasIcon}">
-            {{title}}
+        <span v-if="title != undefined" :class="{ 'my-auto': hasIcon }">
+            {{ title }}
         </span>
 
         <template v-if="hasIcon">
@@ -18,6 +17,11 @@
 <script lang="ts">
 
 import { defineComponent, useSlots } from 'vue';
+
+export enum BACKGROUND {
+    NONE = "bg-none text-black",
+    BACKGROUND_BLUE = 'bg-blue-500 text-white'
+}
 
 
 export default defineComponent({
@@ -32,6 +36,10 @@ export default defineComponent({
             type: Boolean || undefined,
             required: true
         },
+        background: {
+            type: String,
+            required: false
+        }
     },
     setup() {
         const slot = useSlots();
@@ -50,8 +58,15 @@ export default defineComponent({
     },
     data() {
         return {
-            customCss: ''
+            customBackground: ''
         }
+    },
+    mounted() {
+
+        if (this.background === undefined) {
+            this.customBackground = BACKGROUND.BACKGROUND_BLUE;
+        } else
+            this.customBackground = BACKGROUND.NONE
     }
 })
 </script>
