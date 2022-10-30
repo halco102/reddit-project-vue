@@ -31,11 +31,26 @@
       <!--Under image and basic user info stats-->
       <div class="lg:flex md:flex sm:grid sm:justify-center">
 
-        <UserProfileStatsVue info="Number of posts" :number="getUserProfile.posts.length" />
+        <UserProfileStatsVue>
+          <template #info>
+            <p class="text-center">Number of posts</p>
+            <p class="text-center">{{ getUserProfile.posts.length }}</p>
+          </template>
+        </UserProfileStatsVue>
 
-        <UserProfileStatsVue info="Number of comments" :number="numberOfComments()" />
+        <UserProfileStatsVue>
+          <template #info>
+            <p class="text-center">Number of comments</p>
+            <p class="text-center">{{ numberOfComments() }}</p>
+          </template>
+        </UserProfileStatsVue>
 
-        <UserProfileStatsVue info="Number of likes" :number="sumOfLikesOrDislikes()" />
+        <UserProfileStatsVue>
+          <template #info>
+            <p class="text-center">Number of likes</p>
+            <p class="text-center">{{ sumOfLikesOrDislikes() }}</p>
+          </template>
+        </UserProfileStatsVue>
 
       </div>
     </div>
@@ -48,21 +63,36 @@
       <div class="flex justify-evenly my-6">
 
         <router-link :to="{ name: 'FilterPosts', query: { filter: 'posts' } }">
-          <button @click="currentlyFocusedFilter(true, false)"
-            :class="events.isPost ? 'btn btn-ligh hover:bg-gray-500 bg-gray-500' : 'btn btn-ligh hover:bg-gray-500'">Posts</button>
+          <ButtonComponent
+            class="active:bg-blue-200 focus:outline-none focus:ring focus:ring-gray-500 focus:bg-gray-300 hover:bg-gray-500 opacity-60"
+            :disabled=false title="Posts" :background="'NONE'" />
         </router-link>
 
+
         <router-link :to="{ name: 'FilterComments', query: { filter: 'comments' } }">
-          <button @click="currentlyFocusedFilter(false, true)"
-            :class="events.isComment ? 'btn btn-ligh hover:bg-gray-500 bg-gray-500' : 'btn btn-ligh hover:bg-gray-500'">Comments</button>
+          <ButtonComponent
+            class="active:bg-blue-200 focus:outline-none focus:ring focus:ring-gray-500 focus:bg-gray-300 hover:bg-gray-500 opacity-60"
+            :disabled=false title="Comments" :background="'NONE'" />
+        </router-link>
+
+        <router-link :to="{ name: 'FollowingComponent', query: { filter: 'following' } }">
+          <ButtonComponent
+            class="active:bg-blue-200 focus:outline-none focus:ring focus:ring-gray-500 focus:bg-gray-300 hover:bg-gray-500 opacity-60"
+            :disabled=false title="Following" :background="'NONE'" />
+        </router-link>
+
+        <router-link :to="{ name: 'FollowersComponent', query: { filter: 'followers' } }">
+          <ButtonComponent
+            class="active:bg-blue-200 focus:outline-none focus:ring focus:ring-gray-500 focus:bg-gray-300 hover:bg-gray-500 opacity-60"
+            :disabled=false title="Followers" :background="'NONE'" />
         </router-link>
 
       </div>
 
 
       <!--Filtered items-->
-      <div class="grid justify-center">
-        <router-view :user="getUserProfile" :isCurrentUser="isCurrentUser()">
+      <div class="grid">
+        <router-view>
         </router-view>
       </div>
 
@@ -88,6 +118,8 @@ import { useAuthenticationStore } from "../store/authentication_store";
 import VButtonIcon from '@/components/VButtonIcon.vue'
 import FollowIcon from "@/User/components/FollowIcon.vue";
 import UnfollowIcon from "./UnfollowIcon.vue";
+import ButtonComponent from '@/components/ButtonComponent.vue';
+
 
 //types
 import { PostedBy, UserProfile } from '@/User/types';
@@ -98,7 +130,8 @@ export default defineComponent({
     UserProfileStatsVue,
     VButtonIcon,
     FollowIcon,
-    UnfollowIcon
+    UnfollowIcon,
+    ButtonComponent
   },
   methods: {
     ...mapActions(useUserStore, [
