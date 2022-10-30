@@ -41,8 +41,8 @@ export const useUserStore = defineStore('userStore', {
                 commentsPosts: [],
                 likedOrDislikedComments: [],
                 postLikeOrDislikeDtos: [],
-                followersDtos: [] as UserType.FollowersDto[],
-                followingDtos: [] as UserType.FollowingDto[]
+                followersDtos: [] as UserType.Follow[],
+                followingDtos: [] as UserType.Follow[]
             },
             postForLikeDislike: [],
         }
@@ -57,6 +57,12 @@ export const useUserStore = defineStore('userStore', {
         getLikesDislikesFromPost(state): FrontPagePost[] {
             return state.postForLikeDislike;
         },
+        getUserFollowers(state): UserType.Follow[] {
+            return state.userProfile.followersDtos;
+        },
+        getUserFollowing(state): UserType.Follow[] {
+            return state.userProfile.followingDtos;
+        }
     },
     actions: {
 
