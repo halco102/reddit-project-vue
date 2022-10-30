@@ -43,9 +43,10 @@
     </div>
 
 
+    <!--When screen is sm size show bell on middle of nav-bar-->
     <div class="lg:hidden md:visible sm:visible my-auto flex gap-2" v-if="getCurrentlyLoggedUserProfile.id !== 0">
       <div class="my-auto relative">
-        <VButtonIcon :disabled=false class="hover:bg-white" :class="{
+        <VButtonIcon :disabled=false :label=getAllNotifications.length class="hover:bg-white" :class="{
           'border rounded-md border-black bg-white':
             bellNotification
         }" @onClick="openCloseDropDown()">
@@ -62,6 +63,7 @@
       </div>
     </div>
 
+    <!--When screen is sm show dropdown for login/signup or profile-->
     <div class="lg:hidden my-auto relative ">
       <BIconList class="w-10 h-10" @click="toogleDropDownMenu" />
 
