@@ -2,15 +2,21 @@
   <div class="grid justify-center">
 
     <!--Post card-->
-    <CustomCard class="grid justify-center" :hasLikeAndDislike="false" :hasCategories="false"
-      :currentlyLoggedUser="null" :post="post">
+    <CustomCard :hasLikeAndDislike="true" :hasCategories="false" :currentlyLoggedUser="null" :post="getPost">
       <template #image>
-        <img :src="post.imageUrl" class="w-fit h-fit" />
+        <img :src="getPost.imageUrl" class="w-fit h-fit mb-6 px-6" />
       </template>
 
       <template #cardText>
-        <div class="grid hover:bg-gray-300 hover:cursor-pointer">
-          <Text class="text-center break-words" :title="post.title" :description="post.text" />
+        <div class="grid">
+          <Text class="text-center break-words" :title="getPost.title" :description="getPost.text" />
+        </div>
+      </template>
+
+      <template #cardIcons>
+        <div class="flex">
+          <span class="my-auto font-sans">Posted by</span>
+          <IconsForCard :post="getPost" />
         </div>
       </template>
 
@@ -18,7 +24,7 @@
 
     <!--Comment component-->
     <div class="text-center">
-      <CommentSection :post="post" />
+      <CommentSection :post="getPost" />
     </div>
 
   </div>
@@ -38,6 +44,8 @@ import { mapActions, mapState } from "pinia";
 import CommentSection from "@/Comment/components/Comment.vue";
 import CustomCard from "@/components/CustomCard/Cards.vue";
 import Text from '@/components/CustomCard/Text.vue'
+import IconsForCard from '@/Post/components/CardIcons.vue'
+
 
 
 export default defineComponent({
@@ -45,7 +53,8 @@ export default defineComponent({
   components: {
     CommentSection,
     CustomCard,
-    Text
+    Text,
+    IconsForCard
   },
   created() {
     let toNumber: number = parseInt(this.id!);
@@ -59,7 +68,7 @@ export default defineComponent({
     ...mapActions(usePostStore, ["fetchPostById"]),
   },
   computed: {
-    ...mapState(usePostStore, ["post"]),
+    ...mapState(usePostStore, ["getPost"]),
     ...mapState(useUserStore, ["user"]),
   },
 });
