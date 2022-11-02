@@ -11,9 +11,10 @@
         </div>
 
         <!--Email and date on right side-->
-        <div class="pl-4 pt-4">
-          <p class="font-serif">Email: {{ getUserProfile.email }}</p>
-          <p class="font-serif">Created at: {{ getUserProfile.createdAt }}</p>
+        <div class="pl-4 pt-4 grid">
+          <span class="font-serif">Username : {{ getUserProfile.username }}</span>
+          <span class="font-serif">Email: {{ getUserProfile.email }}</span>
+          <span class="font-serif">Created at: {{ getUserProfile.createdAt }}</span>
         </div>
 
         <!--Follow icon-->
