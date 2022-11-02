@@ -17,7 +17,7 @@
 
         <div :class="isToggleDropdown ? 'grid' : ''">
           <button id="dropdownDefault"
-            :class="isToggleDropdown ?'btn btn-ligh hover:bg-gray-500 ml-auto sm:mb-1 lg:mb-0 bg-gray-500' : 'btn btn-ligh hover:bg-gray-500'"
+            :class="isToggleDropdown ? 'btn btn-ligh hover:bg-gray-500 ml-auto sm:mb-1 lg:mb-0 bg-gray-500' : 'btn btn-ligh hover:bg-gray-500'"
             v-on:click="toggleDropDownMenu">
 
             <BIconFilter class="w-7 h-7" />
@@ -109,7 +109,6 @@ import CarouselVue from "@/components/Carousel.vue";
 //types
 import { FrontPagePost } from '@/Post/types';
 import { PostedBy } from '@/User/types';
-import CustomWebSocket from "@/service/CustomWebsocket";
 
 
 export default defineComponent({
@@ -171,9 +170,6 @@ export default defineComponent({
     toggleDropDownMenu: function (): void {
       this.isToggleDropdown = !this.isToggleDropdown;
     },
-    temp: function (): void {
-      this.isToggleDropdown = false;
-    },
   },
   computed: {
     ...mapState(useAuthenticationStore, ["getCurrentlyLoggedUserProfile"]),
@@ -189,10 +185,11 @@ export default defineComponent({
   data() {
     return {
       isClose: false,
-      isToggleDropdown: false
+      isToggleDropdown: false,
     };
   },
   mounted() {
+
     if (this.getCurrentlyLoggedUserProfile.id != 0) {
       this.isClose = true;
     }
