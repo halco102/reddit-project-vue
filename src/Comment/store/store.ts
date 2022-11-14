@@ -181,7 +181,10 @@ export const useCommentStore = defineStore('comments', {
                         const comment = this.$state.commentsDto.findIndex(item => item.id === toJson.commentDto.id);
                         this.$state.commentsDto[comment] = toJson.commentDto;
                     } else {
-                        this.$state.commentsDto.unshift(toJson);
+                        if (this.$state.commentsDto[0].id !== toJson.id)
+                            this.$state.commentsDto.unshift(toJson);
+                        else
+                            msg.ack();
                     }
                 }
 

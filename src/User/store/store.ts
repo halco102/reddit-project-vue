@@ -8,15 +8,14 @@ import axios from "axios";
 import * as UserType from "@/User/types";
 import { FrontPagePost, UserPosts } from "@/Post/types";
 
-//stomp
-import { Client } from "@stomp/stompjs";
-
+import CustomWebSocket from "@/service/CustomWebsocket";
 
 //Base url localhost
 const BASE_URL = process.env.VUE_APP_BASE_URL + '/api/v1/user';
 const ws = process.env.VUE_APP_WEBSOCKET;
+const wsConnection = CustomWebSocket.getInstance();
 
-let customWebsocket: Client;
+
 
 
 export const useUserStore = defineStore('userStore', {
@@ -71,7 +70,7 @@ export const useUserStore = defineStore('userStore', {
 
             if (id !== null) {
                 // fetch by id
-                const fetchById = await axios.get(BASE_URL + '/', { params: { id: id } }).then((res) => {
+                await axios.get(BASE_URL + '/', { params: { id: id } }).then((res) => {
                     this.userProfile = res.data;
                 }).catch(function (ex) {
                     if (ex.status != 200) {
@@ -98,35 +97,11 @@ export const useUserStore = defineStore('userStore', {
 
                 })
         },
-        openUserWebsocket: function (): void {
-
-
-            customWebsocket = new Client({
-                brokerURL: ws,
-                connectHeaders: {},
-                debug: function (str) {
-                    console.log(str)
-                },
-                reconnectDelay: 30000,
-                heartbeatIncoming: 4000,
-                heartbeatOutgoing: 4000,
-                onConnect: () => {
-                    console.log("Subscribe when connected");
-                    customWebsocket.subscribe('/topic/user', (msg) => {
-                        console.log("Message body ", JSON.parse(msg.body));
-                        this.$state.userProfile = JSON.parse(msg.body);
-                    })
-                },
-
-
-            });
-
-            customWebsocket.activate();
-        },
-        disconnectFromWs: function (): void {
-            console.log("Disconnecting post ws");
-            //customWebsocket.disconnect(() => { console.log("Disconnected") });
-        },
+        subscribeToTopic: function (topic: string): void {
+            wsConnection.getClient().subscribe('/topic/' + topic, (msg) => {
+                console.log("Message from user topic", msg.body);
+            })
+        }
 
     }
 })

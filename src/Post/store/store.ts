@@ -365,15 +365,17 @@ export const usePostStore = defineStore('postStore', {
             const toJson: PostType.FrontPagePost | LikeDislikePostNotification = JSON.parse(msg.body);
             if ('eventName' in toJson) {
                if (toJson.eventName === 'LIKE_OR_DISLIKE_POST') {
-                  console.log("Update post value");
                   const post = this.$state.posts.findIndex(post => post.id === toJson.postDto.id);
                   this.$state.posts[post] = toJson.postDto;
                } else {
                   alert("No such event");
                }
             } else {
-               console.log("Normal add of post", toJson);
-               this.$state.posts.unshift(toJson);
+               if (this.$state.posts[0].id !== toJson.id) {
+                  this.$state.posts.unshift(toJson);
+               } else {
+                  msg.ack();
+               }
             }
          })
       }
