@@ -138,6 +138,7 @@ export default defineComponent({
     ...mapActions(useUserStore, [
       "getUserByIdOrUsername",
       "getAllPostsFromUserByUserId",
+      'subscribeToTopic'
     ]),
     ...mapActions(useAuthenticationStore, ['followUser',
       'unfollowUser']),
@@ -254,6 +255,7 @@ export default defineComponent({
       );
 
       this.checkIfCurrentUserFollowsProfile(profile.id);
+      this.subscribeToTopic('user/' + this.getUserProfile.id);
     },
     getCurrentlyLoggedUserProfile: function (): void {
       this.checkIfCurrentUserFollowsProfile(this.getUserProfile.id);
