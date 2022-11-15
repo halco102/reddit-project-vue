@@ -3,22 +3,22 @@
 
     <!--Username-->
     <InputField type="text" :modelValue="username" name="username" placeholder="Username" label="Username"
-      @update:model-value="(newValue : string) => (username = newValue)" :error="v$.username.$error"
+      @update:model-value="(newValue: string) => (username = newValue)" :error="v$.username.$error"
       :errorText="v$.username.$errors[0]?.$message?.toString()" />
 
     <!--Email-->
     <InputField type="text" :modelValue="email" name="email" placeholder="Email" label="Email"
-      @update:model-value="(newValue : string) => (email = newValue)" :error="v$.email.$error"
+      @update:model-value="(newValue: string) => (email = newValue)" :error="v$.email.$error"
       :errorText="v$.email.$errors[0]?.$message?.toString()" />
 
     <!--Password-->
     <InputField type="password" :modelValue="password" name="password" placeholder="Password" label="Password"
-      @update:model-value="(newValue : string) => (password = newValue)" :error="v$.username.$error" :errorText="v$.password.$errors[0]?.
+      @update:model-value="(newValue: string) => (password = newValue)" :error="v$.username.$error" :errorText="v$.password.$errors[0]?.
       $message?.toString()" />
 
     <!--Confirm password-->
     <InputField type="password" :modelValue="confirmPassword" name="confirmPassword" placeholder="Confirm password"
-      label="Confirm password" @update:model-value="(newValue : string) => (confirmPassword = newValue)"
+      label="Confirm password" @update:model-value="(newValue: string) => (confirmPassword = newValue)"
       :error="v$.confirmPassword.$error" :errorText="v$.confirmPassword.$errors[0]?.$message?.toString()" />
 
     <div class="px-4 grid justify-center relative">
@@ -26,7 +26,7 @@
         :disabled="!!v$.$errors.length || getIsSignupLoading" title="Create account" @onClick="submitForm" />
 
       <!--Loading -->
-      <div role="status" v-show="getIsSignupLoading" class="mt-1 absolute right-0">
+      <div role="status" v-show="getIsSignupLoading" class="mt-1 absolute right-0 my-auto">
         <svg aria-hidden="true" class="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
           viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path

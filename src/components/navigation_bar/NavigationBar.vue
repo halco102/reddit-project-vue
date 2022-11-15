@@ -42,14 +42,20 @@
 
     </div>
 
+
+    <!--When screen is sm size show bell on middle of nav-bar-->
     <div class="lg:hidden md:visible sm:visible my-auto flex gap-2" v-if="getCurrentlyLoggedUserProfile.id !== 0">
-      <div>
-        <VButtonIcon class="hover:bg-white" :label="getAllNotifications.length" :customLabelCss="newNotification()"
-          @onClick="openCloseDropDown()" v-if="getCurrentlyLoggedUserProfile.id !== 0">
+      <div class="my-auto relative">
+        <VButtonIcon :disabled=false :label=getAllNotifications.length class="hover:bg-white" :class="{
+          'border rounded-md border-black bg-white':
+            bellNotification
+        }" @onClick="openCloseDropDown()">
           <template #icon>
-            <BIconBell class="w-10 h-10" />
+            <BIconBell class="w-6 h-6" />
           </template>
         </VButtonIcon>
+
+        <BellWithDropDown :notifications="getAllNotifications" :toggle="bellNotification" />
       </div>
       <div class="p-4">
         <VnavigationSearchBar />
@@ -57,14 +63,27 @@
       </div>
     </div>
 
+    <!--When screen is sm show dropdown for login/signup or profile-->
     <div class="lg:hidden my-auto relative ">
       <BIconList class="w-10 h-10" @click="toogleDropDownMenu" />
 
       <div class="absolute p-4 bg-gray-400 bg-opacity-70 right-0 flex flex-col gap-4 rounded-md w-44"
         v-if="toggleDropDown">
-        <UserLoginModal @open="checkIfModalIsOpen" class="grid justify-center" />
-        <UserSignupModal @open="checkIfModalIsOpen" class="grid justify-center" />
-        <hr class="border border-black w-full">
+
+        <div class="flex flex-col gap-4" v-if="getCurrentlyLoggedUserProfile.id === 0">
+          <UserLoginModal @open="checkIfModalIsOpen" class="grid justify-center" />
+          <UserSignupModal @open="checkIfModalIsOpen" class="grid justify-center" />
+        </div>
+
+        <div v-else class="flex flex-col gap-4 justify-center">
+          <router-link :to="{ path: '/user/' + getCurrentlyLoggedUserProfile.id }">
+            <div class="flex gap-2 hover:bg-gray-200 rounded-md">
+              <span class="my-auto">{{ getCurrentlyLoggedUserProfile.username }}</span>
+              <img :src="getCurrentlyLoggedUserProfile.imageUrl" class="w-12 h-12 border rounded-full" />
+            </div>
+          </router-link>
+          <ButtonComponent :disabled=false title="Logout" @onClick="logoutAndRefreshSite" />
+        </div>
       </div>
 
     </div>
@@ -88,6 +107,7 @@ import VButtonIcon from "@/components/VButtonIcon.vue";
 import VnavigationSearchBar from '@/components/navigation_bar/SearchBar.vue'
 import VuserNotification from "./UserNotification.vue";
 import { BIconList, BIconBell } from 'bootstrap-icons-vue';
+import BellWithDropDown from '@/components/VdropDownComponent.vue';
 
 
 export default defineComponent({
@@ -100,7 +120,8 @@ export default defineComponent({
     VnavigationSearchBar,
     VuserNotification,
     BIconList,
-    BIconBell
+    BIconBell,
+    BellWithDropDown
   },
   methods: {
 
@@ -127,6 +148,7 @@ export default defineComponent({
       return val;
     },
     openCloseDropDown: function (): void {
+      console.log("Toogle")
       this.bellNotification = !this.bellNotification;
       this.checkedNewNotification();
     },

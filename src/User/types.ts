@@ -44,8 +44,8 @@ export interface UserProfile {
     commentsPosts: CommentsPost[],
     likedOrDislikedComments: CommentLikeOrDislikeResponse[],
     postLikeOrDislikeDtos: LikeOrDislikeRequest[],
-    followersDtos: FollowersDto[],
-    followingDtos: FollowingDto[]
+    followersDtos: Follow[],
+    followingDtos: Follow[]
 }
 
 export interface CommentsPost {
@@ -72,13 +72,15 @@ export interface PostNotification {
     imageUrl: string
 }
 
-interface Follow {
+export interface Follow {
+    id: number,
     username: string,
     email: string,
     createdAt: Date,
     imageUrl: string
 }
 
+/*
 export interface FollowersDto extends Follow {
     id: number
 }
@@ -86,7 +88,4 @@ export interface FollowersDto extends Follow {
 export interface FollowingDto extends Follow {
     id: number
 }
-
-
-//export type FollowersDto = Follow
-//export type FollowingDto = Follow
+*/

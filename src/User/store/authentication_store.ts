@@ -36,8 +36,8 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
                 commentsPosts: [],
                 likedOrDislikedComments: [],
                 postLikeOrDislikeDtos: [],
-                followersDtos: [] as UserType.FollowersDto[],
-                followingDtos: [] as UserType.FollowingDto[]
+                followersDtos: [] as UserType.Follow[],
+                followingDtos: [] as UserType.Follow[]
             },
             isSignupLoading: false,
             isLoginLoading: false,

@@ -10,6 +10,8 @@ import PostsGallery from '@/Post/components/PostsGallery.vue';
 import SearchGallery from '@/Search/components/SearchGallery.vue'
 import SearchPost from '@/Search/components/SearchPost.vue';
 import SearchUser from '@/Search/components/SearchUser.vue';
+import FollowingComponent from '@/User/components/following_followers/FollowingComponent.vue';
+import FollowersComponent from '@/User/components/following_followers/FollowersComponent.vue';
 
 
 
@@ -69,6 +71,16 @@ const routes = [
                 path: 'content',
                 name: 'FilterComments',
                 component: UserProfileComments
+            },
+            {
+                path: 'following',
+                name: "FollowingComponent",
+                component: FollowingComponent
+            },
+            {
+                path: 'followers',
+                name: "FollowersComponent",
+                component: FollowersComponent
             }
         ]
     },
