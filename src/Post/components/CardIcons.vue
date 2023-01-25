@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import { defineComponent, useSlots } from 'vue';
-import { FrontPagePost } from '../types';
+import { PostDto } from '../types';
 import VButtonIcon from '@/components/VButtonIcon.vue';
 
 
@@ -41,7 +41,7 @@ export default defineComponent({
     },
     props: {
         post: {
-            type: Object as () => FrontPagePost,
+            type: Object as () => PostDto,
             required: true
         }
     },

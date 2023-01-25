@@ -40,8 +40,7 @@
 <script lang="ts">
 import { defineComponent, useSlots } from 'vue';
 
-import { FrontPagePost } from '@/Post/types';
-import { UserProfile } from '@/User/types';
+import { PostDto } from '@/Post/types';
 import LikeDislikeComponent from '@/Post/components/LikeDislike/IconAndNumber.vue'
 
 
@@ -53,7 +52,7 @@ export default defineComponent({
             required: true
         },
         post: {
-            type: Object as () => FrontPagePost,
+            type: Object as () => PostDto,
             required: true
         },
         hasCategories: {

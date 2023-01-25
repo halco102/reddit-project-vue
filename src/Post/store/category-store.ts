@@ -17,7 +17,7 @@ export const useCategoryStore = defineStore('categoryStore', {
             category: {
                 id: 0,
                 name: '',
-                iconUrl: ''
+                imageUrl: ''
             },
             categories: []
         }
@@ -32,6 +32,8 @@ export const useCategoryStore = defineStore('categoryStore', {
             await axios.get(BASE_URL)
                 .then(response => {
                     this.$state.categories = response.data;
+
+                    console.log("Icons", this.$state.categories)
                 })
         }
     }

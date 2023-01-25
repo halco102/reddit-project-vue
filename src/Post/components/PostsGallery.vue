@@ -44,8 +44,8 @@
       </div>
 
       <div v-for="post in posts" :key="post.id">
-        <CustomCard :post="post" :hasLikeAndDislike="true" :currentlyLoggedUser="getCurrentlyLoggedUserProfile"
-          :hasCategories="true" :hasCardIcons="true">
+        <!-- hasLikeAndDislike baca greske pa za sada mora biti false ...-->
+        <CustomCard :post="post" :hasLikeAndDislike="true" :hasCategories="true" :hasCardIcons="true">
 
           <template #image>
             <img class="xl:max-w-xl lg:max-w-lg sm:sm:max-w-sm mb-6 p-6 hover:cursor-pointer" :src="post.imageUrl"
@@ -54,20 +54,20 @@
 
           <template #cardText>
             <div class="grid hover:bg-gray-300 hover:cursor-pointer">
-              <Text class="text-center break-words" :title="post.title" :description="post.text" />
+              <Text class="text-center break-words" :title="post.title" :description="post.description" />
             </div>
 
           </template>
 
           <template #categories>
-            <GenreCard :categories="post.categories" />
+            <GenreCard :categories="post.categoryDtos" />
           </template>
 
           <template #cardIcons>
             <IconsForCard :post="post">
-              <template #commentIcon v-if="post.allowComments">
+              <template #commentIcon v-if="post.allowComment">
                 <router-link class="my-auto" :to="{ name: 'SinglePage', params: { id: post.id } }">
-                  <VButtonIcon :disabled="false" class="hover:bg-gray-500" :label="post.commentsDto.length">
+                  <VButtonIcon :disabled="false" class="hover:bg-gray-500" :label="post!.numberOfComments">
                     <template #icon>
                       <BIconChatFill class="w-5 h-5" />
                     </template>
@@ -107,7 +107,7 @@ import GenreCard from "./Categories/GenreCard.vue";
 import CarouselVue from "@/components/Carousel.vue";
 
 //types
-import { FrontPagePost } from '@/Post/types';
+import { PostDto } from '@/Post/types';
 import { PostedBy } from '@/User/types';
 
 
@@ -176,7 +176,7 @@ export default defineComponent({
     ...mapState(useCategoryStore, ['getAllCategories']),
   },
   props: {
-    posts: Object as PropType<FrontPagePost[]>,
+    posts: Object as PropType<PostDto[]>,
     postedBy: {
       postedBy: Object as PropType<PostedBy>,
       required: false,

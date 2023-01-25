@@ -1,8 +1,8 @@
 
- export interface SingleCategory {
-    id : number,
-    name : string,
-    iconUrl: string
+export interface SingleCategory {
+  id: number,
+  name: string,
+  imageUrl: string
 }
 
 

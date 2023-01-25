@@ -5,8 +5,9 @@
     <VButtonIcon :label="category.name" v-for="category in categories" :key="category.id"
       class="mb-2 focus:outline-none focus:ring focus:bg-gray-500 hover:bg-gray-500"
       @onClick="filterByCategory(category.name)">
+
       <template #icon>
-        <img :src="category.iconUrl" class="w-12 h-12" />
+        <img :src="category.imageUrl" class="w-12 h-12" />
       </template>
 
     </VButtonIcon>

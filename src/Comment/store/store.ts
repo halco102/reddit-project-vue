@@ -23,6 +23,14 @@ const ws = process.env.VUE_APP_WEBSOCKET;
 const toast = useToast();
 const wsConnection = CustomWebSocket.getInstance();
 
+/*
+    id: string,
+    commentPostDto: CommentPostDto,
+    userDto: PostedBy,
+    comment: string,
+    createdAt: Date
+*/
+
 
 export const useCommentStore = defineStore('comments', {
     state: (): CommentType.Comment => {
@@ -30,15 +38,20 @@ export const useCommentStore = defineStore('comments', {
             postLikeOrDislike: [],
             commentsDto: [],
             commentDto: {
-                id: 0,
-                text: '',
-                parentId: 0,
-                userInfo: {
+                id: '',
+                commentPostDto: {
+                    id: 0,
+                    title: ''
+                },
+                userDto: {
                     id: 0,
                     username: '',
                     imageUrl: ''
                 },
-                likedOrDislikedComments: []
+                comment: '',
+                createdAt: new Date(),
+                likeDislikeComments: [],
+                replies: []
             },
             isPostingComment: false
         }
@@ -62,9 +75,6 @@ export const useCommentStore = defineStore('comments', {
 
         async postCommentAction(postAComment: CommentType.PostComment) {
             const json = JSON.stringify(postAComment);
-
-            console.log("Start comment action")
-            console.log("Log", json)
 
             await axios.post(BASE_URL, json, {
                 headers: {
@@ -125,7 +135,7 @@ export const useCommentStore = defineStore('comments', {
             })
         },
 
-        deleteCommentById: async function (id: number, postId?: number) {
+        deleteCommentById: async function (id: number | string, postId?: number) {
             console.log("Delete comment by id");
             await axios.delete(BASE_URL + '/' + id, {
                 headers: {
@@ -134,37 +144,39 @@ export const useCommentStore = defineStore('comments', {
                 }
             }).then(() => {
                 console.log("Send event to everyone", this.$state.commentsDto);
-                this.$state.commentsDto.forEach((element, index) => {
+                let deleteFoundIndex = -1;
+                this.$state.commentsDto.findIndex((element, index) => {
                     if (element.id === id) {
-                        console.log("Izbrisi ", element.id)
-                        this.$state.commentsDto.splice(index, 1);
+                        deleteFoundIndex = index;
+                        return;
                     }
 
-                    if (element.parentId === id) {
-                        this.$state.commentsDto.splice(index, 1);
+                    if (element.replies.length !== 0) {
+                        element.replies.findIndex((inner, index) => {
+                            if (inner.id === id) {
+                                element.replies.splice(index, 1);
+                                return;
+                            }
+                        })
                     }
-                })
+                });
+
+                if (deleteFoundIndex != -1)
+                    this.$state.commentsDto.splice(deleteFoundIndex, 1);
             })
-        },
-        resetState: function () {
-            this.$reset();
-        },
-
-        patchComments: function (comments: CommentType.CommentDto[]) {
-            this.commentsDto = comments;
         },
 
         getNumberOfLikes: function (comment: CommentType.CommentDto): number {
             let number = 0;
-            comment.likedOrDislikedComments.filter((x) =>
-                x.likedOrDisliked === true
+            comment.likeDislikeComments.filter((x) =>
+                x.like === true
             ).map(() => number++);
             return number;
         },
         getNumberOfDislikes: function (comment: CommentType.CommentDto): number {
             let number = 0;
-            comment.likedOrDislikedComments.filter((x) =>
-                x.likedOrDisliked === false
+            comment.likeDislikeComments.filter((x) =>
+                x.like === false
             ).map(() => number++)
 
             return number;
@@ -181,8 +193,10 @@ export const useCommentStore = defineStore('comments', {
                         const comment = this.$state.commentsDto.findIndex(item => item.id === toJson.commentDto.id);
                         this.$state.commentsDto[comment] = toJson.commentDto;
                     } else {
-                        if (this.$state.commentsDto[0].id !== toJson.id)
+                        console.log("Dodaj", toJson, "vidi ", this.$state.commentsDto);
+                        if (this.$state.commentsDto[0] == undefined || this.$state.commentsDto[0]?.id != toJson.id) {
                             this.$state.commentsDto.unshift(toJson);
+                        }
                         else
                             msg.ack();
                     }

@@ -16,6 +16,12 @@ export interface LikeOrDislikeRequest {
    likeOrDislike: boolean
 }
 
+export interface LikeDislikeDto {
+   postId: number,
+   userId: number,
+   likeOrDislike: boolean
+}
+
 export interface UpdatePost {
    title: string,
    text: string,
@@ -23,10 +29,29 @@ export interface UpdatePost {
    categories: SingleCategory[]
 }
 
+//this will be the base of post, the post can be 
+//SinglePagePostDto and PostDto (but they both have the same base)
+interface BasePost {
+   id: number,
+   title: string,
+   description: string,
+   imageUrl: string,
+   allowComment: boolean,
+   postedBy: PostedBy,
+   categoryDtos: SingleCategory[],
+   postLikedDislike: LikeDislikeDto[]
+}
+
+export interface PostDto extends BasePost {
+   numberOfComments?: number | null,
+   commentsDtos?: CommentDto[] | null
+}
+
+/*
 export interface FrontPagePost {
    id: number;
    title: string;
-   text: string,
+   description: string,
    imageUrl: string;
    postedBy: PostedBy;
    allowComments: boolean
@@ -36,6 +61,7 @@ export interface FrontPagePost {
    createdAt: Date,
    //editedAt: Date | null
 }
+*/
 
 export interface PostRequest {
    title: string,
@@ -46,8 +72,8 @@ export interface PostRequest {
 }
 
 export interface PostInterface {
-   posts: FrontPagePost[],
-   post: FrontPagePost,
+   posts: PostDto[],
+   post: PostDto,
    request: PostRequest,
    isLoading: boolean,
    isDeleted: boolean,

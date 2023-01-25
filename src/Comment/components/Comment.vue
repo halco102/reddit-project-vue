@@ -5,21 +5,34 @@
   <div>
 
     <!-- Number of comments-->
-    <div v-if="post!.allowComments">
+    <div v-if="post.allowComment">
       <p>
-        Number of comments : {{ getNumberOfComments(getAllCommentsByPostId) }}
+        Number of comments : {{ post.commentsDtos!.length }}
       </p>
     </div>
 
     <!-- Show comments-->
-    <div v-if="post?.allowComments">
+    <div v-if="post.allowComment">
 
       <!-- Main textbox for comments-->
       <div class="m-auto">
         <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" />
       </div>
 
+      <div v-for="com in post.commentsDtos" :key="com.id" :class="com.replies === null || com.replies.length === 0 ?
+      'sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden   mx-auto my-6'
+      : 'sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden  mx-auto my-6  pl-10'">
 
+        <CommentSectionVue :commentObject="com" :postId="post.id" />
+
+        <div v-if="(selectedItem !== '' && selectedItem === com.id)">
+          <hr class="border-1 border-gray-500">
+          <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" :parentId="com.id" />
+        </div>
+
+      </div>
+
+      <!--
       <div v-for="com in getAllCommentsByPostId" :key="com.id" :class="com.parentId === null ?
       'sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden   mx-auto my-6'
       : 'sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden  mx-auto my-6  pl-10'">
@@ -30,17 +43,16 @@
           <hr class="border-1 border-gray-500">
           <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" :parentId="com.id" />
         </div>
+        -->
 
 
-        <hr class="border-1 border-gray-500">
-      </div>
+      <hr class="border-1 border-gray-500">
     </div>
+  </div>
 
-    <!--Comments are not allowed-->
-    <div v-if="!post?.allowComments" class="mt-6">
-      <h3 class="font-bold">Comments are disabled</h3>
-    </div>
-
+  <!--Comments are not allowed-->
+  <div v-if="!post?.allowComment" class="mt-6">
+    <h3 class="font-bold">Comments are disabled</h3>
   </div>
 
 </template>
@@ -58,7 +70,7 @@ import { useUserStore } from "@/User/store/store";
 import { useAuthenticationStore } from '@/User/store/authentication_store'
 
 //types
-import { FrontPagePost } from "@/Post/types";
+import { PostDto } from "@/Post/types";
 import { CommentDto } from '@/Comment/types';
 
 import TextBoxVue from "./TextBox.vue";
@@ -72,7 +84,7 @@ export default defineComponent({
   },
   props: {
     post: {
-      type: Object as PropType<FrontPagePost>,
+      type: Object as PropType<PostDto>,
       required: true
     },
   },
@@ -92,8 +104,6 @@ export default defineComponent({
     },
     ...mapActions(useCommentStore, [
       "postLikeOrDislike",
-      "resetState",
-      "patchComments",
       "getNumberOfLikes",
       "getNumberOfDislikes",
       "deleteCommentById",
@@ -104,10 +114,10 @@ export default defineComponent({
     getNumberOfComments: function (comments: CommentDto[]): number {
       return comments.length;
     },
-    toggle: function (item: number): void {
+    toggle: function (item: string): void {
 
       if (this.selectedItem === item) {
-        this.selectedItem = 0;
+        this.selectedItem = '';
         return;
       }
 
@@ -122,13 +132,13 @@ export default defineComponent({
     },
   }, watch: {
     post: function () {
-      this.setCommentsFromPost(this.post!.commentsDto);
+      console.log(this.post);
 
-      if (this.post.allowComments) {
-        this.subscribeToTopic('comment/' + this.post.id);
+      if (this.post.allowComment) {
+        //this.subscribeToTopic('comment/' + this.post.id);
 
         //also subscribe to like or dislike topic
-        this.subscribeToTopic('comment/' + this.post.id + '/like-dislike');
+        //this.subscribeToTopic('comment/' + this.post.id + '/like-dislike');
       }
 
     },
@@ -141,7 +151,7 @@ export default defineComponent({
   data() {
     return {
       open: false as boolean,
-      selectedItem: 0 as number,
+      selectedItem: '' as string,
       currentCommentId: 0 as number,
       isReplyComment: false as boolean,
       expandEmojiClick: false as boolean,

@@ -9,7 +9,7 @@
 
       <template #cardText>
         <div class="grid">
-          <Text class="text-center break-words" :title="getPost.title" :description="getPost.text" />
+          <Text class="text-center break-words" :title="getPost.title" :description="getPost.description" />
         </div>
       </template>
 

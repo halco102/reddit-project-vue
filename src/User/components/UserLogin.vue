@@ -81,7 +81,7 @@ export default defineComponent({
     },
 
     closeEvent: function () {
-      this.$emit("close", this.getSuccessfullLogin);
+      //this.$emit("close", this.getSuccessfullLogin);
     },
   },
   watch: {

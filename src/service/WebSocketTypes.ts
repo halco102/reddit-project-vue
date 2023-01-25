@@ -1,5 +1,5 @@
 import { CommentDto, LikesDislikesComment } from "@/Comment/types";
-import { FrontPagePost } from "@/Post/types";
+import { PostDto } from "@/Post/types";
 
 export interface LikeDislikeCommentsNotification {
     commentDto: CommentDto,
@@ -7,6 +7,6 @@ export interface LikeDislikeCommentsNotification {
 }
 
 export interface LikeDislikePostNotification {
-    postDto: FrontPagePost,
+    postDto: PostDto,
     eventName: string
 }

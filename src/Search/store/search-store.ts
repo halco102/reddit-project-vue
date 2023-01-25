@@ -1,7 +1,7 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 import { Search, SearchTypes } from "../type";
-import { FrontPagePost } from "@/Post/types";
+import { PostDto } from "@/Post/types";
 import { UserProfile } from "@/User/types";
 
 
@@ -17,7 +17,7 @@ export const useSearchStore = defineStore('searchStore', {
         }
     },
     getters: {
-        getAllPosts: function (state): FrontPagePost[] {
+        getAllPosts: function (state): PostDto[] {
             return state.posts;
         },
         getAllUsers: function (state): UserProfile[] {

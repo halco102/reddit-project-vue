@@ -2,14 +2,14 @@
     <div>
         <!--Userp info and comment text-->
         <CommentUserAndText :user="{
-            imgUrl: commentObject.userInfo.imageUrl,
-            username: commentObject.userInfo.username
-        }" :commentText="commentObject.text" />
+            imgUrl: commentObject.userDto.imageUrl,
+            username: commentObject.userDto.username
+        }" :commentText="commentObject.comment" />
 
         <CommentIcons :comment="commentObject" @toggle="activateToogle" />
 
         <!-- Open reply -->
-        <div v-if="(selectedItem !== 0 && selectedItem === commentObject.id)">
+        <div v-if="(selectedItem !== '' && selectedItem === commentObject.id)">
             <TextBox :postId="postId!" :parentId="commentObject.id" />
         </div>
     </div>
@@ -40,9 +40,9 @@ export default defineComponent({
         }
     },
     methods: {
-        activateToogle: function (item: number): void {
+        activateToogle: function (item: string): void {
             if (this.selectedItem === item) {
-                this.selectedItem = 0;
+                this.selectedItem = '';
                 return;
             }
 
@@ -51,7 +51,7 @@ export default defineComponent({
     },
     data() {
         return {
-            selectedItem: 0 as number,
+            selectedItem: '' as string,
 
         }
     }

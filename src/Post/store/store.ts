@@ -29,18 +29,19 @@ export const usePostStore = defineStore('postStore', {
          post: {
             id: 0,
             title: '',
-            text: '',
+            description: '',
             imageUrl: '',
+            allowComment: true,
             postedBy: {
                id: 0,
+               email: '',
                username: '',
                imageUrl: ''
             },
-            allowComments: true,
-            commentsDto: [],
-            postLikeOrDislikeDtos: [],
-            categories: [],
-            createdAt: new Date(),
+            categoryDtos: [],
+            postLikedDislike: [],
+            numberOfComments: null,
+            commentsDtos: null
             //editedAt: null
          },
          request: {
@@ -65,7 +66,7 @@ export const usePostStore = defineStore('postStore', {
       getAllPosts(state) {
          return state.posts
       },
-      getPostById(state): PostType.FrontPagePost | null {
+      getPostById(state): PostType.PostDto | null {
          return state.post;
       },
       getPostRequest(state): PostType.PostRequest {
@@ -77,7 +78,7 @@ export const usePostStore = defineStore('postStore', {
       getIsDeleted(state): boolean {
          return state.isDeleted;
       },
-      getPost(state): PostType.FrontPagePost {
+      getPost(state): PostType.PostDto {
          return state.post;
       },
    },
@@ -97,7 +98,6 @@ export const usePostStore = defineStore('postStore', {
 
       async fetchPostById(id: number) {
          await axios.get(BASE_URL + '/' + id).then(response => {
-
             this.post = response.data;
          }).catch(function (ex) {
             if (ex.response.state === 500) {
@@ -176,7 +176,6 @@ export const usePostStore = defineStore('postStore', {
                   return f.postId === request.postId;
                });
 
-
                //means its there is no recorded like/dislike in list, than add it
                if (findIndex === -1) {
                   state.userProfile.postLikeOrDislikeDtos.push(request);
@@ -193,7 +192,7 @@ export const usePostStore = defineStore('postStore', {
 
             })
 
-            this.post = response.data;
+            //this.post = response.data;
          }).catch(function (ex) {
             if (ex.response.status === 400) {
                toast.error("Bad request");
@@ -205,19 +204,18 @@ export const usePostStore = defineStore('postStore', {
          });
       },
 
-      getNumberOfLikes: function (post: PostType.FrontPagePost): number {
-         console.log("HELLO")
+      getNumberOfLikes: function (post: PostType.PostDto): number {
          let likes = 0;
-         if (post.postLikeOrDislikeDtos.length !== 0) {
-            post.postLikeOrDislikeDtos.filter((x) => x.likeOrDislike === true).map(() => likes++);
+         if (post.postLikedDislike.length !== 0) {
+            post.postLikedDislike.filter((x) => x.likeOrDislike === true).map(() => likes++);
          }
          return likes;
       },
 
-      getNumberOfDislikes: function (post: PostType.FrontPagePost): number {
+      getNumberOfDislikes: function (post: PostType.PostDto): number {
          let dislikes = 0;
-         if (post.postLikeOrDislikeDtos.length !== 0) {
-            post.postLikeOrDislikeDtos.filter((x) => x.likeOrDislike === false).map(() => dislikes++);
+         if (post.postLikedDislike.length !== 0) {
+            post.postLikedDislike.filter((x) => x.likeOrDislike === false).map(() => dislikes++);
          }
          return dislikes;
       },
@@ -277,12 +275,14 @@ export const usePostStore = defineStore('postStore', {
 
       },
 
-      sumLikesOrDislikesOnPost: function (post: PostType.FrontPagePost): number {
+      sumLikesOrDislikesOnPost: function (post: PostType.PostDto): number {
+
+         console.log("SUM");
 
          let result = 0;
 
-         if (post.postLikeOrDislikeDtos.length !== 0) {
-            post.postLikeOrDislikeDtos
+         if (post.postLikedDislike.length !== 0) {
+            post.postLikedDislike
                .map((l) => {
 
                   console.log("Map")
@@ -348,7 +348,7 @@ export const usePostStore = defineStore('postStore', {
       subscribeToTopic: function (topic: string) {
 
 
-         console.log(topic);
+         console.log(topic, " sub on topic");
 
          if (ws.getClient().connected === undefined || ws.getClient().connected === false) {
             ws.getClient().onConnect = () => {
@@ -362,7 +362,7 @@ export const usePostStore = defineStore('postStore', {
 
       __subscribeToWsMethod: function (topic: string): void {
          ws.getClient().subscribe("/topic/" + topic, (msg) => {
-            const toJson: PostType.FrontPagePost | LikeDislikePostNotification = JSON.parse(msg.body);
+            const toJson: PostType.PostDto | LikeDislikePostNotification = JSON.parse(msg.body);
             if ('eventName' in toJson) {
                if (toJson.eventName === 'LIKE_OR_DISLIKE_POST') {
                   const post = this.$state.posts.findIndex(post => post.id === toJson.postDto.id);

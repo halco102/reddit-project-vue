@@ -33,7 +33,7 @@
         </div>
 
         <VButtonIcon class="hover:bg-gray-500"
-            :class="{ 'focus:outline-none focus:ring focus:bg-gray-500': activeElement !== 0 }"
+            :class="{ 'focus:outline-none focus:ring focus:bg-gray-500': activeElement !== '' }"
             @onClick="activateToggle(comment.id)">
             <template #icon>
                 <BIconReply />
@@ -42,7 +42,7 @@
 
         <!-- Trash icon for owner of the comment-->
         <div class="flex-1 relative"
-            v-if="getCurrentlyLoggedUserProfile.id !== 0 && getCurrentlyLoggedUserProfile.id === comment.userInfo.id">
+            v-if="getCurrentlyLoggedUserProfile.id !== 0 && getCurrentlyLoggedUserProfile.id === comment.userDto.id">
             <VButtonIcon class="absolute bottom-0 right-0 hover:bg-gray-500" @click="deleteCommentById(comment.id)">
                 <template #icon>
                     <BIconTrash />
@@ -98,9 +98,9 @@ export default defineComponent({
             "getNumberOfDislikes",
             'deleteCommentById'
         ]),
-        activateToggle: function (commentId: number): void {
-            if (this.activeElement !== 0) {
-                this.activeElement = 0;
+        activateToggle: function (commentId: string): void {
+            if (this.activeElement !== '') {
+                this.activeElement = '';
             } else {
                 this.activeElement = commentId;
             }
@@ -109,7 +109,7 @@ export default defineComponent({
     },
     data() {
         return {
-            activeElement: 0 as number
+            activeElement: '' as string
         }
     }
 

@@ -95,7 +95,7 @@ export default defineComponent({
             text: string,
             idOfPost: number,
             idOfUser: number,
-            parentId: null | number
+            parentId: null | string
         ) {
 
 
@@ -118,7 +118,7 @@ export default defineComponent({
 
             this.txt = '';
         },
-        checkParentId: function (): number | null {
+        checkParentId: function (): string | null {
 
             console.log("Check parent id", this.parentId);
             if (this.parentId === undefined || this.parentId === null) {
@@ -147,7 +147,7 @@ export default defineComponent({
             required: false
         },
         parentId: {
-            type: Number,
+            type: String,
             required: false
         },
 

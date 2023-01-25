@@ -6,7 +6,7 @@ import axios from "axios";
 
 //types
 import * as UserType from "@/User/types";
-import { FrontPagePost, UserPosts } from "@/Post/types";
+import { PostDto, UserPosts } from "@/Post/types";
 
 import CustomWebSocket from "@/service/CustomWebsocket";
 
@@ -53,7 +53,7 @@ export const useUserStore = defineStore('userStore', {
         getUserProfile(state): UserType.UserProfile {
             return state.userProfile;
         },
-        getLikesDislikesFromPost(state): FrontPagePost[] {
+        getLikesDislikesFromPost(state): PostDto[] {
             return state.postForLikeDislike;
         },
         getUserFollowers(state): UserType.Follow[] {

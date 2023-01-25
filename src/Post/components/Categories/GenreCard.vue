@@ -6,7 +6,7 @@
                 class="inline-block bg-gray-200 hover:bg-gray-400 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
                 <router-link :to="{ name: 'FilterCategories', query: { category: category.name } }"
                     class="btn btn-ligh " @click.prevent="getPostsByCategoryName(category.name)">#{{
-                    category.name
+        category.name
                     }}</router-link>
             </span>
         </div>

@@ -3,8 +3,8 @@
     <div class="flex flex-col gap-1">
 
         <VButtonIcon class="hover:bg-gray-500" @onClick="postLikeOrDislikeForPost({
-          postId: post!.id,
-          likeOrDislike: true,
+            postId: post!.id,
+            likeOrDislike: true,
         })">
             <template #icon>
                 <BIconArrowUp
@@ -14,13 +14,13 @@
 
 
         <!-- number of likes and dislikes-->
-        <span class="text-center" :class="sum == 0 ? 'text-gray-500' : sum > 0 ? 'text-blue-500' : 'text-red-500'">
-            {{sum}}
+        <span class="text-center" :class="sum === 0 ? 'text-gray-500' : sum > 0 ? 'text-blue-500' : 'text-red-500'">
+            {{ sum }}
         </span>
 
         <VButtonIcon class="hover:bg-gray-500" @onClick="postLikeOrDislikeForPost({
-          postId: post!.id,
-          likeOrDislike: false,
+            postId: post!.id,
+            likeOrDislike: false,
         })">
             <template #icon>
                 <BIconArrowDown
@@ -41,7 +41,7 @@ import {
 } from "bootstrap-icons-vue";
 import { useAuthenticationStore } from '@/User/store/authentication_store';
 import { mapState, mapActions } from 'pinia';
-import { FrontPagePost, LikeOrDislikeRequest } from '@/Post/types';
+import { PostDto, LikeOrDislikeRequest } from '@/Post/types';
 import { usePostStore } from '@/Post/store/store';
 
 export default defineComponent({
@@ -58,6 +58,9 @@ export default defineComponent({
         ...mapActions(usePostStore, ['postLikeOrDislikeForPost']),
         checkIfUserUpvoted: function (postId: number): string {
 
+            console.log("Check if user up voted");
+
+
             let find = this.findLikeOrDislikedPost(postId);
 
             if (find !== undefined && this.getCurrentlyLoggedUserProfile.id) {
@@ -70,6 +73,8 @@ export default defineComponent({
         },
         findLikeOrDislikedPost: function (postId: number): boolean | undefined {
 
+            console.log("find like or dislike method");
+
             let result = this.getCurrentlyLoggedUserProfile.postLikeOrDislikeDtos.find((find: LikeOrDislikeRequest) => find.postId === postId);
 
             if (result === undefined) {
@@ -80,6 +85,9 @@ export default defineComponent({
 
         },
         checkIfUserDownVoted: function (postId: number): string {
+
+            console.log("Check if user down voted");
+
             let find = this.findLikeOrDislikedPost(postId);
 
             if (find !== undefined && this.getCurrentlyLoggedUserProfile.id !== 0) {
@@ -89,16 +97,23 @@ export default defineComponent({
             return 'text-gray-600, text-center';
 
         },
-        sumPostLikeOrDislike: function (post: FrontPagePost): void {
+        sumPostLikeOrDislike: function (post: PostDto): void {
+
+            console.log("sum post like or dislike ", post)
+
             let result = 0;
-            if (post.postLikeOrDislikeDtos.length !== 0) {
-                post.postLikeOrDislikeDtos.map((m) => {
+            if (post.postLikedDislike.length !== 0) {
+                console.log("L or D is not 0")
+                post.postLikedDislike.map((m) => {
                     if (m.likeOrDislike)
                         result++;
                     else
                         result--;
                 })
             }
+
+            console.log("the sum is  ", result)
+
 
             this.sum = result;
         },
@@ -109,7 +124,7 @@ export default defineComponent({
         }
     },
     props: {
-        post: Object as () => FrontPagePost
+        post: Object as () => PostDto
     },
     updated() {
         if (this.post !== undefined)

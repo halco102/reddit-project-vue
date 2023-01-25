@@ -1,8 +1,8 @@
-import { FrontPagePost } from "@/Post/types";
+import { PostDto } from "@/Post/types";
 import { UserProfile } from "@/User/types";
 
-export interface Search{
-    posts: FrontPagePost[],
+export interface Search {
+    posts: PostDto[],
     users: UserProfile[]
 }
 

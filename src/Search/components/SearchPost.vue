@@ -8,11 +8,11 @@
                 </div>
                 <div class="post-info">
                     <h5>{{ post.title }}</h5>
-                    <p>{{ post.text }}</p>
+                    <p>{{ post.description }}</p>
                 </div>
                 <div class="post-status">
                     <small>{{ sumOfLikerOrDislikes(post) }}</small>
-                    <small style="margin-left: 5px;">| comments {{ post.commentsDto.length }}</small>
+                    <small style="margin-left: 5px;">| comments {{ post.numberOfComments }}</small>
                     <small style="margin-left: 5px">| {{ returnPostedAtOrEdited(post) }}</small>
                 </div>
             </div>
@@ -29,9 +29,9 @@ import { defineComponent } from "vue";
 import { usePostStore } from "@/Post/store/store";
 import { mapActions, mapState } from "pinia";
 import { useSearchStore } from "@/Search/store/search-store";
-import { FrontPagePost } from "@/Post/types";
+import { PostDto } from "@/Post/types";
 import moment from 'moment';
-import {SearchTypes} from '@/Search/type';
+import { SearchTypes } from '@/Search/type';
 
 
 export default defineComponent({
@@ -41,7 +41,7 @@ export default defineComponent({
         ...mapActions(useSearchStore, ['searchPostsOrUsersByName']),
         ...mapActions(usePostStore, ['sumLikesOrDislikesOnPost']),
 
-        sumOfLikerOrDislikes: function (post: FrontPagePost): string {
+        sumOfLikerOrDislikes: function (post: PostDto): string {
             let number = this.sumLikesOrDislikesOnPost(post);
 
             if (number >= 0) {
@@ -49,13 +49,10 @@ export default defineComponent({
             }
             return number + ' downvotes';
         },
-        returnPostedAtOrEdited: function (post: FrontPagePost) : string{
+        returnPostedAtOrEdited: function (post: PostDto): string {
+            return 'placeholder';
 
-            //if (post.editedAt === null) 
-                //return 'posted at ' + moment(post.createdAt).fromNow();
-            
-
-            return 'edited at ' + moment(post.createdAt).fromNow();
+            //return 'edited at ' + moment(post.createdAt).fromNow();
         },
     },
     computed: {

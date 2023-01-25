@@ -143,14 +143,17 @@ export default defineComponent({
     ...mapActions(useAuthenticationStore, ['followUser',
       'unfollowUser']),
     ...mapActions(usePostStore, ["deletePostById"]),
+
     getPostedBy: function (): PostedBy {
       console.log("GetPostedBy", this.getUserProfile);
       return {
         id: this.getUserProfile.id,
         username: this.getUserProfile.username,
         imageUrl: this.getUserProfile.imageUrl,
+        email: this.getUserProfile.email
       };
     },
+
     getNumberOfLikesFromAllPosts: function (): number {
       console.log(this.getLikesDislikesFromPost);
 
