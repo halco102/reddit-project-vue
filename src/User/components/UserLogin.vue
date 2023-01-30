@@ -3,17 +3,17 @@
 
     <!--Email or username-->
     <InputField type="text" :modelValue="emailOrUsername" :name="'usernameOrUsername'" placeholder="Username or email"
-      label="Username or email" @update:model-value="(newValue : string) => (emailOrUsername = newValue)"
+      label="Username or email" @update:model-value="(newValue: string) => (emailOrUsername = newValue)"
       :error="v$.emailOrUsername.$error" :errorText="v$.emailOrUsername.$errors[0]?.$message?.toString()" />
 
     <!--Password-->
     <InputField type="password" :modelValue="password" :name="'password'" placeholder="Password" label="Password"
-      @update:model-value="(newValue : string) => (password = newValue)" :error="v$.password.$error"
+      @update:model-value="(newValue: string) => (password = newValue)" :error="v$.password.$error"
       :errorText="v$.password.$errors[0]?.$message?.toString()" />
 
     <div class="px-4 grid justify-center relative">
       <div class="flex">
-        <ButtonComponent title="Log in" :disabled="!!v$.$errors.length 
+        <ButtonComponent title="Log in" :disabled="!!v$.$errors.length
         || getIsLoginLoading" @onClick="loginUserToApp" />
 
         <!--Loading -->
@@ -81,7 +81,7 @@ export default defineComponent({
     },
 
     closeEvent: function () {
-      //this.$emit("close", this.getSuccessfullLogin);
+      this.$emit("close", this.getSuccessfullLogin);
     },
   },
   watch: {

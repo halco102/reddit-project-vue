@@ -40,8 +40,8 @@ export const useUserStore = defineStore('userStore', {
                 commentsPosts: [],
                 likedOrDislikedComments: [],
                 postLikeOrDislikeDtos: [],
-                followersDtos: [] as UserType.Follow[],
-                followingDtos: [] as UserType.Follow[]
+                following: [] as UserType.Follow[],
+                followers: [] as UserType.Follow[]
             },
             postForLikeDislike: [],
         }
@@ -57,10 +57,10 @@ export const useUserStore = defineStore('userStore', {
             return state.postForLikeDislike;
         },
         getUserFollowers(state): UserType.Follow[] {
-            return state.userProfile.followersDtos;
+            return state.userProfile.followers;
         },
         getUserFollowing(state): UserType.Follow[] {
-            return state.userProfile.followingDtos;
+            return state.userProfile.following;
         }
     },
     actions: {
@@ -70,7 +70,7 @@ export const useUserStore = defineStore('userStore', {
 
             if (id !== null) {
                 // fetch by id
-                await axios.get(BASE_URL + '/', { params: { id: id } }).then((res) => {
+                await axios.get(BASE_URL + '/profile/' + id).then((res) => {
                     this.userProfile = res.data;
                 }).catch(function (ex) {
                     if (ex.status != 200) {

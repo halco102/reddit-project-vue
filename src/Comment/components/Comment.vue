@@ -1,5 +1,4 @@
-<template v-if="getAllCommentsByPostId.length != 0">
-
+<template>
 
   <!--Main-->
   <div>
@@ -30,23 +29,10 @@
           <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" :parentId="com.id" />
         </div>
 
+
+        <hr class="border-1 border-gray-500">
+
       </div>
-
-      <!--
-      <div v-for="com in getAllCommentsByPostId" :key="com.id" :class="com.parentId === null ?
-      'sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden   mx-auto my-6'
-      : 'sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden  mx-auto my-6  pl-10'">
-
-        <CommentSectionVue :commentObject="com" :postId="post.id" />
-
-        <div v-if="(selectedItem !== 0 && selectedItem === com.id)">
-          <hr class="border-1 border-gray-500">
-          <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" :parentId="com.id" />
-        </div>
-        -->
-
-
-      <hr class="border-1 border-gray-500">
     </div>
   </div>
 
@@ -132,7 +118,7 @@ export default defineComponent({
     },
   }, watch: {
     post: function () {
-      console.log(this.post);
+      console.log("Watch post in comment section");
 
       if (this.post.allowComment) {
         //this.subscribeToTopic('comment/' + this.post.id);
@@ -144,7 +130,7 @@ export default defineComponent({
     },
     getIsPostingComment: function (val: boolean) {
       if (val === false) {
-        this.fetchAllCommentsByPostId(this.post!.id);
+        //this.fetchAllCommentsByPostId(this.post!.id);
       }
     },
   },
@@ -157,7 +143,7 @@ export default defineComponent({
       expandEmojiClick: false as boolean,
       closeReplyTextArea: false as boolean,
     };
-  }
+  },
 });
 </script>
 

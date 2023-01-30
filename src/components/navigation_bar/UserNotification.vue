@@ -78,10 +78,10 @@ export default defineComponent({
         }
     },
     mounted() {
-        console.log("Heey", this.userProfile)
+
         if (this.userProfile.id !== 0) {
-            this.subscribeToTopic();
-            this.fetchAllNotifications();
+            //this.subscribeToTopic();
+            //this.fetchAllNotifications();
         }
     },
 })

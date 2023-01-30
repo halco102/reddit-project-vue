@@ -65,9 +65,9 @@
 
           <template #cardIcons>
             <IconsForCard :post="post">
-              <template #commentIcon v-if="post.allowComment">
+              <template #commentIcon v-if="post.allowComment && post.numberOfComments !== null">
                 <router-link class="my-auto" :to="{ name: 'SinglePage', params: { id: post.id } }">
-                  <VButtonIcon :disabled="false" class="hover:bg-gray-500" :label="post!.numberOfComments">
+                  <VButtonIcon :disabled="false" class="hover:bg-gray-500" :label="post!.numberOfComments!">
                     <template #icon>
                       <BIconChatFill class="w-5 h-5" />
                     </template>
@@ -186,6 +186,7 @@ export default defineComponent({
     return {
       isClose: false,
       isToggleDropdown: false,
+      numberOfComments: 0 as number
     };
   },
   mounted() {

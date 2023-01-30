@@ -66,7 +66,7 @@ export const usePostStore = defineStore('postStore', {
       getAllPosts(state) {
          return state.posts
       },
-      getPostById(state): PostType.PostDto | null {
+      getPostById(state): PostType.PostDto {
          return state.post;
       },
       getPostRequest(state): PostType.PostRequest {
@@ -97,7 +97,7 @@ export const usePostStore = defineStore('postStore', {
       },
 
       async fetchPostById(id: number) {
-         await axios.get(BASE_URL + '/' + id).then(response => {
+         axios.get(BASE_URL + '/' + id).then(response => {
             this.post = response.data;
          }).catch(function (ex) {
             if (ex.response.state === 500) {
@@ -121,7 +121,6 @@ export const usePostStore = defineStore('postStore', {
             headers: {
                'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
                'Content-Type': 'multipart/form-data',
-
             },
             onUploadProgress: (() => { this.isLoading = true })
          }).then(response => {
@@ -148,60 +147,61 @@ export const usePostStore = defineStore('postStore', {
       This method is used for submiting like or dislike to the backend
       User is get from jwt (only logged users can like posts)
       */
-      async postLikeOrDislikeForPost(request: PostType.LikeOrDislikeRequest) {
-
-         console.log("Post like or dislike")
-         const json = JSON.stringify(request);
-
-         await axios.post(BASE_URL + '/like-dislike', json, {
-            headers: {
-               'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
-               'Content-Type': 'application/json'
-            }
-         }).then(response => {
-
-            const authStore = useAuthenticationStore();
-
-            this.$patch((state) => {
-               this.post = response.data;
-               const temp = state.posts.map((i) => i.id).indexOf(this.post.id);
-               state.posts[temp] = this.post;
-            })
+      async postLikeOrDislikeForPost(postId: number, like: boolean) {
 
 
-            //get user state from jwt and patch user state
-            authStore.$patch((state) => {
-
-               const findIndex = state.userProfile.postLikeOrDislikeDtos.findIndex((f) => {
-                  return f.postId === request.postId;
-               });
-
-               //means its there is no recorded like/dislike in list, than add it
-               if (findIndex === -1) {
-                  state.userProfile.postLikeOrDislikeDtos.push(request);
+         await axios.post(BASE_URL + '/like-dislike/' + postId, {},
+            {
+               headers: {
+                  'Authorization': 'Bearer ' + sessionStorage.getItem('jwt'),
+                  'Content-Type': 'application/json'
+               },
+               params: {
+                  isLike: like
                }
+            }).then(response => {
 
-               // if its the same delete from array
-               else if (state.userProfile.postLikeOrDislikeDtos[findIndex].likeOrDislike === request.likeOrDislike) {
-                  state.userProfile.postLikeOrDislikeDtos.splice(findIndex, 1);
+               const authStore = useAuthenticationStore();
+
+               this.$patch((state) => {
+                  this.post = response.data;
+                  const temp = state.posts.map((i) => i.id).indexOf(this.post.id);
+                  state.posts[temp] = this.post;
+
+                  //get user state from jwt and patch user state
+                  authStore.$patch((state) => {
+
+                     const findIndex = state.userProfile.postLikeOrDislikeDtos.findIndex((f) => {
+                        return f.postId === postId;
+                     });
+
+                     //means its there is no recorded like/dislike in list, than add it
+                     if (findIndex === -1) {
+                        console.log("Add like/dislike", findIndex)
+                        state.userProfile.postLikeOrDislikeDtos.push();
+                     }
+
+                     // if its the same delete from array
+                     else if (state.userProfile.postLikeOrDislikeDtos[findIndex].likeOrDislike === like) {
+                        console.log("Delete")
+                        state.userProfile.postLikeOrDislikeDtos.splice(findIndex, 1);
+                     } else {
+                        console.log("Change")
+                        state.userProfile.postLikeOrDislikeDtos[findIndex] = response.data;
+                     }
+                  })
+               })
+
+               //this.post = response.data;
+            }).catch(function (ex) {
+               if (ex.response.status === 400) {
+                  toast.error("Bad request");
+               } else if (ex.response.status === 401) {
+                  toast.error("Unathorized");
                } else {
-                  state.userProfile.postLikeOrDislikeDtos[findIndex] = request;
+                  toast.error("Something went wrong while saving post");
                }
-
-
-
-            })
-
-            //this.post = response.data;
-         }).catch(function (ex) {
-            if (ex.response.status === 400) {
-               toast.error("Bad request");
-            } else if (ex.response.status === 401) {
-               toast.error("Unathorized");
-            } else {
-               toast.error("Something went wrong while saving post");
-            }
-         });
+            });
       },
 
       getNumberOfLikes: function (post: PostType.PostDto): number {
@@ -277,15 +277,11 @@ export const usePostStore = defineStore('postStore', {
 
       sumLikesOrDislikesOnPost: function (post: PostType.PostDto): number {
 
-         console.log("SUM");
-
          let result = 0;
 
          if (post.postLikedDislike.length !== 0) {
             post.postLikedDislike
                .map((l) => {
-
-                  console.log("Map")
                   if (l.likeOrDislike) {
                      result++;
                   } else {
@@ -293,13 +289,10 @@ export const usePostStore = defineStore('postStore', {
                   }
                })
          }
-
-         console.log(result)
          return result;
       },
 
       searchPostByName: async function (name: string) {
-         console.log("Search", name);
          await axios.get(BASE_URL + "/search", {
             params: {
                name: name

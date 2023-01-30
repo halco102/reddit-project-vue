@@ -43,12 +43,12 @@ export interface CommentLikeOrDislikeResponse {
 export interface LikeDislikeComment {
     commentId: string,
     userDto: UserComment,
-    like: boolean
+    likeOrDislike: boolean
 }
 
 interface BaseComment {
     id: string,
-    commentPostDto: CommentPostDto,
+    postDto: CommentPostDto,
     userDto: UserComment,
     comment: string,
     createdAt: Date,

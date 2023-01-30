@@ -77,7 +77,7 @@ export default defineComponent({
         ...mapActions(useAuthenticationStore, ['followUser', 'unfollowUser']),
         checkIfCurrentUserIsFollowing: function (userId: number): boolean {
 
-            return this.getCurrentlyLoggedUserProfile.followingDtos.some(f => {
+            return this.getCurrentlyLoggedUserProfile.following.some(f => {
 
                 if (f.id === userId) {
                     return true;

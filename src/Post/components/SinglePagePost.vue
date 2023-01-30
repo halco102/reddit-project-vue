@@ -2,29 +2,29 @@
   <div class="grid justify-center">
 
     <!--Post card-->
-    <CustomCard :hasLikeAndDislike="true" :hasCategories="false" :currentlyLoggedUser="null" :post="getPost">
+    <CustomCard :hasLikeAndDislike="true" :hasCategories="false" :currentlyLoggedUser="null" :post="getPostById">
       <template #image>
-        <img :src="getPost.imageUrl" class="w-fit h-fit mb-6 px-6" />
+        <img :src="getPostById.imageUrl" class="w-fit h-fit mb-6 px-6" />
       </template>
 
       <template #cardText>
         <div class="grid">
-          <Text class="text-center break-words" :title="getPost.title" :description="getPost.description" />
+          <Text class="text-center break-words" :title="getPostById.title" :description="getPostById.description" />
         </div>
       </template>
 
       <template #cardIcons>
         <div class="flex">
           <span class="my-auto font-sans">Posted by</span>
-          <IconsForCard :post="getPost" />
+          <IconsForCard :post="getPostById" />
         </div>
       </template>
 
     </CustomCard>
 
     <!--Comment component-->
-    <div class="text-center">
-      <CommentSection :post="getPost" />
+    <div class="text-center" v-if="getPostById.id !== 0">
+      <CommentSection :post="getPostById" />
     </div>
 
   </div>
@@ -56,11 +56,6 @@ export default defineComponent({
     Text,
     IconsForCard
   },
-  created() {
-    let toNumber: number = parseInt(this.id!);
-    console.log("toNumber ", toNumber);
-    const getById = this.fetchPostById(toNumber);
-  },
   props: {
     id: String,
   },
@@ -68,8 +63,14 @@ export default defineComponent({
     ...mapActions(usePostStore, ["fetchPostById"]),
   },
   computed: {
-    ...mapState(usePostStore, ["getPost"]),
+    ...mapState(usePostStore, ["getPostById"]),
     ...mapState(useUserStore, ["user"]),
+  },
+  beforeMount() {
+    if (this.id !== undefined) {
+      let toNumber: number = parseInt(this.id);
+      this.fetchPostById(toNumber);
+    }
   },
 });
 </script>

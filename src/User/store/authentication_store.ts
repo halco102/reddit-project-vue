@@ -36,8 +36,8 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
                 commentsPosts: [],
                 likedOrDislikedComments: [],
                 postLikeOrDislikeDtos: [],
-                followersDtos: [] as UserType.Follow[],
-                followingDtos: [] as UserType.Follow[]
+                following: [] as UserType.Follow[],
+                followers: [] as UserType.Follow[]
             },
             isSignupLoading: false,
             isLoginLoading: false,
@@ -164,9 +164,11 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
 
             const storageJwt: string | null = sessionStorage.getItem('jwt');
 
+
             if (storageJwt === null) {
                 this.isUserLoggedIn(this.isJwtValid);
             } else {
+
                 //if there is jwt in storage, check with bckd if its valid
                 await axios.get(BASE_URL + '/jwt/valid', {
                     params: {

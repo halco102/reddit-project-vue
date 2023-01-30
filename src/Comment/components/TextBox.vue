@@ -120,7 +120,6 @@ export default defineComponent({
         },
         checkParentId: function (): string | null {
 
-            console.log("Check parent id", this.parentId);
             if (this.parentId === undefined || this.parentId === null) {
                 return null;
             }
@@ -128,7 +127,6 @@ export default defineComponent({
             return this.parentId;
         },
         handleEmojiClick: function (detail: EmojiClickEventDetail): void {
-            console.log("Emoji clicker");
             if (detail.unicode !== undefined) {
                 this.txt += detail.unicode;
             }

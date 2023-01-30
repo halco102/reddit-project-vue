@@ -39,7 +39,7 @@ export const useCommentStore = defineStore('comments', {
             commentsDto: [],
             commentDto: {
                 id: '',
-                commentPostDto: {
+                postDto: {
                     id: 0,
                     title: ''
                 },
@@ -111,7 +111,8 @@ export const useCommentStore = defineStore('comments', {
 
         postLikeOrDislike: async function (request: CommentType.PostLikeOrDislikeRequest) {
             const json = JSON.stringify(request);
-            console.log("Post like or dislike", json);
+
+            console.log("JSON", json);
 
             await axios.post(BASE_URL + '/like-dislike', json, {
                 headers: {
@@ -169,14 +170,14 @@ export const useCommentStore = defineStore('comments', {
         getNumberOfLikes: function (comment: CommentType.CommentDto): number {
             let number = 0;
             comment.likeDislikeComments.filter((x) =>
-                x.like === true
+                x.likeOrDislike === true
             ).map(() => number++);
             return number;
         },
         getNumberOfDislikes: function (comment: CommentType.CommentDto): number {
             let number = 0;
             comment.likeDislikeComments.filter((x) =>
-                x.like === false
+                x.likeOrDislike === false
             ).map(() => number++)
 
             return number;

@@ -42,7 +42,7 @@
         <UserProfileStatsVue>
           <template #info>
             <p class="text-center">Number of comments</p>
-            <p class="text-center">{{ numberOfComments() }}</p>
+            <p class="text-center">{{ getUserProfile.commentsPosts.length }}</p>
           </template>
         </UserProfileStatsVue>
 
@@ -182,39 +182,26 @@ export default defineComponent({
 
       return false;
     },
-    numberOfComments: function (): number {
-      let numberOfComments = 0;
-
-      this.getUserProfile.commentsPosts.forEach((item) => {
-        numberOfComments += item.commentDto.length;
-      })
-
-      return numberOfComments;
-    },
-
     sumOfLikesOrDislikes: function (): number {
       let result = 0;
 
-      this.getUserProfile
-        .posts.map((res) => {
-          if (res.postLikeOrDislikeDtos !== null) {
-            res.postLikeOrDislikeDtos.filter((k) => {
-              if (k.likeOrDislike) {
-                result++;
-              } else {
-                result--;
-              }
+      if (this.getUserProfile.postLikeOrDislikeDtos.length !== 0) {
+        this.getUserProfile.postLikeOrDislikeDtos
+          .map((l) => {
+            if (l.likeOrDislike) {
+              result++;
+            } else {
+              result--;
             }
-            )
-          }
-        })
+          })
+      }
 
       return result;
     },
     checkIfCurrentUserFollowsProfile: function (profileId: number): void {
 
       if (this.getCurrentlyLoggedUserProfile.id !== 0)
-        this.userIsFollowed = this.getCurrentlyLoggedUserProfile.followingDtos.some(object => object.id === profileId);
+        this.userIsFollowed = this.getCurrentlyLoggedUserProfile.following.some(object => object.id === profileId);
 
 
     },
@@ -247,18 +234,19 @@ export default defineComponent({
   },
   watch: {
     getUserProfile: function (profile: UserProfile) {
-
-      this.getUserProfile.posts.filter((x: any) => {
-        if (x.postLikeOrDislikeDtos !== null) {
-          x.postLikeOrDislikeDtos
-            .filter((y: any) => y.likeOrDislike === true)
-            .map(() => this.likes++)
-        }
-      }
-      );
-
-      this.checkIfCurrentUserFollowsProfile(profile.id);
-      this.subscribeToTopic('user/' + this.getUserProfile.id);
+      /*
+            this.getUserProfile.posts.filter((x: any) => {
+              if (x.postLikeOrDislikeDtos !== null) {
+                x.postLikeOrDislikeDtos
+                  .filter((y: any) => y.likeOrDislike === true)
+                  .map(() => this.likes++)
+              }
+            }
+            );
+      
+            this.checkIfCurrentUserFollowsProfile(profile.id);
+            this.subscribeToTopic('user/' + this.getUserProfile.id);
+            */
     },
     getCurrentlyLoggedUserProfile: function (): void {
       this.checkIfCurrentUserFollowsProfile(this.getUserProfile.id);

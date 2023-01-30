@@ -18,7 +18,7 @@ export default defineComponent({
     },
     computed: {
         ...mapState(useUserStore, ['getUserFollowers'])
-    }
+    },
 })
 
 </script>

@@ -6,8 +6,8 @@
                 <div v-if="category.id === count + 1">
                     <div class="grid justify-center border-none rounded-sm hover:bg-gray-500 mt-2">
                         <router-link :to="{ name: 'FilterCategories', query: { category: category.name } }">
-                            <span class="mb-2">{{category.name}}</span>
-                            <img :src="category.iconUrl" class="w-14 h-14 rounded-lg" />
+                            <span class="mb-2">{{ category.name }}</span>
+                            <img :src="category.imageUrl" class="w-14 h-14 rounded-lg" />
                         </router-link>
                     </div>
                     <div class="grid justify-center my-2 py-2">
@@ -16,8 +16,8 @@
                 </div>
                 <div v-else>
                     <div class="grid justify-center">
-                        <span class="mb-2">{{category.name}}</span>
-                        <img :src="category.iconUrl" class="w-14 h-14 rounded-lg" />
+                        <span class="mb-2">{{ category.name }}</span>
+                        <img :src="category.imageUrl" class="w-14 h-14 rounded-lg" />
                     </div>
                 </div>
             </div>

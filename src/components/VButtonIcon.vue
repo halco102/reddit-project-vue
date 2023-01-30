@@ -5,7 +5,7 @@
 
         <slot name="icon"></slot>
 
-        <span v-if="label !== undefined" :class="[customLabelCss, customLabelCss !== undefined]">{{label}}</span>
+        <span v-if="label !== undefined" :class="[customLabelCss, customLabelCss !== undefined]">{{ label }}</span>
 
     </button>
 

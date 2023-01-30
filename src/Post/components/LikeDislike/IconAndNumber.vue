@@ -2,10 +2,8 @@
 
     <div class="flex flex-col gap-1">
 
-        <VButtonIcon class="hover:bg-gray-500" @onClick="postLikeOrDislikeForPost({
-            postId: post!.id,
-            likeOrDislike: true,
-        })">
+        <VButtonIcon class="hover:bg-gray-500" @onClick="postLikeOrDislikeForPost(post!.id,
+        true)">
             <template #icon>
                 <BIconArrowUp
                     :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserUpvoted(post!.id) : 'text-gray-600'" />
@@ -18,10 +16,8 @@
             {{ sum }}
         </span>
 
-        <VButtonIcon class="hover:bg-gray-500" @onClick="postLikeOrDislikeForPost({
-            postId: post!.id,
-            likeOrDislike: false,
-        })">
+        <VButtonIcon class="hover:bg-gray-500" @onClick="postLikeOrDislikeForPost(post!.id,
+        false)">
             <template #icon>
                 <BIconArrowDown
                     :class="getCurrentlyLoggedUserProfile.id !== 0 ? checkIfUserDownVoted(post!.id) : 'text-gray-600'" />
@@ -73,8 +69,6 @@ export default defineComponent({
         },
         findLikeOrDislikedPost: function (postId: number): boolean | undefined {
 
-            console.log("find like or dislike method");
-
             let result = this.getCurrentlyLoggedUserProfile.postLikeOrDislikeDtos.find((find: LikeOrDislikeRequest) => find.postId === postId);
 
             if (result === undefined) {
@@ -99,11 +93,8 @@ export default defineComponent({
         },
         sumPostLikeOrDislike: function (post: PostDto): void {
 
-            console.log("sum post like or dislike ", post)
-
             let result = 0;
             if (post.postLikedDislike.length !== 0) {
-                console.log("L or D is not 0")
                 post.postLikedDislike.map((m) => {
                     if (m.likeOrDislike)
                         result++;
@@ -111,10 +102,6 @@ export default defineComponent({
                         result--;
                 })
             }
-
-            console.log("the sum is  ", result)
-
-
             this.sum = result;
         },
     },

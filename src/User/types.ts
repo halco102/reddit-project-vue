@@ -48,11 +48,11 @@ export interface UserProfile {
     email: string,
     createdAt: Date,
     posts: UserPosts[],
-    commentsPosts: CommentsPost[],
+    commentsPosts: CommentDto[],
     likedOrDislikedComments: CommentLikeOrDislikeResponse[],
     postLikeOrDislikeDtos: LikeOrDislikeRequest[],
-    followersDtos: Follow[],
-    followingDtos: Follow[]
+    following: Follow[],
+    followers: Follow[]
 }
 
 export interface CommentsPost {
