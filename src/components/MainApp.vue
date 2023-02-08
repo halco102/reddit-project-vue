@@ -1,5 +1,5 @@
 <template>
-    <router-view></router-view>
+  <router-view></router-view>
 </template>
 
 <script lang="ts">
@@ -17,7 +17,7 @@ import { useAuthenticationStore } from "@/User/store/authentication_store";
 export default defineComponent({
   name: "MainApp",
   components: {
-    
+
   },
   methods: {
     ...mapActions(usePostStore, [
@@ -38,7 +38,6 @@ export default defineComponent({
   },
   watch: {
     $route(to: _RouteLocationBase) {
-      console.log(this.getCurrentlyLoggedUserProfile.id)
       if (this.getCurrentlyLoggedUserProfile.id != 0) {
         if (
           to.fullPath != "/user/" + this.getCurrentlyLoggedUserProfile.id &&
@@ -58,4 +57,5 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
 </style>

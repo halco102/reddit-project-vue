@@ -9,9 +9,9 @@
 
             <!--Like button with number of likes-->
             <div class="mr-4">
-                <VButtonIcon :label="getNumberOfLikes(comment)" @onClick="postLikeOrDislike({
-                    commentId: comment.id,
-                    likeOrDislike: true,
+                <VButtonIcon :label="getNumberOfLikesDislikes(comment, true)" @onClick="postLikeOrDislike({
+                    id: comment.id,
+                    like: true,
                 })" class="hover:bg-gray-500">
                     <template #icon>
                         <BIconHandThumbsUp />
@@ -21,9 +21,9 @@
 
             <!--Dislike button with number of dislikes-->
             <div class=" mr-4">
-                <VButtonIcon :label="getNumberOfDislikes(comment)" @onClick="postLikeOrDislike({
-                    commentId: comment.id,
-                    likeOrDislike: false,
+                <VButtonIcon :label="getNumberOfLikesDislikes(comment, false)" @onClick="postLikeOrDislike({
+                    id: comment.id,
+                    like: false,
                 })" class="hover:bg-gray-500">
                     <template #icon>
                         <BIconHandThumbsDown />
@@ -94,8 +94,6 @@ export default defineComponent({
     methods: {
         ...mapActions(useCommentStore, [
             "postLikeOrDislike",
-            "getNumberOfLikes",
-            "getNumberOfDislikes",
             'deleteCommentById'
         ]),
         activateToggle: function (commentId: string): void {
@@ -106,12 +104,19 @@ export default defineComponent({
             }
             this.$emit('toggle', commentId);
         },
+        getNumberOfLikesDislikes: function (commentsLikeDislike: CommentDto, isLike: boolean): number {
+            let likeDislike = [];
+
+            likeDislike = commentsLikeDislike.likeDislikeComments.filter((filter) => filter.like === isLike);
+
+            return likeDislike.length;
+        }
     },
     data() {
         return {
-            activeElement: '' as string
+            activeElement: '' as string,
         }
-    }
+    },
 
 })
 </script>

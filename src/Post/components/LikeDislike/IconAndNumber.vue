@@ -54,8 +54,6 @@ export default defineComponent({
         ...mapActions(usePostStore, ['postLikeOrDislikeForPost']),
         checkIfUserUpvoted: function (postId: number): string {
 
-            console.log("Check if user up voted");
-
 
             let find = this.findLikeOrDislikedPost(postId);
 
@@ -80,7 +78,6 @@ export default defineComponent({
         },
         checkIfUserDownVoted: function (postId: number): string {
 
-            console.log("Check if user down voted");
 
             let find = this.findLikeOrDislikedPost(postId);
 

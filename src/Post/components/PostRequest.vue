@@ -205,7 +205,6 @@ export default defineComponent({
       this.v$.$validate();
 
       let categoriesObjects = this.findCategoryObjectByName(this.categoryOptions);
-      console.log("options", categoriesObjects)
 
 
       if (this.v$.$error)

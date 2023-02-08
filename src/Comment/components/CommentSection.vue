@@ -1,16 +1,18 @@
 <template>
     <div>
-        <!--Userp info and comment text-->
+        <!--User info and comment text-->
         <CommentUserAndText :user="{
             imgUrl: commentObject.userDto.imageUrl,
             username: commentObject.userDto.username
-        }" :commentText="commentObject.comment" />
+        }" :commentText="commentObject.comment" :mention="commentObject.mention" />
+
 
         <CommentIcons :comment="commentObject" @toggle="activateToogle" />
 
         <!-- Open reply -->
         <div v-if="(selectedItem !== '' && selectedItem === commentObject.id)">
-            <TextBox :postId="postId!" :parentId="commentObject.id" />
+            <TextBox :actionType="'Reply'" :postId="postId!" :parentId="commentObject.id"
+                :username="commentObject.userDto.username" />
         </div>
     </div>
 </template>
@@ -52,9 +54,8 @@ export default defineComponent({
     data() {
         return {
             selectedItem: '' as string,
-
+            mainCommentId: '' as string,
         }
     }
-
 })
 </script>

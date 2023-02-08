@@ -15,23 +15,22 @@ export interface CommentDto {
 }*/
 
 
-export interface PostComment {
-    text: string,
+export interface CommentRequest {
     postId: number,
-    userId: number
-    parentId: string | null
+    parentId: string | null,
+    comment: string
 }
 
 export interface Comment {
     postLikeOrDislike: CommentLikeOrDislikeResponse[],
     commentsDto: CommentDto[],
     commentDto: CommentDto,
-    isPostingComment: boolean
+    isPostingComment: boolean,
 }
 
-export interface PostLikeOrDislikeRequest {
-    commentId: string,
-    likeOrDislike: boolean
+export interface LikeDislikeCommentRequest {
+    id: string,
+    like: boolean
 }
 
 export interface CommentLikeOrDislikeResponse {
@@ -43,7 +42,7 @@ export interface CommentLikeOrDislikeResponse {
 export interface LikeDislikeComment {
     commentId: string,
     userDto: UserComment,
-    likeOrDislike: boolean
+    like: boolean
 }
 
 interface BaseComment {
@@ -52,7 +51,8 @@ interface BaseComment {
     userDto: UserComment,
     comment: string,
     createdAt: Date,
-    likeDislikeComments: LikeDislikeComment[]
+    likeDislikeComments: LikeDislikeComment[],
+    mention: string | undefined
 }
 
 
@@ -61,10 +61,12 @@ interface CommentPostDto {
     title: string
 }
 
+/*
 export interface ReplyDto extends BaseComment {
     parentId: string
-}
+}*/
 
 export interface CommentDto extends BaseComment {
-    replies: ReplyDto[]
+    parentIds: [],
+    replies: CommentDto[]
 }

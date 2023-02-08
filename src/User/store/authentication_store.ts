@@ -115,7 +115,7 @@ export const useAuthenticationStore = defineStore('authenticationStore', {
         signupUser: async function (signupRequest: UserType.SignupRequest) {
             const json = JSON.stringify(signupRequest);
 
-            await axios.post(BASE_URL, json, {
+            await axios.post(BASE_URL + '/signup', json, {
                 headers: {
                     'Content-Type': 'application/json'
                 },

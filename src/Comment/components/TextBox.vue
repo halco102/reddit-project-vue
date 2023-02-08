@@ -1,38 +1,50 @@
 <template>
 
     <!--Textbox form-->
-    <div class="sm:grid md:grid">
+    <div class="sm:grid md:grid max-w-full">
 
-        <form v-on:submit.prevent="
-            postCommentThenReturnData(
-                txt,
-                postId,
-                getCurrentlyLoggedUserProfile.id,
-                checkParentId()
-            )
-        ">
+        <div class="max-w-full">
             <!--Text area-->
-            <div class="my-4">
+            <div class="my-4 max-w-full">
 
                 <label for="message"
                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Comment</label>
 
-                <div class="lg:flex md:grid sm:grid">
+                <div class="lg:flex md:grid sm:grid max-w-full">
 
                     <!--Textarea with emoji icon-->
-                    <div class="relative lg:flex-1">
-                        <!--Icon-->
-                        <div class="absolute right-0 top-2 mr-2 flex">
-                            <BIconEmojiSmile class="w-5 h-5 hover:cursor-pointer" @click="toggleEmojiMethod" />
+                    <div class="lg:flex-1">
+
+
+                        <!--Textarea
+                        <textarea id="message" rows="4" ref="messageRef"
+                            class="block
+                             p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Your message..." v-model="txt"></textarea>
+                            -->
+
+                        <!--Div for username and text area-->
+                        <div class="block p-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border
+                             border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700
+                              dark:border-gray-600 dark:placeholder-gray-400 dark:text-white
+                               dark:focus:ring-blue-500 dark:focus:border-blue-500 max-w-full">
+
+                            <div class="flex gat-1 border-b-2">
+                                <div v-html="mention" class="px-1"></div>
+
+                                <!--Text area-->
+                                <div ref="cont"
+                                    class="border-none text-sm grow break-all focus:outline-none text-left px-1"
+                                    contenteditable="true" @input="watchInputText">
+                                </div>
+
+                            </div>
+
                         </div>
 
-                        <!--Textarea-->
-                        <textarea id="message" rows="4"
-                            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            placeholder="Your message..." v-model="txt"></textarea>
                     </div>
 
-                    <VuemojiPicker @emojiClick="handleEmojiClick "
+                    <VuemojiPicker @emojiClick="handleEmojiClick"
                         class="lg:absolute lg:right-0 lg:mr-64 sm:grid sm:justify-center md:grid md:justify-center sm:mt-2 md:mt-2 lg:z-50 md:z-50"
                         v-if="toggleEmoji" />
 
@@ -41,8 +53,23 @@
 
             </div>
 
-            <button class="btn btn-blue mb-2">Submit</button>
-        </form>
+            <div class="flex justify-start">
+                <!--Icon-->
+                <div class="my-auto mx-2">
+                    <BIconEmojiSmile class="w-5 h-5 hover:cursor-pointer hover:bg-yellow-300 rounded-lg"
+                        @click="toggleEmojiMethod" />
+                </div>
+                <div class="flex flex-1 justify-end">
+                    <ButtonComponentVue :title="actionType" :disabled="false" class="mx-1" @onClick="
+                    postCommentThenReturnData(
+                        txt,
+                        postId,
+                        checkParentId()
+                    )" />
+                    <ButtonComponentVue :title="'Cancle'" :disabled="false" class="mx-1" @onClick="clearTextArea" />
+                </div>
+            </div>
+        </div>
 
 
     </div>
@@ -57,12 +84,14 @@ import { mapActions, mapState } from 'pinia';
 
 //store
 import { useCommentStore } from '../store/store';
+import { useUserStore } from '@/User/store/store';
 
 //toast
 import { useToast } from 'vue-toastification';
 
 import { VuemojiPicker, EmojiClickEventDetail } from 'vuemoji-picker'
 import { useAuthenticationStore } from '@/User/store/authentication_store';
+import ButtonComponentVue from '@/components/ButtonComponent.vue';
 
 //components
 import {
@@ -72,12 +101,14 @@ import {
 export default defineComponent({
     components: {
         BIconEmojiSmile,
-        VuemojiPicker
+        VuemojiPicker,
+        ButtonComponentVue
     },
     data() {
         return {
             txt: '',
-            toggleEmoji: false
+            toggleEmoji: false,
+            mention: '' as string
         }
     },
     setup() {
@@ -90,16 +121,19 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(useCommentStore, ['postCommentAction']),
+        ...mapActions(useUserStore, ['getUserByIdOrUsername']),
 
         postCommentThenReturnData: function (
             text: string,
             idOfPost: number,
-            idOfUser: number,
             parentId: null | string
         ) {
 
+            console.log("text to save comm", this.txt);
 
-            if (idOfUser === 0 || idOfUser === undefined || idOfUser === null) {
+            if (this.getCurrentlyLoggedUserProfile.id === 0 ||
+                this.getCurrentlyLoggedUserProfile.id === undefined ||
+                this.getCurrentlyLoggedUserProfile.id === null) {
                 this.toast.warning("You have to log in to comment!");
                 return;
             }
@@ -110,13 +144,12 @@ export default defineComponent({
             }
 
             this.postCommentAction({
-                text: text,
+                comment: text,
                 postId: idOfPost,
-                userId: idOfUser,
                 parentId: parentId,
             });
 
-            this.txt = '';
+            this.clearTextArea();
         },
         checkParentId: function (): string | null {
 
@@ -133,12 +166,29 @@ export default defineComponent({
         },
         toggleEmojiMethod: function (): void {
             this.toggleEmoji = !this.toggleEmoji;
+        },
+        goToUserProfile(username: string): void {
+            this.$router.push('/user/' + 19);
+        },
+        clearTextArea(): void {
+            const temp = this.$refs.cont as HTMLInputElement;
+            temp.innerText = '';
+            this.txt = '';
+        },
+        watchInputText(payload: Event): void {
+            const target = payload.target as HTMLInputElement;
+            this.txt = target.innerText;
+            console.log(this.txt);
         }
     },
     props: {
         postId: {
             type: Number,
             required: true
+        },
+        username: {
+            type: String,
+            required: false
         },
         userId: {
             type: Number,
@@ -148,7 +198,21 @@ export default defineComponent({
             type: String,
             required: false
         },
+        actionType: {
+            type: String,
+            required: true
+        }
 
+    },
+    mounted() {
+        if (this.username !== undefined) {
+            //add @ and username to textarea as default
+            this.mention = '@' + this.username + ' ';
+            //change this.text mention with css and add as span
+            var newStr = this.mention.replace(/@+?[^\s]*/, m => `<a href="www.google.com" style="color:red;">${m}</a>`)
+
+            this.mention = newStr;
+        }
     },
 })
 </script>

@@ -1,7 +1,7 @@
 <template>
 
   <!--Main-->
-  <div>
+  <div class="relative">
 
     <!-- Number of comments-->
     <div v-if="post.allowComment">
@@ -11,22 +11,31 @@
     </div>
 
     <!-- Show comments-->
-    <div v-if="post.allowComment">
+    <div v-if="post.allowComment" class="absolute w-full">
 
       <!-- Main textbox for comments-->
       <div class="m-auto">
-        <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" />
+        <TextBoxVue :actionType="'Comment'" :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" />
       </div>
 
-      <div v-for="com in post.commentsDtos" :key="com.id" :class="com.replies === null || com.replies.length === 0 ?
-      'sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden   mx-auto my-6'
-      : 'sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden  mx-auto my-6  pl-10'">
+      <div v-for="com in post.commentsDtos" :key="com.id"
+        class="sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden  mx-auto my-6">
 
         <CommentSectionVue :commentObject="com" :postId="post.id" />
 
+        <!--Replies-->
+        <div v-if="com.replies.length !== 0">
+          <div v-for="rep in com.replies" :key="rep.id"
+            class="sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden mx-auto my-6 pl-10">
+            <CommentSectionVue :commentObject="rep" :postId="post.id" />
+          </div>
+        </div>
+
+
         <div v-if="(selectedItem !== '' && selectedItem === com.id)">
           <hr class="border-1 border-gray-500">
-          <TextBoxVue :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" :parentId="com.id" />
+          <TextBoxVue :actionType="'Reply'" :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id"
+            :parentId="com.id" />
         </div>
 
 
@@ -54,6 +63,7 @@ import { useCommentStore } from "@/Comment/store/store";
 import { mapActions, mapState } from "pinia";
 import { useUserStore } from "@/User/store/store";
 import { useAuthenticationStore } from '@/User/store/authentication_store'
+import { usePostStore } from "@/Post/store/store";
 
 //types
 import { PostDto } from "@/Post/types";
@@ -90,13 +100,13 @@ export default defineComponent({
     },
     ...mapActions(useCommentStore, [
       "postLikeOrDislike",
-      "getNumberOfLikes",
-      "getNumberOfDislikes",
       "deleteCommentById",
       'fetchAllCommentsByPostId',
       'setCommentsFromPost',
-      'subscribeToTopic'
+      'subscribeToTopic',
+      'addAllCommentsToState'
     ]),
+    ...mapActions(usePostStore, ['fetchPostById']),
     getNumberOfComments: function (comments: CommentDto[]): number {
       return comments.length;
     },
@@ -130,6 +140,7 @@ export default defineComponent({
     },
     getIsPostingComment: function (val: boolean) {
       if (val === false) {
+        console.log("Fetch new comments from db");
         //this.fetchAllCommentsByPostId(this.post!.id);
       }
     },
@@ -144,6 +155,17 @@ export default defineComponent({
       closeReplyTextArea: false as boolean,
     };
   },
+  mounted() {
+    console.log("Updated value", this.post.commentsDtos);
+    //on mount set the state of comments from postDto
+    if (this.post.commentsDtos !== undefined && this.post.commentsDtos !== null) {
+      this.addAllCommentsToState(this.post.commentsDtos);
+    }
+  },
+  updated() {
+    console.log("Updated value", this.post);
+    //this.fetchPostById(this.post.id);
+  }
 });
 </script>
 

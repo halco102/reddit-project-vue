@@ -1,5 +1,6 @@
 //pinia
 import { defineStore } from "pinia";
+import { usePostStore } from '@/Post/store/store';
 //axios
 import axios from "axios";
 
@@ -51,9 +52,11 @@ export const useCommentStore = defineStore('comments', {
                 comment: '',
                 createdAt: new Date(),
                 likeDislikeComments: [],
+                mention: undefined,
+                parentIds: [],
                 replies: []
             },
-            isPostingComment: false
+            isPostingComment: false,
         }
     },
     getters: {
@@ -68,12 +71,12 @@ export const useCommentStore = defineStore('comments', {
         },
         getAllCommentsFromUser(state): CommentType.CommentDto[] {
             return state.commentsDto;
-        }
+        },
 
     },
     actions: {
 
-        async postCommentAction(postAComment: CommentType.PostComment) {
+        async postCommentAction(postAComment: CommentType.CommentRequest) {
             const json = JSON.stringify(postAComment);
 
             await axios.post(BASE_URL, json, {
@@ -82,10 +85,11 @@ export const useCommentStore = defineStore('comments', {
                     'Content-Type': 'application/json'
                 },
                 onUploadProgress: (() => { this.isPostingComment = true })
-            }).then(response => {
-                this.commentsDto.push(response.data);
+            }).then((response) => {
+                this.commentsDto.unshift(response.data);
                 //this.sendMessage(this.commentsDto, '');
                 this.isPostingComment = false;
+
             }).catch(function (ex) {
                 console.log("Catch exception on postComment", ex)
                 if (ex.response.status === 401) {
@@ -98,7 +102,9 @@ export const useCommentStore = defineStore('comments', {
             })
 
         },
-
+        addAllCommentsToState: function (comments: CommentType.CommentDto[]): void {
+            this.$state.commentsDto = comments;
+        },
         fetchAllCommentsByPostId: async function (postId: number) {
 
             await axios.get(BASE_URL + '/post/' + postId)
@@ -109,7 +115,7 @@ export const useCommentStore = defineStore('comments', {
 
         },
 
-        postLikeOrDislike: async function (request: CommentType.PostLikeOrDislikeRequest) {
+        postLikeOrDislike: async function (request: CommentType.LikeDislikeCommentRequest) {
             const json = JSON.stringify(request);
 
             console.log("JSON", json);
@@ -120,12 +126,23 @@ export const useCommentStore = defineStore('comments', {
                     'Content-Type': 'application/json'
                 }
             }).then(response => {
-                console.log("Response", response);
-                //this.$patch((state) => {
+
+                console.log("Response", response.data);
                 this.commentDto = response.data;
-                const temp = this.$state.commentsDto.map(i => i.id).indexOf(this.commentDto.id);
+
+                const temp = this.$state.commentsDto.map((i: CommentType.CommentDto) => i.id).indexOf(this.commentDto.id, 0);
+
                 this.$state.commentsDto[temp] = this.commentDto;
-                //})
+
+                //update post state
+                const postStore = usePostStore();
+
+                postStore.$patch(partialData => {
+                    console.log("Prije ", partialData.post);
+                    partialData.post.commentsDtos![temp] = this.commentDto;
+                    console.log("Posilije", partialData.post);
+                })
+
 
             }).catch(function (ex) {
                 if (ex.response.status === 401) {
@@ -146,7 +163,7 @@ export const useCommentStore = defineStore('comments', {
             }).then(() => {
                 console.log("Send event to everyone", this.$state.commentsDto);
                 let deleteFoundIndex = -1;
-                this.$state.commentsDto.findIndex((element, index) => {
+                this.$state.commentsDto.findIndex((element: CommentType.CommentDto, index: number) => {
                     if (element.id === id) {
                         deleteFoundIndex = index;
                         return;
@@ -166,22 +183,6 @@ export const useCommentStore = defineStore('comments', {
                     this.$state.commentsDto.splice(deleteFoundIndex, 1);
             })
         },
-
-        getNumberOfLikes: function (comment: CommentType.CommentDto): number {
-            let number = 0;
-            comment.likeDislikeComments.filter((x) =>
-                x.likeOrDislike === true
-            ).map(() => number++);
-            return number;
-        },
-        getNumberOfDislikes: function (comment: CommentType.CommentDto): number {
-            let number = 0;
-            comment.likeDislikeComments.filter((x) =>
-                x.likeOrDislike === false
-            ).map(() => number++)
-
-            return number;
-        },
         subscribeToTopic: function (topic: string) {
             wsConnection.getClient().subscribe("/topic/" + topic, (msg: IMessage) => {
                 if (msg.body === 'COMMENT_DELETED') {
@@ -191,7 +192,7 @@ export const useCommentStore = defineStore('comments', {
                     const toJson: CommentType.CommentDto | LikeDislikeCommentsNotification = JSON.parse(msg.body);
                     if ('eventName' in toJson) {
                         console.log("Update comment value");
-                        const comment = this.$state.commentsDto.findIndex(item => item.id === toJson.commentDto.id);
+                        const comment = this.$state.commentsDto.findIndex((item: CommentType.CommentDto) => item.id === toJson.commentDto.id);
                         this.$state.commentsDto[comment] = toJson.commentDto;
                     } else {
                         console.log("Dodaj", toJson, "vidi ", this.$state.commentsDto);

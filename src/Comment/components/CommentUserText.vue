@@ -13,8 +13,14 @@
                 {{ user.username }}
             </div>
             <!--Chat text-->
-            <div>
-                {{ commentText }}
+            <div class="flex">
+
+                <div v-if="mention !== undefined && mention !== null" class="pr-1 border bg-slate-300 rounded-md">
+                    <span class="text-red-500 px-1">@{{ mention }} </span>
+                </div>
+                <div class="px-1">
+                    {{ commentText }}
+                </div>
             </div>
 
         </div>
@@ -26,22 +32,26 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 
-    interface User{
-        imgUrl: string,
-        username: string
-    }
+interface User {
+    imgUrl: string,
+    username: string
+}
 
-    export default defineComponent({
-        name: 'CommentUserAndText',
-        props:{
-            user: {
-                type: Object as () => User,
-                required: true
-            },
-            commentText: {
-                type: String,
-                required: true
-            }
+export default defineComponent({
+    name: 'CommentUserAndText',
+    props: {
+        user: {
+            type: Object as () => User,
+            required: true
+        },
+        commentText: {
+            type: String,
+            required: true
+        },
+        mention: {
+            type: String || undefined || null,
+            required: false
         }
-    })
+    }
+})
 </script>
