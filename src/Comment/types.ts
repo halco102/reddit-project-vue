@@ -67,6 +67,6 @@ export interface ReplyDto extends BaseComment {
 }*/
 
 export interface CommentDto extends BaseComment {
-    parentIds: [],
+    parentIds: string[],
     replies: CommentDto[]
 }

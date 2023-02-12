@@ -14,20 +14,35 @@
     <div v-if="post.allowComment" class="absolute w-full">
 
       <!-- Main textbox for comments-->
-      <div class="m-auto">
+      <div class="m-auto py-2">
         <TextBoxVue :actionType="'Comment'" :postId="post!.id" :userId="getCurrentlyLoggedUserProfile.id" />
       </div>
 
       <div v-for="com in post.commentsDtos" :key="com.id"
         class="sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden  mx-auto my-6">
 
-        <CommentSectionVue :commentObject="com" :postId="post.id" />
+        <div class="relative">
+          <CommentSectionVue :commentObject="com" :postId="post.id" />
 
-        <!--Replies-->
-        <div v-if="com.replies.length !== 0">
-          <div v-for="rep in com.replies" :key="rep.id"
-            class="sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden mx-auto my-6 pl-10">
-            <CommentSectionVue :commentObject="rep" :postId="post.id" />
+          <div class="h-5/6  bg-gray-300 w-[2px] absolute"></div>
+
+          <!--Replies-->
+          <div v-if="com.replies.length > 0" id="reply">
+
+            <div v-for="p in pointer" :key="p.id">
+
+
+              <div v-if="p.parentIds.includes(com.id)"
+                class="sm:max-w-sm lg:max-w-2xl md:max-w-md rounded overflow-hidden mx-auto my-6 pl-10 relative"
+                :style="{ 'padding-left': indentationLevel(p.parentIds.length) }">
+
+                <CommentSectionVue :commentObject="p" :postId="post.id" />
+
+              </div>
+
+            </div>
+
+
           </div>
         </div>
 
@@ -126,6 +141,26 @@ export default defineComponent({
       }
       return false;
     },
+    innerData(reply: CommentDto, list: CommentDto[]): void {
+      this.pointer.push(reply);
+      reply.replies.forEach(child => this.innerData(child, list));
+    },
+    flattenComments: function (comments: CommentDto[]): void {
+      comments.forEach(item => this.innerData(item, this.pointer));
+    },
+    indentationLevel: function (levels: number): string {
+
+      const size: number = levels * 50;
+      const maxLevelSize = 200;
+
+      if (levels == 0)
+        return 10 + 'px';
+      else if (levels > 0 && levels < 4)
+        return size + 'px';
+      else
+        return maxLevelSize + 'px';
+    },
+
   }, watch: {
     post: function () {
       console.log("Watch post in comment section");
@@ -144,6 +179,7 @@ export default defineComponent({
         //this.fetchAllCommentsByPostId(this.post!.id);
       }
     },
+
   },
   data() {
     return {
@@ -153,6 +189,9 @@ export default defineComponent({
       isReplyComment: false as boolean,
       expandEmojiClick: false as boolean,
       closeReplyTextArea: false as boolean,
+      pointer: [] as CommentDto[],
+      levels: 0 as number,
+      groups: [] as CommentDto[]
     };
   },
   mounted() {
@@ -160,12 +199,10 @@ export default defineComponent({
     //on mount set the state of comments from postDto
     if (this.post.commentsDtos !== undefined && this.post.commentsDtos !== null) {
       this.addAllCommentsToState(this.post.commentsDtos);
+      this.flattenComments(this.post.commentsDtos);
     }
+
   },
-  updated() {
-    console.log("Updated value", this.post);
-    //this.fetchPostById(this.post.id);
-  }
 });
 </script>
 
